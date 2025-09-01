@@ -1,0 +1,27 @@
+{% extends 'productos/base.html' %}
+{% block content %}
+<style>
+    .btn-volver {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #0a7d23;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        margin-right: 1150px;
+        margin-top: 40px;
+    }
+
+    .btn-volver:hover {
+        background-color: #288d1fff;
+    }
+</style>
+<div>
+    <a href="{% url 'productos:producto' %}" class="btn-volver">← Volver</a>
+    <h2>Se guardo correctamente la calificación</h2>
+    <p>¡Gracias por tu opinio!</p>
+</div>
+
+{% endblock %}

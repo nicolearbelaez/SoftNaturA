@@ -1,0 +1,104 @@
+{% extends 'productos/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .contenedor-txt {
+        display: flex;
+        flex-direction: column;
+        gap: 60px;
+        padding: 40px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .bloque {
+        display: flex;
+        align-items: center;
+        gap: 40px;
+        background-color: #f7f7f7;
+        border-radius: 15px;
+        border: 4px solid green;
+        padding: 30px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+    }
+
+    .icono {
+        width: 200px;
+        max-width: 100%;
+    }
+
+    .texto {
+        flex: 1;
+    }
+
+    .texto h3 {
+        font-size: 28px;
+        margin-bottom: 15px;
+        color: #0a7d23;
+    }
+
+    .texto p {
+        font-size: 18px;
+        line-height: 1.6;
+        color: #333;
+    }
+</style>
+<nav class="navbar">
+    <img src="/media/uploads/products/logoPrin.png" alt="Logo">
+    <div class="search-box">
+        <input type="text" placeholder="¿Qué estás buscando?">
+        <i class="fa fa-search"></i>
+    </div>
+    <div class="nav-links">
+        <a href="{% url 'usuarios:nosotros' %}">Nosotros</a>
+        <div class="dropdown">
+            <a href="{% url 'productos:producto' %}">Productos</a>
+            <div class="dropdown-content">
+                <a href="#Colagenos">Colagenos</a>
+                <a href="#Citratos">Citratos</a>
+                <a href="#Propoleos">Propoleos</a>
+                <a href="#Drenadores hepaticos">Drenadores hepaticos</a>
+                <a href="#Multivitaminicos">Multivitaminicos</a>
+                <a href="#Purgantes">Purgantes</a>
+            </div>
+        </div>
+        <a href="{% url 'usuarios:contacto' %}">Contactanos</a>
+    </div>
+
+</nav>
+<div class="contenedor-txt">
+    <div class="bloque">
+        <img src="/media/uploads/products/Mision.png" alt="Icono Misión">
+        <div class="texto">
+            <h3>Misión</h3>
+            <p>Somos una empresa líder en la comercialización y distribución de productos naturales e integrales,
+                brindando la mejor calidad y economía en nuestros productos y servicio. Contamos con personal altamente
+                calificado que contribuye a la satisfacción y atención del cliente, apoyando al progreso de nuestra
+                región, al desarrollo y bienestar de la comunidad.</p>
+        </div>
+    </div>
+
+    <div class="bloque">
+        <img src="/media/uploads/products/Vision.png" class="icono" alt="Icono Visión">
+        <div class="texto">
+            <h3>Visión</h3>
+            <p>Tienda Naturista Los Girasoles quiere impactar el mundo a través de tratamientos integrales con productos
+                naturales, llevando salud y bienestar. Para el 2025 será la principal distribuidora de productos
+                naturales e integrales a nivel nacional online, siendo una organización sólida y próspera. Para el 2028
+                estaremos en mercados internacionales, contando con el apoyo de nuestros clientes y laboratorios.</p>
+        </div>
+    </div>
+
+    <div class="bloque">
+        <img src="/media/uploads/products/Acerca de nosotros.png" class="icono" alt="Icono Acerca de Nosotros">
+        <div class="texto">
+            <h3>Acerca de Nosotros</h3>
+            <p>Todos nuestros productos cuentan con registro INVIMA, garantizando así nuestro compromiso de mejorar la
+                calidad de vida de nuestros clientes.</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

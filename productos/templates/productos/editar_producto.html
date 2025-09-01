@@ -1,0 +1,53 @@
+{% extends 'productos/base.html' %}
+{% block content %}
+<style>
+    h2 {
+        text-align: center;
+        color: #28a745;
+        margin-bottom: 30px;
+        font-size: 28px;
+    }
+    .btn-guardar {
+        display: inline-block;
+        background-color: #28a745;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: none;
+        font-weight: bold;
+        text-align: center;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+        margin-right: 10px;
+    }
+    .btn-guardar:hover {
+        background-color: #218838;
+    }
+    .btn-volver {
+        display: inline-block;
+        background-color: #dc3545;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+    .btn-volver:hover {
+        background-color: #c82333;
+    }
+</style>
+
+<div class="container">
+    <h2>Editar Producto: {{ producto.nombProduc }}</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit" class="btn-guardar">Guardar Cambios</button>
+        <a href="{% url 'productos:list_product' %}" class="btn-volver">← Cancelar</a>
+    </form>
+</div>
+
+{% endblock %}

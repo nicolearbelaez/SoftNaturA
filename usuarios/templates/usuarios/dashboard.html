@@ -1,0 +1,281 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    .dashboard-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background-color: #28a745;
+    }
+
+    /* HEADER */
+    header {
+      background-color: #388E3C;
+      padding: 1rem 2rem;
+      color: white;
+      position: relative;
+      text-align: center;
+    }
+    .logo-img {
+      height: 80px;
+      position: absolute;
+      top: 10px;
+      left: 2rem;
+    }
+    .user-menu {
+      position: absolute;
+      top: 1.5rem;
+      right: 2rem;
+    }
+    .user-icon {
+      font-size: 50px;
+      cursor: pointer;
+      color: white;
+    }
+    .user-dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: white;
+      color: #333;
+      min-width: 160px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      z-index: 1;
+      border-radius: 5px;
+    }
+    .user-dropdown a {
+      color: #333; 
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      font-weight: bold;
+    }
+    .user-dropdown a:hover {
+      background-color: #f1f1f1;
+    }
+
+    /* LAYOUT */
+    .main-content {
+      display: flex;
+      flex: 1;
+    }
+    .menu-column {
+      width: 220px;
+      background-color: #2e7d32;
+      color: white;
+      padding: 1rem;
+      height: auto;
+    }
+    .menu-column ul {
+      list-style: none;
+      padding: 0;
+    }
+    .menu-column li {
+      margin: 25px 0;
+    }
+    .menu-column a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .menu-column a:hover {
+      color: rgb(250, 241, 109);
+    }
+    .content-column {
+      flex: 1;
+      padding: 2rem;
+      background-color: #F4FDF7;
+    }
+
+    /* BOTONES */
+    .menu-button {
+      display: block;
+      background-color: #66bb6a;
+      color: white;
+      text-decoration: none;
+      padding: 12px;
+      border-radius: 5px;
+      font-weight: bold;
+      text-align: center;
+      transition: background-color 0.3s;
+    }
+    .menu-button:hover {
+      background-color: #a5d6a7;
+      color: #1b5e20;
+    }
+
+    /* TARJETAS / SECCIONES */
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+    }
+    .card h2 {
+      margin-bottom: 1rem;
+      color: #2e7d32;
+      text-align: left;
+    }
+
+    /* TABLAS */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      padding: 12px;
+      text-align: center;
+    }
+    th {
+      background-color: #2e7d32;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- HEADER -->
+    <header>
+      <img src="/media/uploads/products/logoPrin.png" alt="Logo Los Girasoles" class="logo-img">
+      <h2>Dashboard Administrador</h2>
+      <div class="user-menu">
+        <i class="fa fa-user user-icon" onclick="toggleUserMenu()"></i>
+        <div class="user-dropdown" id="userDropdown">
+          <a href="{% url 'usuarios:editar_perfil' %}">Editar perfil</a>
+          <a href="{% url 'usuarios:logout' %}">Cerrar sesión</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <div class="main-content">
+      <!-- MENU -->
+      <div class="menu-column">
+        <ul>
+          <li><a href="{% url 'usuarios:gstUsuarios' %}" class="menu-button">Gestión de Usuarios</a></li>
+          <li><a href="{% url 'productos:listProduc' %}" class="menu-button">Gestión de Productos</a></li>
+          <li><a href="{% url 'usuarios:informe_calificaciones' %}" class="menu-button">Gestión de Informes</a></li>
+          <li><a href="{% url 'usuarios:pedidos' %}" class="menu-button">Gestión de Pedidos</a></li>
+        </ul>
+      </div>
+
+      <!-- CONTENIDO -->
+      <div class="content-column">
+        <p>Bienvenido al panel de administración. Aquí podrás gestionar los usuarios, productos y pedidos.</p>
+        
+        <!-- VENTAS -->
+        <div class="card">
+          <h2>Ventas Realizadas</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Total</th>
+                <th>Método de Pago</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for venta in ventas %}
+              <tr>
+                <td>{{ venta.id }}</td>
+                <td>{{ venta.cliente.username }}</td>
+                <td>{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+                <td>${{ venta.total }}</td>
+                <td>{{ venta.metodo_pago }}</td>
+                <td>{{ venta.estado_pago }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="6">No hay ventas registradas</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- PRODUCTOS MÁS VENDIDOS -->
+        <div class="card">
+          <h2>Productos Más Vendidos</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Cantidad Vendida</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for producto in productos_mas_vendidos %}
+              <tr>
+                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.cantidad_vendida }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="2">No hay datos disponibles</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- USUARIOS FRECUENTES -->
+        <div class="card">
+          <h2>Usuarios Más Frecuentes</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Compras Realizadas</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for usuario in usuarios_frecuentes %}
+              <tr>
+                <td>{{ usuario.username }}</td>
+                <td>{{ usuario.compras_count }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="2">No hay datos disponibles</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script menú usuario -->
+  <script>
+    function toggleUserMenu() {
+      var dropdown = document.getElementById("userDropdown");
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
+    window.onclick = function(e) {
+      if (!e.target.matches('.user-icon')) {
+        var dropdown = document.getElementById("userDropdown");
+        if (dropdown && dropdown.style.display === "block") {
+          dropdown.style.display = "none";
+        }
+      }
+    }
+  </script>
+</body>
+</html>

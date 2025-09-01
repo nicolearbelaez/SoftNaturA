@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Checkout</title>
+</head>
+<body>
+    <h1>Pagar con MercadoPago</h1>
+    <form action="{% url 'procesar_pago' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Pagar $100</button>
+    </form>
+</body>
+</html>

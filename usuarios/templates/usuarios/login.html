@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="{% static 'usuarios/css/panel.css' %}?v={{ timestamp }}">
+</head>
+<body>
+<div class="contenedor-form">
+    <h2>Login</h2>
+    <form method="post" class="contenedor-login">
+        {% csrf_token %}
+
+        <label for="email" class="btn-txt">Email:</label>
+        {{ form.email }}
+
+        <label for="password" class="btn-txt">Contraseña:</label>
+        {{ form.password }}
+
+        <button type="submit" class="btn-ingresar">Ingresar</button>
+
+        <!-- Enlace para recuperar contraseña -->
+        <div class="txt-reset">
+            <a href="{% url 'usuarios:password_reset' %}">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <!-- Enlace de registro  -->
+        <div class="txt-register">
+            <p>¿Aún no tienes cuenta? <a class="edit-rgs" href="{% url 'usuarios:register' %}">Regístrate</a></p>
+        </div>
+    </form>
+
+    {% if mensaje %}
+    <p style="color:red; margin-top: 10px;">{{ mensaje }}</p>
+    {% endif %}
+</div>
+</body>
+</html>
+
+

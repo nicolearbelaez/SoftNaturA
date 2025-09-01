@@ -1,0 +1,96 @@
+/* Productos */
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: white;
+}
+
+section {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 50px; 
+    width: 80%;
+    margin: 40px auto; 
+    justify-content: center;
+}
+.menu {
+    background: rgb(88, 188, 88);
+    border-radius: 10px;
+    padding: 50px;
+    width: 120%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between
+}
+.menu img {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+.menu h2 {
+    font-size: 18px;
+    margin: 10px 0;
+    color: #034512;
+}
+.menu p {
+    color: black;
+    font-size: 14px;
+    text-align: left;
+}
+
+.menu .precio {
+    font-size: 16px;
+    color: #034512;
+    font-weight: bold;
+    text-align: center;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #1c6d03;
+    color: white;
+    border: none;
+    font-size: 16px;
+    border-radius: 5px;
+    align-self: center;
+    cursor: pointer;
+}
+
+/*pie de pagina*/
+
+/*Formulario de contacto*/
+form {
+    border: 2px solid  rgb(88, 188, 88); 
+    padding: 15px; 
+    width: 45%; 
+    margin: 0 auto; 
+    border-radius: 10px; 
+    background-color: white;
+
+}
+.Enviar {
+    width: 30%;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #0a7d23;
+    cursor: pointer;
+    color: white;
+    border: none;
+    font-size: 16px;
+    border-radius: 5px;
+}
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #7ED957;
+    border-radius: 5px;
+    font-size: 10px;
+}
+

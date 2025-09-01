@@ -1,0 +1,252 @@
+{% extends 'productos/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .container {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 40px;
+        background-color: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        text-align: center;
+        color: #28a745;
+        margin-bottom: 30px;
+        font-size: 28px;
+    }
+
+    label {
+        display: block;
+        color: #333;
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    .btn-volver {
+        display: inline-block;
+        padding: 10px 20px;
+        margin-top: 20px;
+        background-color: #28a745;
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        border-radius: 8px;
+        text-align: center;
+        transition: background-color 0.3s;
+    }
+
+    .btn-volver:hover {
+        background-color: #218838;
+    }
+
+    .btn-guardar {
+        display: block;
+        margin: 20px auto 0 auto;
+        border-radius: 8px;
+        padding: 10px 20px;
+        border: none;
+        color: white;
+        cursor: pointer;
+        text-align: center;
+        font-weight: bold;
+        background-color: #28a745;
+        font-size: 16px;
+    }
+
+    .btn-guardar:hover {
+        background-color: #218838;
+    }
+
+    .btn-agregar {
+        display: flex;
+        justify-content: center;
+        margin-top: 40px;
+        padding: 12px 22px;
+        background-color: #28a745;
+        color: white;
+        font-weight: bold;
+        border-radius: 8px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-bottom: 20px;
+        border: none;
+        outline: none;
+    }
+
+    .btn-agregar:hover {
+        background-color: #218838;
+    }
+
+    #form-agregar {
+        display: none;
+    }
+
+    .acciones-superior {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 20px 40px 0 40px;
+    }
+        .btn-agregar-category {
+        display: flex;
+        justify-content: center;
+        margin-top: 40px;
+        padding: 12px 22px;
+        background-color: #28a745;
+        color: white;
+        font-weight: bold;
+        border-radius: 8px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-bottom: 20px;
+        border: none;
+        outline: none;
+    }
+        .btn-agregar-.btn-agregar-category {
+        background-color: #218838;
+    }
+</style>
+<div class="acciones-superior">
+    <a class="btn-volver" href="{% url 'usuarios:dashboard' %}">← Volver al dashboard</a>
+    <button class="btn-agregar" onclick="mostrarFormulario()"> 🛒 Agregar Producto</button>
+    <button class="btn-agregar-category" onclick="mostrarFormulario2()"> Agregar categorias</button>
+</div>
+<div class="container" id="form-agregar-category" style="display: none;">
+    <h2>Agregar Categoría</h2>
+    <form method="POST" enctype="multipart/form-data" action="{% url 'productos:agregar_categoria' %}">
+        {% csrf_token %}
+        <input type="text" class="texto" name="nombCategory" placeholder="Nueva categoría" required>
+        <button type="submit" class="btn-guardar">Guardar categoria</button>
+    </form>
+</div>
+<div class="container" id="form-agregar">
+    <h2>Agregar Producto</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="nombreProduc">Nombre del producto</label>
+        {{ form.nombProduc }}
+
+        <label for="descripcion">Descripción</label>
+        {{ form.descripcion }}
+
+        <label for="precio">Precio</label>
+        {{ form.precio }}
+
+        <label for="categoriaProduc">Categoría</label>
+        {{ form.Categoria }}
+
+        <label for="stock">Cantidad en stock</label>
+        {{ form.stock }}
+        <label for="fecha_caducidad">Fecha de caducidad</label>
+        {{ form.fecha_caducidad }}
+        <label for="imgProduc">Imagen</label>
+        {{ form.imgProduc }}
+
+        <button type="submit" class="btn-guardar">Guardar Producto</button>
+    </form>
+</div>
+<script>
+    function mostrarFormulario() {
+        const form = document.getElementById('form-agregar');
+        if (form.style.display === 'none') {
+            form.style.display = 'block';
+            window.scrollTo({ top: form.offsetTop, behavior: 'smooth' });
+        } else {
+            form.style.display = 'none';
+        }
+    }
+    function mostrarFormulario2() {
+        const form = document.getElementById('form-agregar-category');
+        if (form.style.display === 'none') {
+            form.style.display = 'block';
+            window.scrollTo({ top: form.offsetTop, behavior: 'smooth' });
+        } else {
+            form.style.display = 'none';
+        }
+    }
+</script>
+
+<hr style="margin: 50px 0;">
+
+
+
+
+<h2 style="text-align: center;">Lista de Productos</h2>
+
+
+<table style="width: 100%; border-collapse: collapse; margin-top: 30px;">
+    <thead>
+        <tr style="background-color: #28a745; color: white;">
+            <th style="padding: 12px;">Imagen</th>
+            <th style="padding: 12px;">Nombre</th>
+            <th style="padding: 12px;">Precio</th>
+            <th style="padding: 12px;">Descripción</th>
+            <th style="padding: 12px;">Stock</th>
+            <th style="padding: 12px;">Fecha de caducidad</th>
+            <th style="padding: 12px;">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in productos %}
+        <tr style="border-bottom: 1px solid #ccc;">
+            <td style="padding: 12px; text-align: center;">
+                {% if product.imgProduc %}
+                <img src="{{ product.imgProduc.url }}" alt="{{ product.nombProduc }}" width="60">
+                {% else %}
+                <img src="{% static 'productos/img/no-image.png' %}" alt="Sin imagen" width="60">
+                {% endif %}
+            </td>
+            <td style="padding: 12px;">{{ product.nombProduc }}</td>
+            <td style="padding: 12px;">${{ product.precio }}</td>
+            <td style="padding: 12px;">{{ product.descripcion }}</td>
+            <td style="padding: 12px;">
+                {% if product.stock > 0 %}
+                {{ product.stock }}
+                {% else %}
+                <span style="color: red; font-weight: bold;">Agotado</span>
+                {% endif %}
+            </td>
+            <td style="padding: 12px;">
+                {% if product.esta_vencido %}
+                <span style="color: red; font-weight: bold;">Producto vencido</span>
+                {% else %}
+                <span style="color: green; font-weight: bold;">Vigente</span>
+                {% endif %}
+            </td>
+            <td style="padding: 12px; text-align: center;">
+                <a href="{% url 'productos:editar_producto' product.id %}" class="btn-volver"
+                    style="background-color:rgb(31, 191, 76);">Editar</a>
+                <a href="{% url 'productos:eliminar_producto' product.id %}" class="btn-volver"
+                    style="background-color: rgb(31, 191, 76);"
+                    onclick="return confirm('¿Estás seguro de eliminar este producto?')"> Eliminar</a>
+                {% if product.estado %}
+                <a href="{% url 'productos:inactivar_producto' product.id %}" class="btn-volver"
+                    style="background-color: rgb(31, 191, 76);"> Inactivar</a>
+                {% else %}
+                <a href="{% url 'productos:activar_producto' product.id %}" class="btn-volver"
+                    style="background-color: green;"> Activar</a>
+                {% endif %}
+            </td>
+
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" style="text-align: center; padding: 20px;">No hay productos registrados.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<div style="text-align: center; margin-bottom: 20px;">
+    <a href="{% url 'productos:exportar_excel' %}" class="btn-volver" style="background-color: #28a745;">📥 Exportar
+        Inventario a Excel</a>
+</div>
+
+
+{% endblock %}

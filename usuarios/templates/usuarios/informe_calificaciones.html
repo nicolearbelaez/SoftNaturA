@@ -1,0 +1,191 @@
+{% extends 'usuarios/base.html' %}
+
+{% block content %}
+<style>
+  .btn-volver {
+    display: inline-block;
+    margin-bottom: 1rem;
+    padding: 12px 22px;
+    background-color: #28a745;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-volver:hover {
+    background-color: #28a745;
+  }
+
+  h1 {
+    margin: 10px 0 20px;
+    text-align: center;
+    color: #28a745;
+  }
+
+  .filtros {
+    background: #f9f9f9;
+    padding: 10px;
+    margin: 0 auto 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    max-width: 1000px;
+  }
+
+  .filtros form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .filtros label {
+    font-weight: bold;
+  }
+
+  .filtros select,
+  .filtros input[type="date"] {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+
+  .filtros button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .btn-filtrar {
+    background-color: #0a7d23;
+    color: #fff;
+    padding: 10px;
+  }
+
+  .btn-filtrar:hover {
+    background-color: #28a745;
+  }
+
+  .btn-exportar {
+    background-color: #0a7d23;
+    color: #fff;
+  }
+
+  .btn-exportar:hover {
+    background-color: #28a745;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  thead {
+    background-color: #28a745;
+    color: white;
+  }
+
+  th,
+  td {
+    text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+
+  tbody tr:hover {
+    background-color: #eef6f1;
+  }
+
+  .no-data {
+    text-align: center;
+    padding: 15px;
+    font-style: italic;
+    color: #555;
+  }
+
+  .btn-agregar {
+    background-color: #28a745;
+    color: white;
+    font-weight: bold;
+    border-radius: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    width: 200px;
+    margin-left: 1400px;
+    padding: 12px 22px;
+    margin-top: 50px;
+
+  }
+</style>
+
+<a class="btn-volver" href="{% url 'usuarios:dashboard' %}">← Volver al dashboard</a>
+
+<button class="btn-agregar" onclick="mostrarFormulario()">Filtrar calificaciones</button>
+<h1>Informe de calificaciones</h1>
+
+<div class="filtros" id="mostrar-calif" style="display: none;">
+  <form method="get">
+
+    <div>
+      <label>Desde:</label>
+      <input type="date" name="desde">
+    </div>
+
+    <div>
+      <label>Hasta:</label>
+      <input type="date" name="hasta">
+    </div>
+
+    <button type="submit" class="btn-filtrar">Filtrar</button>
+    <button type="submit" name="exportar" value="excel" class="btn-exportar">Exportar a Excel</button>
+  </form>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Usuario</th>
+      <th>Servicio</th>
+      <th>Productos</th>
+      <th>Comentario</th>
+      <th>Fecha</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in calificaciones %}
+    <tr>
+      <td>{{ c.usuario.nombre }}</td>
+      <td>{{ c.puntuacion_servicio }}</td>
+      <td>{{ c.puntuacion_productos }}</td>
+      <td>{{ c.comentario }}</td>
+      <td>{{ c.fecha_creacion|date:"Y-m-d H:i" }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="5" class="no-data">No hay calificaciones</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<script>
+  function mostrarFormulario() {
+    const form = document.getElementById('mostrar-calif');
+    if (form.style.display === 'none') {
+      form.style.display = 'block';
+      window.scrollTo({ top: form.offsetTop, behavior: 'smooth' });
+    } else {
+      form.style.display = 'none';
+    }
+  }
+</script>
+{% endblock %}

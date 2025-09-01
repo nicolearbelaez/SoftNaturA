@@ -1,0 +1,167 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Registro</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f4f4f4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .contenedor-pagina {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .header-registro {
+            width: 50%;
+            background-color: rgb(88, 196, 95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logito {
+            max-width: 80%;
+            max-height: 90%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .form-contenedor {
+            width: 50%;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        form {
+            background-color: white;
+            padding: 25px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-align: center;
+        }
+
+        .txt-form {
+            font-size: 24px;
+            color: #28a745;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        label {
+            text-align: left;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #28a745;
+            outline: none;
+            box-shadow: 0 0 5px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-submit {
+            border: none;
+            width: 100%;
+            background-color: #28a745;
+            color: white;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-submit:hover {
+            background-color: #218838;
+        }
+
+        .btn-secundario {
+            display: inline-block;
+            padding: 8px 16px;
+            margin-top: 10px;
+            background-color: #ffffff;
+            color: #28a745;
+            border: 2px solid #28a745;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .btn-secundario:hover {
+            background-color: #28a745;
+            color: #ffffff;
+        }
+
+        .mensaje-error {
+            color: red;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="contenedor-pagina">
+        <header class="header-registro">
+            <img class="logito" src="/media/uploads/products/logoPrin.png" alt="Logo">
+        </header>
+        <div class="form-contenedor">
+            <form method="post">
+                <h2 class="txt-form">Formulario Registro</h2>
+                {% csrf_token %}
+
+                <label for="id_nombre">Nombre:</label>
+                {{ form.nombre }}<br><br>
+
+                <label for="id_password1">Contraseña:</label>
+                {{ form.password1 }}<br><br>
+
+                <label for="id_password2">Repetir Contraseña:</label>
+                {{ form.password2 }}<br><br>
+
+                <label for="id_email">Email:</label>
+                {{ form.email }}<br><br>
+
+                <label for="id_phone_number">Teléfono:</label>
+                {{ form.phone_number }}<br><br>
+
+                <button type="submit" class="btn-submit">Registrarme</button>
+            </form>
+            {% if mensaje %}
+            <p style="color:red">{{ mensaje }}</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Admin</title>
+    <link rel="stylesheet" href="{% static 'usuarios/css/loginAdm.css' %}?v={{ timestamp }}">
+</head>
+<body>
+    <div class="contenedor-form-adm">
+    <h2>Login Admin</h2>
+    <form method="post" class="contenedor-login-adm">
+    {% csrf_token %}
+
+    <label for="email" class="btn-txt">Email:</label>
+    {{ form.email }}
+
+    <label for="password" class="btn-txt">Contraseña:</label>
+    {{ form.password }}
+
+    <button type="submit" class="btn-ingresar">Ingresar</button>
+</form>
+
+
+    {% if mensaje %}
+    <p style="color:red; margin-top: 10px;">{{ mensaje }}</p>
+    {% endif %}
+</div>
+</body>
+</html>

@@ -1,0 +1,352 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Usuarios</title>
+  <style>
+    .contenedor-login-adm {
+      background-color: rgb(255, 253, 253);
+      border-radius: 12px;
+      border: 10px solid rgb(202, 194, 194);
+      margin-top: 50px;
+
+    }
+
+    /* Ajusta el alto de las celdas */
+
+
+    .tabla-usuarios {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      /* ✔ Fuerza ancho fijo para columnas */
+
+    }
+
+    .tabla-usuarios thead {
+      background-color: #28a745;
+      color: rgb(248, 242, 242);
+    }
+
+    .tabla-usuarios th,
+    .tabla-usuarios td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ccc;
+      width: 120px;
+      word-wrap: break-word;
+      /* Para que el texto se ajuste */
+    }
+
+    .btn-volver {
+      display: inline-block;
+      background-color: #28a745;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-volver:hover {
+      background-color: rgb(6, 82, 6);
+    }
+
+    .modal {
+      position: fixed;
+      top: 20%;
+      left: 35%;
+      width: 30%;
+      background: white;
+      padding: 20px;
+      border: 2px solid #aaa;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+    }
+
+    .modal input,
+    .modal select {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 8px;
+    }
+
+    .botones-modal {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    #modal-editar {
+      display: none;
+    }
+
+    /* Fondo oscuro para cuando el modal está activo */
+    #modal-editar::backdrop,
+    body.modal-open::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.6);
+      z-index: 999;
+    }
+
+    /* Contenedor del modal */
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 400px;
+      max-width: 90%;
+      background: #fff;
+      padding: 25px 30px;
+      border-radius: 12px;
+      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+    }
+
+    /* Título del formulario */
+    .modal h2 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #333;
+      text-align: center;
+    }
+
+    /* Inputs y selects */
+    .modal input[type="text"],
+    .modal input[type="email"],
+    .modal select {
+      width: 100%;
+      padding: 10px 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: border-color 0.3s;
+    }
+
+    .modal input:focus,
+    .modal select:focus {
+      border-color: #009688;
+      outline: none;
+    }
+
+    /* Botones del formulario */
+    .botones-modal {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .botones-modal button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    /* Botón guardar */
+    .botones-modal button[type="submit"] {
+      background-color: #22dd2b;
+      color: white;
+    }
+
+    .botones-modal button[type="submit"]:hover {
+      background-color: #22dd2b;
+    }
+
+    /* Botón cancelar */
+    .botones-modal button[type="button"] {
+      background-color: #f44336;
+      color: white;
+    }
+
+    .botones-modal button[type="button"]:hover {
+      background-color: #d32f2f;
+    }
+
+    .btn-volver,
+    .agregar {
+      padding: 10px 18px;
+      border: 2px solid #4CAF50;
+      background-color: #28a745;
+      color: white;
+      font-size: 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      margin-top: 40px;
+    }
+
+    .agregar {
+      margin-left: 750px;
+    }
+
+
+    /* Hover con fondo suave y letras blancas */
+    .btn-volver:hover,
+    .agregar:hover {
+      background-color: #4CAF50;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="barra-superior">
+      <a class="btn-volver" href="{% url 'usuarios:dashboard' %}">← Volver al dashboard</a>
+      <button class="agregar" onclick="abrirModalAgregar()">Agregar Usuario</button>
+    </div>
+  </header>
+
+  <section class="contenedor-form-adm">
+    <div class="contenedor-login-adm">
+
+      <table class="tabla-usuarios">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Número de Teléfono</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for usuario in usuarios %}
+          <tr {% if not usuario.activo %}style="background-color:rgb(160, 160, 160);" {% endif %}>
+            <td>{{ usuario.nombre }}</td>
+            <td>{{ usuario.email }}</td>
+            <td>{{ usuario.numTelefono }}</td>
+            <td>{{ usuario.rol }}</td>
+            <td>
+              <button class="editar" data-nombre="{{ usuario.nombre }}" data-email="{{ usuario.email }}"
+                data-telefono="{{ usuario.numTelefono }}" data-rol="{{ usuario.rol }}" {% if not usuario.activo
+                %}disabled{% endif %}>
+                Editar
+              </button>
+
+              <a href="{% url 'usuarios:cambiar_estado_usuario' usuario.id %}">
+                {% if usuario.activo %}
+                <button class="inactivar">Inactivar</button>
+                {% else %}
+                <button class="activar">Activar</button>
+                {% endif %}
+              </a>
+
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <div id="modal-agregar" class="modal" style="display: none">
+    <form method="post" action="{% url 'usuarios:agregar_usuario' %}">
+      {% csrf_token %}
+      <h2 class="Agregar">Agregar Usuario</h2>
+
+      <label>Nombre:</label>
+      <input type="text" name="nombre" required />
+
+      <label>Correo:</label>
+      <input type="email" name="correo" required />
+
+      <label>Teléfono:</label>
+      <input type="text" name="numTelefono" required />
+
+      <label>Rol:</label>
+      <select name="rol">
+        <option value="Administrador">Administrador</option>
+      </select>
+
+      <div class="botones-modal">
+        <button type="submit">Guardar</button>
+        <button type="button" onclick="cerrarModalAgregar()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Modal de edición -->
+  <div id="modal-editar" class="modal" style="display: none">
+    <form id="form-editar">
+      <h2>Editar Usuario</h2>
+      <label>Nombre:</label>
+      <input type="text" id="editar-nombre" required />
+      <label>Email:</label>
+      <input type="email" id="editar-email" required />
+      <label>Teléfono:</label>
+      <input type="text" id="editar-telefono" required />
+      <label>Rol:</label>
+      <select id="editar-rol">
+        <option value="admin">Admin</option>
+        <option value="cliente">Cliente</option>
+      </select>
+      <div class="botones-modal">
+        <button type="submit">Guardar</button>
+        <button type="button" onclick="cerrarModal()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ✅ JavaScript corregido -->
+  <script>
+    let filaSeleccionada = null;
+
+    // Funciones globales para abrir/cerrar modales
+    function abrirModalAgregar() {
+      document.getElementById("modal-agregar").style.display = "block";
+    }
+
+    function cerrarModalAgregar() {
+      document.getElementById("modal-agregar").style.display = "none";
+    }
+
+    function cerrarModal() {
+      document.getElementById("modal-editar").style.display = "none";
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      // Botón Editar
+      document.querySelectorAll(".editar").forEach((boton) => {
+        boton.addEventListener("click", function () {
+          filaSeleccionada = boton.closest("tr");
+          document.getElementById("editar-nombre").value = boton.dataset.nombre;
+          document.getElementById("editar-email").value = boton.dataset.email;
+          document.getElementById("editar-telefono").value = boton.dataset.telefono;
+          document.getElementById("editar-rol").value = boton.dataset.rol;
+          document.getElementById("modal-editar").style.display = "block";
+        });
+      });
+
+      // Guardar cambios del modal de edición
+      document.getElementById("form-editar").addEventListener("submit", function (e) {
+        e.preventDefault();
+        if (filaSeleccionada) {
+          let celdas = filaSeleccionada.querySelectorAll("td");
+          celdas[0].textContent = document.getElementById("editar-nombre").value;
+          celdas[1].textContent = document.getElementById("editar-email").value;
+          celdas[2].textContent = document.getElementById("editar-telefono").value;
+          celdas[3].textContent = document.getElementById("editar-rol").value;
+          cerrarModal();
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

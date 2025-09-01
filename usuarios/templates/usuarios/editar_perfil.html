@@ -1,0 +1,117 @@
+{% extends 'usuarios/base.html' %}
+{% block content %}
+{% if messages %}
+<ul class="mensajes">
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+
+<style>
+    .formulario-personalizado {
+        width: 400px;
+        margin: 40px auto;
+        padding: 25px;
+        border: 2px solid #006400;
+        border-radius: 12px;
+        background-color: #f9fff9;
+        box-shadow: 0 0 10px rgba(0, 100, 0, 0.1);
+    }
+
+    .formulario-personalizado h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #004d00;
+    }
+
+    .formulario-personalizado label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #003300;
+    }
+
+    .formulario-personalizado input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #009900;
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-size: 14px;
+    }
+
+    .btn-verde {
+        width: 100%;
+        padding: 12px;
+        background-color: #006400;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-verde:hover {
+        background-color: #004d00;
+    }
+
+    .mensajes {
+        list-style: none;
+        text-align: center;
+        margin-bottom: 20px;
+        padding: 10px;
+        border: 1px solid #4CAF50;
+        background-color: #e6ffe6;
+        color: #2d662d;
+        font-weight: bold;
+        border-radius: 10px;
+        width: 50%;
+        margin: 0 auto 20px auto;
+    }
+
+    .botones {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .botones a {
+        text-decoration: none;
+        background-color: #2ecc71;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        transition: background-color 0.3s ease;
+    }
+
+    .botones a:hover {
+        background-color: #27ae60;
+    }
+</style>
+<h2>Editar Perfil</h2>
+<div class="formulario-personalizado">
+    <form method="post">
+        {% csrf_token %}
+
+        <label for="id_nombre">Nombre:</label>
+        {{ form.nombre }}
+
+        <label for="id_email">Email:</label>
+        {{ form.email }}
+
+        <label for="id_phone_number">Teléfono:</label>
+        {{ form.phone_number }}
+
+        <button type="submit" class="btn-verde">Guardar cambios</button>
+    </form>
+</div>
+<div class="botones">
+    <a href="javascript:history.back()">Volver</a>
+</div>
+
+{% endblock %}

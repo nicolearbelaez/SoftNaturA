@@ -1,0 +1,141 @@
+/* Productos */
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: white;
+}
+
+section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    padding: 40px;
+    justify-content: center;
+}
+
+
+/*Formulario de contacto*/
+form {
+    border: 2px solid rgb(88, 188, 88);
+    padding: 15px;
+    width: 45%;
+    margin: 0 auto;
+    border-radius: 10px;
+    background-color: white;
+
+}
+
+.Enviar {
+    width: 30%;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #0a7d23;
+    cursor: pointer;
+    color: white;
+    border: none;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+input,
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #7ED957;
+    border-radius: 5px;
+    font-size: 10px;
+}
+
+
+
+/* navbar, imagenes y iconos*/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+.navbar {
+    background-color: white;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    height: 100px;
+}
+
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 3px;
+    width: 500px;
+    border-radius: 15px;
+}
+
+.search-box input {
+    border: none;
+    outline: none;
+    padding: 3px;
+    font-size: 14px;
+    text-align: center;
+    padding-top: 8px;
+}
+
+.search-box i {
+    color: #0a7d23;
+    margin-left: 5px;
+}
+
+.search-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border-radius: 25px;
+    padding: 2px;
+    max-width: 700px;
+    width: 100%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.search-box input[type="text"] {
+    border: none;
+    outline: none;
+    padding: 0;
+    font-size: 14px;
+    width: 100%;
+    border-radius: 10px;
+    background-color: transparent;
+    line-height: 10px;
+}
+
+.search-box button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding-left: 8px;
+}
+
+.search-box i.fa-search {
+    color: #FFD700;
+    font-size: 18px;
+}
+
+
+.icons {
+    display: flex;
+    gap: 10px;
+}
+
+.icons i {
+    font-size: 16px;
+    cursor: pointer;
+}
