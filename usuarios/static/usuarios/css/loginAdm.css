@@ -10,7 +10,7 @@ body {
 .contenedor-form-adm {
   background-color: #fff;
   padding: 30px 40px;
-  border: 3px solid green;
+  border: 3px solid #f1c84b;
   border-radius: 10px;
   text-align: center;
   box-shadow: 0 0 15px rgba(0, 128, 0, 0.3);
@@ -44,7 +44,7 @@ input[type="password"] {
 
 .btn-ingresar {
   margin-top: 20px;
-  background-color: green;
+  background-color: #f1c84b;
   color: white;
   padding: 12px;
   border: none;
@@ -54,7 +54,7 @@ input[type="password"] {
 }
 
 .btn-ingresar:hover {
-  background-color: #006400;
+  background-color: #f1c84b;
 }
 
 p {
@@ -62,11 +62,16 @@ p {
 }
 
 p a {
-  color: green;
+  color: #f1c84b;
   text-decoration: none;
   font-weight: bold;
 }
 
 p a:hover {
   text-decoration: underline;
+}
+#userIcon {
+    font-size: 30px;
+    color: #FFC107;
+    margin-bottom: 12px;
 }

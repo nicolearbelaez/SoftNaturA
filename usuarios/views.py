@@ -96,7 +96,7 @@ def loginAdmin(request):
 
 def logout_view(request):
     logout(request)
-    return redirect("usuarios:login")
+    return redirect("productos:producto")
 
 @login_required(login_url='usuarios:login')
 def editar_perfil(request):

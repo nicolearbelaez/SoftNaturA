@@ -1,70 +1,58 @@
-{% extends 'productos/base.html' %}
+{% extends 'productos/baseP.html' %}
 {% load static%}
 
 {% block content %}
 
-
-    <nav class="navbar">
-        <img src="/media/uploads/products/logoPrin.png" alt="Logo">
-        <div class="search-box">
-            <input type="text" placeholder="¿Qué estás buscando?">
-            <i class="fa fa-search"></i>
-        </div>
-        <div class="nav-links">
-            <a href="{% url 'usuarios:nosotros' %}">Nosotros</a>
-            <div class="dropdown">
-                <a href="{% url 'productos:producto' %}">Productos</a>
-                <div class="dropdown-content">
-                    <a href="#Colagenos">Colagenos</a>
-                    <a href="#Citratos">Citratos</a>
-                    <a href="#Propoleos">Propoleos</a>
-                    <a href="#Drenadores hepaticos">Drenadores hepaticos</a>
-                    <a href="#Multivitaminicos">Multivitaminicos</a>
-                    <a href="#Purgantes">Purgantes</a>
-                </div>
-            </div>
-            <a href="{% url 'usuarios:contacto' %}">Contactanos</a>
-        </div>
-        
-    </nav>
-    <div align="center">
+<div align="center">
+    <br><br>
+    <form>
+        <h2>Formulario</h2>
         <br><br>
-        <form >
-            <h2>Formulario</h2>
-            <br><br>
-            <label for="nombre">Nombre:</label>
-            <input type="text" name="nombre" required>
-            <br><br>
-            <label for="correo">Correo:</label>
-            <input type="email" nombre="correo" required>
-            <br><br>
-            <label for="Asunto">Asunto: </label>
-            <textarea id="Asunto" name="Asunto" rows="" required></textarea>
-            <br><br>
-            <label for="Mensaje">Mensaje: </label>
-            <textarea id="text" name="Mensaje" rows="5"required></textarea>
-            <br>
-            <button class="Enviar" type="submit">Enviar</button>
-            <br><br>
-            <br>
-            <button type="button" class="btn-volver" onclick="history.back()">← Volver</button>
+        <label for="nombre">Nombre:</label>
+        <input type="text" name="nombre" required>
+        <br><br>
+        <label for="correo">Correo:</label>
+        <input type="email" nombre="correo" required>
+        <br><br>
+        <label for="Asunto">Asunto: </label>
+        <textarea id="Asunto" name="Asunto" rows="" required></textarea>
+        <br><br>
+        <label for="Mensaje">Mensaje: </label>
+        <textarea id="text" name="Mensaje" rows="5" required></textarea>
+        <br>
+        <button class="Enviar" type="submit">Enviar</button>
+        <br><br>
+        <br>
+        <button type="button" class="btn-volver" onclick="history.back()">← Volver</button>
 
-        </form>
-<style>
-    .btn-volver {
-        background: none;
-        border: none;
-        color: green;
-        font-weight: bold;
-        cursor: pointer;
-        text-decoration: underline;
-        font-size: 14px;
-        margin-top: 10px;
-        transition: color 0.3s;
-    }
+    </form>
+    <style>
+        .btn-volver {
+            background: none;
+            border: none;
+            color: #f17800;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 14px;
+            margin-top: 10px;
+            transition: color 0.3s;
+        }
 
-    .btn-volver:hover {
-        color: grey;
-    }
-</style>
-{% endblock %}
+        .btn-volver:hover {
+            color: grey;
+        }
+
+        .Enviar {
+            width: 30%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #FFC107;
+            cursor: pointer;
+            color: white;
+            border: none;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+    </style>
+    {% endblock %}

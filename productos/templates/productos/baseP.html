@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi sitio web</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <link rel="stylesheet" href="{% static 'productos/css/estilos.css' %}?v={{ timestamp }}" />
+    {% block styles %}{% endblock %}
+</head>
+
+<body>
+    <div class="wrapper">
+
+        <!-- NAV GLOBAL: aparece en todas las páginas -->
+        <nav class="navbar">
+            <!-- Logo -->
+            <a href="{% url 'productos:producto' %}">
+                <img class="logo" src="/media/uploads/products/LOGOREAL.png" alt="Logo Los Girasoles">
+            </a>
+
+            <!-- Buscador -->
+            <form class="search-box" method="GET" action="">
+                <input type="text" name="buscar" placeholder="¿Qué estás buscando?" value="{{ buscar }}">
+                <button type="submit"><i class="fa fa-search"></i></button>
+            </form>
+
+            <!-- Links de navegación -->
+            <div class="nav-links">
+
+                <a href="{% url 'usuarios:nosotros' %}">Nosotros</a>
+
+                <!-- Dropdown Productos -->
+                <div class="dropdown">
+                    <a href="{% url 'productos:producto' %}" class="dropbtn">
+                        Productos <i class="fa-solid fa-chevron-down flecha"></i>
+                    </a>
+                    <div class="dropdown-content">
+                        <a href="{% url 'productos:producto' %}">Todos los productos</a>
+                        <hr style="color: #FFC107;">
+                        {% for categoria in categorias %}
+                        <a href="{% url 'productos:productos_por_categoria' categoria.id %}">
+                            {{ categoria.nombCategory }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <a href="{% url 'usuarios:contacto' %}">Contacto</a>
+
+
+                {% if user.is_authenticated %}
+                <div class="user-menu">
+                    <span class="user-nombre">{{ user.nombre }}</span>
+                    <i class="fa fa-user" id="userIcon"></i>
+                    <div class="menu-desplegable" id="menuUsuario">
+                        <a href="{% url 'usuarios:editar_perfil' %}">Editar perfil</a>
+                        <a href="{% url 'usuarios:mis_pedidos' %}">Mis pedidos</a>
+                        <a href="{% url 'usuarios:logout' %}">Cerrar sesión</a>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{% url 'usuarios:login' %}">Iniciar sesión</a>
+                {% endif %}
+
+            </div>
+
+        </nav>
+        {% block content %}
+        {% endblock %}
+
+    </div>
+
+    {% block footer %}
+    <footer>
+        <div class="footer-content">
+            <div class="footer-info">
+                <p><strong>INFORMACIÓN DE LOS GIRASOLES</strong></p>
+                <p>Calle 14 # 1-28</p>
+                <p>Barrio Centro</p>
+                <p>Ibagué</p>
+                <p>Colombia</p>
+                <p>Llámenos: 3212334148</p>
+            </div>
+
+            <div class="footer-social">
+                <div class="redes-sociales">
+                    <a href="https://web.facebook.com/profile.php?id=100057407501877" target="_blank"
+                        aria-label="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.tiktok.com/@tnlosgirasoles" target="_blank" aria-label="TikTok">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
+                    <a href="https://www.instagram.com/tienda_naturista_los_girasoles" target="_blank"
+                        aria-label="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-copyright">
+                <h3>&copy; Página Tienda Naturista Los Girasoles 2025</h3>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
+
+    {% block scripts %}
+    {% endblock %}
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // CARRITO
+        const iconoCarrito = document.getElementById("iconoCarrito");
+        const carritoDropdown = document.getElementById("carritoDropdown");
+        if (iconoCarrito && carritoDropdown) {
+            iconoCarrito.onclick = function (e) {
+                e.stopPropagation();
+                carritoDropdown.style.display = carritoDropdown.style.display === "block" ? "none" : "block";
+            };
+            document.onclick = function (e) {
+                if (!iconoCarrito.contains(e.target) && !carritoDropdown.contains(e.target)) {
+                    carritoDropdown.style.display = 'none';
+                }
+            };
+        }
+
+        // MENÚ USUARIO
+        const userIcon = document.getElementById('userIcon');
+        const menuUsuario = document.getElementById('menuUsuario');
+        if (userIcon && menuUsuario) {
+            userIcon.onclick = function (e) {
+                e.stopPropagation();
+                menuUsuario.style.display = menuUsuario.style.display === 'block' ? 'none' : 'block';
+            };
+            document.onclick = function (e) {
+                if (!userIcon.contains(e.target) && !menuUsuario.contains(e.target)) {
+                    menuUsuario.style.display = 'none';
+                }
+            };
+        }
+    });
+</script>
+
+</html>

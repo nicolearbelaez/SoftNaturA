@@ -1,4 +1,4 @@
-{% extends 'productos/base.html' %}
+{% extends 'productos/baseP.html' %}
 {% load static %}
 {% block styles %}
 
@@ -10,7 +10,7 @@
 
     .container-principal {
         width: 250px;
-        background-color: #f2f2f2a9;
+        background-color: #ffffffec;
         border-radius: 12px;
         padding: 15px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
@@ -21,45 +21,8 @@
         text-align: center;
     }
 
-    .logo {
-        width: 250px;
-        margin-left: 20px;
-    }
-
     .container-principal:hover {
         transform: scale(1.03);
-    }
-
-    .container-info {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        justify-content: center;
-        gap: 6px;
-        /* Ajusta este valor para más o menos separación */
-    }
-
-    .name-produc {
-        font-size: 16px;
-        font-weight: bold;
-        margin: 3px 0;
-        color: #333;
-    }
-
-    .desc-produc {
-        font-size: 14px;
-        color: #666;
-        margin: 3px 0;
-
-    }
-
-    .price-produc {
-        font-size: 16px;
-        font-weight: bold;
-        color: #0a7d23;
-        margin: 10px 0;
     }
 
     .img-produc {
@@ -69,138 +32,153 @@
         margin-bottom: 8px;
     }
 
-    .btn-comprar {
-        width: 120px;
-        height: 40px;
-        background-color: #0a7d23;
-        color: white;
-        border: none;
-        border-radius: 6px;
+    .name-produc {
+        font-size: 25px;
         font-weight: bold;
+        margin: 3px 0;
+        color: #333;
+    }
+
+    .desc-produc {
+        font-size: 14px;
+        color: #666;
+        margin: 3px 0;
+    }
+
+    .price-produc {
+        font-size: 18px;
+        font-weight: bold;
+        color: #1a1a1a;
+        margin: 10px 0;
+    }
+
+    .btn-comprar {
+        width: 130px;
+        /* un poquito más ancho */
+        height: 42px;
+        background-color: #FFC107;
+        /* Amarillo mango */
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        /* más redondeado */
+        font-weight: bold;
+        font-size: 15px;
         cursor: pointer;
-        transition: background-color 0.3s ease;
+        transition: all 0.3s ease;
         text-decoration: none;
-        text-align: center;
-        line-height: 40px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
-        font-size: 14px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        /* sombrita */
+        margin: 15px 12px;
     }
 
     .btn-comprar:hover {
-        background-color: #056619;
+        background-color: #FFA000;
+        /* Amarillo más oscuro */
+        transform: scale(1.05);
+        /* efecto zoom */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
     }
 
-    .btn-comprar i {
-        color: white;
-    }
-
+    /* Ícono del carrito */
     .carrito-icono {
         position: fixed;
         bottom: 20px;
         right: 20px;
-        background-color: #0a7d23;
-        color: white;
-        padding: 10px 14px;
-        border-radius: 50px;
+        background-color: #FFA000;
+        /* amarillo */
+        color: #333;
+        /* más natural */
+        padding: 12px 14px;
+        border-radius: 50%;
         cursor: pointer;
-        font-size: 18px;
+        font-size: 22px;
         z-index: 1001;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
     }
 
+    .carrito-icono:hover {
+        background-color: #e0a800;
+        /* un amarillo más oscuro */
+        transform: scale(1.1);
+    }
+
+    /* Contador */
+    .contador-carrito {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: #d32f2f;
+        /* rojo suave */
+        color: white;
+        border-radius: 50%;
+        padding: 4px 7px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    /* Dropdown */
     .carrito-dropdown {
         display: none;
         position: fixed;
         bottom: 80px;
         right: 20px;
-        width: 330px;
+        width: 320px;
         max-height: 420px;
         background-color: #ffffff;
-        border-radius: 15px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
         overflow-y: auto;
         z-index: 1000;
-        padding: 20px;
+        padding: 18px;
         font-family: 'Segoe UI', sans-serif;
     }
 
+    /* Título */
     .carrito-dropdown h4 {
         margin-top: 0;
         text-align: center;
-        font-size: 20px;
-        color: #0a7d23;
+        font-size: 18px;
+        color: #4CAF50;
+        /* verde hoja */
         font-weight: bold;
     }
 
+    /* Tabla de productos */
     .carrito-dropdown table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 10px;
-        border-radius: 8px;
-        overflow: hidden;
     }
-
-    .carrito-dropdown tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
-
 
     .carrito-dropdown th,
     .carrito-dropdown td {
         font-size: 14px;
         padding: 8px;
         text-align: center;
-        border-bottom: 1px solid #e0e0e0;
-        vertical-align: middle;
+        border-bottom: 1px solid #eee;
     }
 
-    .carrito-dropdown th {
-        background-color: #f2f2f2;
-        color: #333;
-        font-weight: 600;
+    .carrito-dropdown tr:nth-child(even) {
+        background-color: #fafafa;
     }
 
-    .carrito-dropdown .cantidad-control {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 5px;
-        margin-top: 5px;
-    }
-
-    .carrito-dropdown .cantidad-control a {
-        display: inline-block;
-        width: 26px;
-        height: 26px;
-        line-height: 26px;
-        background-color: #0a7d23;
-        color: white;
-        border-radius: 50%;
-        font-size: 16px;
-        font-weight: bold;
-        text-align: center;
-        text-decoration: none;
-    }
-
-    .carrito-dropdown .cantidad-control a:hover {
-        background-color: #056619;
-    }
-
+    /* Botón eliminar */
     .carrito-dropdown .btn-danger {
         display: block;
         width: 100%;
         margin-top: 12px;
         padding: 10px;
-        background-color: #c62828;
+        background-color: #d32f2f;
         color: white;
         border: none;
         border-radius: 8px;
-        text-align: center;
         font-weight: bold;
-        text-decoration: none;
+        cursor: pointer;
         transition: background-color 0.3s ease;
     }
 
@@ -208,126 +186,26 @@
         background-color: #b71c1c;
     }
 
-
-    .contador-carrito {
-        position: absolute;
-        top: -6px;
-        right: -6px;
-        background-color: red;
-        color: white;
-        border-radius: 50%;
-        padding: 3px 6px;
-        font-size: 12px;
-        font-weight: bold;
-        z-index: 1002;
-    }
-
-    .btn-leer-mas {
-        background-color: #0a7d23;
-        color: white;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        margin-top: 8px;
-        transition: background-color 0.3s ease;
-    }
-
-    .btn-leer-mas:hover {
-        background-color: #056619;
-    }
-
+    /* Botón finalizar */
     .carrito-dropdown .btn-finalizar {
         display: block;
         width: 100%;
         margin-top: 10px;
         padding: 10px;
-        background-color: #0a7d23;
+        background-color: #4CAF50;
+        /* verde natural */
         color: white;
         border: none;
         border-radius: 8px;
-        text-align: center;
         font-weight: bold;
-        text-decoration: none;
+        cursor: pointer;
         transition: background-color 0.3s ease;
     }
 
     .carrito-dropdown .btn-finalizar:hover {
-        background-color: #056619;
+        background-color: #388E3C;
     }
 
-    .carrito-icono:hover {
-        transform: scale(1.1);
-        background-color: #056619;
-    }
-
-
-    .iconos-header {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        position: relative;
-    }
-
-    .iconos-header a,
-    .iconos-header a i {
-        color: #000000;
-        text-decoration: none;
-
-    }
-
-    .iconos-header i {
-        font-size: 30px;
-        /* Puedes ajustar el tamaño según necesites */
-    }
-
-
-    .user-menu {
-        position: relative;
-    }
-
-    .menu-desplegable {
-        display: none;
-        position: absolute;
-        right: 0;
-        top: 30px;
-        background-color: #f0f0f0;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        padding: 10px;
-        min-width: 150px;
-        z-index: 100;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .menu-desplegable a {
-        display: block;
-        text-decoration: none;
-        padding: 8px;
-        color: #333;
-        border-bottom: 1px solid #ddd;
-    }
-
-    .menu-desplegable a:last-child {
-        border-bottom: none;
-    }
-
-    .menu-desplegable a:hover {
-        background-color: #ddd;
-    }
-
-    .logo-img {
-        height: 60px;
-        width: auto;
-    }
-
-    .btn-leer-mas i {
-        transition: transform 0.3s ease;
-    }
-
-    .btn-leer-mas:hover i {
-        transform: rotate(180deg);
-    }
 
     .btn-whatsapp {
         position: fixed;
@@ -348,331 +226,12 @@
         background-color: #1ebe5d;
         transform: scale(1.1);
     }
-
-
-    @media (max-width: 768px) {
-
-        /* NAVBAR */
-        .navbar {
-            flex-direction: column;
-            align-items: center;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .logo-img {
-            height: 50px;
-            margin-bottom: 10px;
-        }
-
-        .search-box {
-            width: 90%;
-            margin: 10px 0;
-        }
-
-        .nav-links {
-            flex-direction: column;
-            width: 100%;
-        }
-
-        .nav-links a {
-            padding: 8px 0;
-        }
-
-        .iconos-header {
-            margin-top: 10px;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        /* PRODUCTOS */
-        .Productos {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .container-produc {
-            width: 90%;
-            margin-bottom: 20px;
-        }
-
-        .container-principal {
-            width: 100%;
-            height: auto;
-        }
-
-        .img-produc {
-            width: 150px;
-            height: 150px;
-        }
-
-        .desc-produc {
-            font-size: 13px;
-        }
-
-        .btn-leer-mas {
-            width: 100%;
-        }
-
-        /* CARRITO */
-        .carrito-dropdown {
-            width: 90%;
-            right: 5%;
-            bottom: 90px;
-            padding: 15px;
-        }
-
-        .carrito-dropdown table {
-            font-size: 12px;
-        }
-
-        .btn-danger,
-        .btn-finalizar {
-            padding: 8px;
-            font-size: 14px;
-        }
-
-        /* WHATSAPP */
-        .btn-whatsapp {
-            bottom: 130px;
-            right: 15px;
-            padding: 12px;
-            font-size: 22px;
-        }
-
-        /* MENÚ DESPLEGABLE */
-        .menu-desplegable {
-            top: 35px;
-            right: 0;
-            font-size: 14px;
-            min-width: 130px;
-        }
-    }
-
-    @media (max-width: 480px) {
-
-        /* NAVBAR */
-        .navbar {
-            padding: 8px;
-        }
-
-        .logo-img {
-            height: 45px;
-        }
-
-        .search-box input[type="text"] {
-            width: 100%;
-            font-size: 14px;
-        }
-
-        .search-box button {
-            font-size: 14px;
-            padding: 6px;
-        }
-
-        .nav-links a {
-            font-size: 14px;
-            padding: 6px 0;
-        }
-
-        .iconos-header {
-            gap: 10px;
-            font-size: 20px;
-        }
-
-        /* PRODUCTOS */
-        .container-principal {
-            flex-direction: column;
-            padding: 5px;
-        }
-
-        .container-produc {
-            width: 100%;
-            padding: 10px;
-        }
-
-        .img-produc {
-            width: 120px;
-            height: 120px;
-        }
-
-        .desc-produc {
-            font-size: 12px;
-        }
-
-        .btn-leer-mas {
-            font-size: 13px;
-            padding: 6px 12px;
-        }
-
-        /* CARRITO */
-        .carrito-dropdown {
-            padding: 10px;
-            font-size: 12px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .carrito-dropdown table th,
-        .carrito-dropdown table td {
-            font-size: 11px;
-        }
-
-        .btn-danger,
-        .btn-finalizar {
-            font-size: 12px;
-            padding: 6px;
-        }
-
-        /* WHATSAPP */
-        .btn-whatsapp {
-            bottom: 120px;
-            right: 10px;
-            font-size: 20px;
-            padding: 10px;
-        }
-
-        /* MENÚ DESPLEGABLE */
-        .menu-desplegable {
-            font-size: 13px;
-            right: 0;
-            min-width: 120px;
-        }
-    }
-
-    .dropdown a {
-        font-size: 17px;
-        color: white;
-        text-decoration: none;
-        position: relative;
-        padding-right: 1px;
-    }
-
-    .dropdown::after {
-        color: rgba(255, 255, 255, 0.671);
-        font-size: 1.2em;
-        margin-left: 1px;
-        transition: transform 0.2s ease;
-        display: inline-block;
-    }
-
-    .dropdown:hover::after {
-        color: white;
-        transform: rotate(-90deg);
-        transition: transform 0.2s ease;
-    }
-
-    .flecha {
-        margin-left: 6px;
-        transition: transform 0.3s ease;
-    }
-
-    /* Gira la flecha al abrir */
-    .dropdown:hover .flecha {
-        transform: rotate(180deg);
-    }
-
-    footer {
-        background-color: rgba(0, 0, 0, 0.555);
-        /* degradado */
-        color: white;
-        text-align: center;
-        margin-top: 100px;
-        /* hace que siempre se pegue abajo */
-        height: 150px;
-        padding: 60px 0;
-        text-align: center;
-        font-size: 20px;
-    }
-
-    .nav-links .dropdown {
-        position: relative;
-    }
-
-    .nav-links .dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: white;
-        min-width: 130px;
-        box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
-        z-index: 1;
-        top: 100%;
-        left: 0;
-        border-radius: 5px;
-    }
-
-    .nav-links .dropdown-content a {
-        color: black;
-        padding: 8px;
-        display: block;
-        text-decoration: none;
-        font-size: 14px;
-    }
-
-    .nav-links .dropdown-content a:hover {
-        background-color: #f1f1f1;
-    }
-
-    .nav-links .dropdown:hover .dropdown-content {
-        display: block;
-    }
-
-    .nav-links a {
-        color: #000000;
-        text-decoration: none;
-        font-size: 14px;
-    }
 </style>
 {% endblock %}
 
 {% block content %}
-<nav class="navbar">
-    <img class="logo" src='/media/uploads/products/LOGOREAL.png' alt="Logo Los Girasoles" class="logo-img">
-    <div class="search-box">
-        <form method="GET" action=""> <!-- Acción vacía por ahora -->
-            <input type="text" placeholder="¿Qué estás buscando?" value="{{ buscar }}">
-            <button type="submit">
-                <i class="fa fa-search"></i>
-            </button>
-        </form>
-    </div>
-    <div class="nav-links">
-        {% if user.is_authenticated %}
-        <div class="dropdown">
-            <a href="{% url 'productos:producto' %}" class="dropbtn">Productos <i
-                    class="fa-solid fa-chevron-down flecha"></i></a>
-            <div class="dropdown-content">
-                <a href="{% url 'productos:producto' %}">Todos los productos</a>
-                <hr style="color: #0a7d23;">
-                {% for categoria in categorias %}
-                <a href="{% url 'productos:productos_por_categoria' categoria.id %}">{{ categoria.nombCategory }}</a>
-                {% endfor %}
-            </div>
-        </div>
-        {% else %}
-        <a href="{% url 'usuarios:nosotros' %}">Nosotros</a>
-        <a href="{% url 'usuarios:contacto' %}">Contacto</a>
-        <a href="{% url 'usuarios:login' %}">Iniciar sesión</a>
-        {% endif %}
-    </div>
-    <div class="iconos-header">
-        <a href="{% url 'usuarios:contacto' %}">
-            <i class="fa fa-question-circle"></i>
-        </a>
-        {% if user.is_authenticated %}
-        <div class="user-menu">
-            <i class="fa fa-user" id="userIcon"></i>
-            <div class="menu-desplegable" id="menuUsuario">
-                <a href="{% url 'usuarios:editar_perfil' %}">Editar perfil</a>
-                <a href="{% url 'usuarios:mis_pedidos' %}">Mis pedidos</a>
-                <a href="{% url 'usuarios:logout' %}">Cerrar sesión</a>
-            </div>
-        </div>
-        {% endif %}
 
-    </div>
-</nav>
+
 <section class="Productos">
     {% for product in products %}
     <div class="container-produc">
@@ -747,87 +306,14 @@
     <hr>
     <h4>Total: ${{ total }}</h4>
     <hr>
-    <a href="{% url 'productos:checkout' %}" class="btn-finalizar">✅ Finalizar compra</a>
+    <a href="{% url 'productos:checkout' %}" class="btn-finalizar">Finalizar compra</a>
     <hr>
-    <a href="{% url 'productos:limpiar' %}" class="btn btn-danger">🗑 Limpiar carrito</a>
+    <a href="{% url 'productos:limpiar' %}" class="btn btn-danger">Limpiar carrito</a>
 </div>
 <a href="https://wa.me/573106194290" class="btn-whatsapp" target="_blank" title="¡Chatea con nosotros en WhatsApp!">
     <i class="fab fa-whatsapp"></i>
 </a>
 
 
-{% block scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Funcionalidad del carrito
-        const iconoCarrito = document.getElementById("iconoCarrito");
-        const carritoDropdown = document.getElementById("carritoDropdown");
 
-        if (iconoCarrito && carritoDropdown) {
-            iconoCarrito.addEventListener("click", function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                // Toggle del carrito
-                if (carritoDropdown.style.display === "block") {
-                    carritoDropdown.style.display = "none";
-                } else {
-                    carritoDropdown.style.display = "block";
-                }
-            });
-
-            // Cerrar carrito al hacer clic fuera de él
-            document.addEventListener('click', function (e) {
-                if (!iconoCarrito.contains(e.target) && !carritoDropdown.contains(e.target)) {
-                    carritoDropdown.style.display = 'none';
-                }
-            });
-        }
-
-        // Funcionalidad del menú de usuario
-        const userIcon = document.getElementById('userIcon');
-        const menuUsuario = document.getElementById('menuUsuario');
-
-        if (userIcon && menuUsuario) {
-            userIcon.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                // Toggle del menú de usuario
-                if (menuUsuario.style.display === 'block') {
-                    menuUsuario.style.display = 'none';
-                } else {
-                    menuUsuario.style.display = 'block';
-                }
-            });
-
-            // Cerrar menú de usuario al hacer clic fuera
-            document.addEventListener('click', function (e) {
-                if (!userIcon.contains(e.target) && !menuUsuario.contains(e.target)) {
-                    menuUsuario.style.display = 'none';
-                }
-            });
-        }
-
-        // Función para actualizar el contador del carrito después de agregar productos
-        function actualizarContadorCarrito() {
-            const contadorCarrito = document.querySelector('.contador-carrito');
-            if (contadorCarrito) {
-                // Aquí puedes hacer una petición AJAX para obtener la cantidad actual
-                // o actualizar el contador desde el servidor
-                console.log('Actualizando contador del carrito...');
-            }
-        }
-
-        // Mostrar automáticamente el carrito cuando se agrega un producto
-        // (esto se puede activar desde el servidor después de agregar un producto)
-        window.mostrarCarrito = function () {
-            if (carritoDropdown) {
-                carritoDropdown.style.display = 'block';
-            }
-        };
-    });
-
-</script>
-{% endblock %}
 {% endblock %}
