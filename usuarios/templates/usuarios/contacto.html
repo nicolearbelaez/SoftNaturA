@@ -1,58 +1,202 @@
 {% extends 'productos/baseP.html' %}
-{% load static%}
-
+{% load static %}
 {% block content %}
+<style>
+  * {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
 
-<div align="center">
-    <br><br>
-    <form>
-        <h2>Formulario</h2>
-        <br><br>
-        <label for="nombre">Nombre:</label>
-        <input type="text" name="nombre" required>
-        <br><br>
-        <label for="correo">Correo:</label>
-        <input type="email" nombre="correo" required>
-        <br><br>
-        <label for="Asunto">Asunto: </label>
-        <textarea id="Asunto" name="Asunto" rows="" required></textarea>
-        <br><br>
-        <label for="Mensaje">Mensaje: </label>
-        <textarea id="text" name="Mensaje" rows="5" required></textarea>
-        <br>
-        <button class="Enviar" type="submit">Enviar</button>
-        <br><br>
-        <br>
-        <button type="button" class="btn-volver" onclick="history.back()">← Volver</button>
+  .contact-container {
+    display: flex;
+    gap: 40px;
+    margin: 80px auto;
+    max-width: 1200px;
+  }
 
+
+  .contact-form,
+  .contact-info {
+    flex: 1;
+    background: #fff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .contact-form h2 {
+    font-size: 26px;
+    margin-bottom: 25px;
+  }
+
+  .contact-form .row {
+    display: flex;
+    gap: 20px;
+    /* más separación entre campos */
+    margin-bottom: 20px;
+  }
+
+  .contact-form input,
+  .contact-form textarea {
+    width: 100%;
+    padding: 15px;
+    /* más altos */
+    font-size: 16px;
+    /* texto más grande */
+    border: 1px solid #ddd;
+    border-radius: 6px;
+  }
+
+  .contact-form textarea {
+    height: 150px;
+    /* más alto el área de mensaje */
+    resize: none;
+  }
+
+  .btn-enviar {
+    margin: 20px auto;
+    display: block;
+    background: #FFC107;
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    /* botones más grandes */
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 200px;
+    font-size: 16px;
+
+  }
+
+  .btn-enviar:hover {
+    background: #d86600;
+  }
+
+
+  .contact-info .info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 15px;
+    color: #444;
+  }
+
+  .contact-info .info-item i {
+    font-size: 24px;
+    color: #FFC107;
+    margin-right: 12px;
+  }
+
+  .social-icons {
+    margin-top: 20px;
+  }
+
+  .social-icons a {
+    display: inline-block;
+    margin: 5px;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 18px;
+    background: #FFC107;
+    color: #fff;
+    transition: 0.3s;
+  }
+
+  .social-icons a:hover {
+    background: #000;
+  }
+
+  .btn-volver {
+    position: absolute;
+    top: 180px;
+    left: 20px;
+    padding: 10px 20px;
+    background-color: #FFC107;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+
+  }
+
+  .btn-volver:hover {
+    background-color: #f17800;
+  }
+
+  /* Banner superior */
+  .banner-nosotros {
+    height: 480px;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    position: relative;
+    margin: 80px 0 40px 0;
+    /* espacio entre banners */
+  }
+
+  .banner-nosotros::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+<button type="button" class="btn-volver" onclick="history.back()">← Volver</button>
+<div class="banner-nosotros" style="
+    background: url('/media/uploads/products/contacto.png') no-repeat center
+      center/cover;
+  "></div>
+<div class="contact-container">
+  <div class="contact-form">
+    <h2>CONTÁCTANOS</h2>
+    <form method="post" action="{% url 'usuarios:contacto' %}" style="width:600px;">
+      {% csrf_token %}
+      <div class="row">
+        <input type="text" name="nombre" placeholder="Nombre completo" required />
+        <input type="email" name="correo" placeholder="Correo electrónico" required />
+      </div>
+
+      <input type="text" name="asunto" placeholder="Asunto" required />
+      <textarea name="mensaje" placeholder="Escribe tu mensaje aquí..." rows="5" required></textarea>
+
+      <button style="width:100px" class="btn-enviar" type="submit">Enviar</button>
     </form>
-    <style>
-        .btn-volver {
-            background: none;
-            border: none;
-            color: #f17800;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: underline;
-            font-size: 14px;
-            margin-top: 10px;
-            transition: color 0.3s;
-        }
+  </div>
 
-        .btn-volver:hover {
-            color: grey;
-        }
-
-        .Enviar {
-            width: 30%;
-            padding: 10px;
-            margin-top: 10px;
-            background-color: #FFC107;
-            cursor: pointer;
-            color: white;
-            border: none;
-            font-size: 16px;
-            border-radius: 5px;
-        }
-    </style>
-    {% endblock %}
+  <!-- Columna derecha -->
+  <div class="contact-info">
+    <h3>INFORMACIÓN DE CONTACTO</h3>
+    </br>
+    <div class="info-item">
+      <i class="fas fa-map-marker-alt"></i>
+      <p>Ibagué, Tolima - Colombia</p>
+    </div>
+    <div class="info-item">
+      <i class="fas fa-phone"></i>
+      <p>3212334148</p>
+    </div>
+    <div class="info-item">
+      <i class="fas fa-envelope"></i>
+      <p>naturistasoftnatur@outlook.com</p>
+    </div>
+    <div class="social-icons">
+      <a href="https://web.facebook.com/profile.php?id=100057407501877" target="_blank"><i
+          class="fab fa-facebook-f"></i></a>
+      <a href="https://www.instagram.com/tienda_naturista_los_girasoles" target="_blank"><i
+          class="fab fa-instagram"></i></a>
+      <a href="https://www.tiktok.com/@tnlosgirasoles" target="_blank"><i class="fab fa-tiktok"></i></a>
+      <a href="https://wa.me/573106194290" target="_blank"><i class="fab fa-whatsapp"></i></a>
+    </div>
+  </div>
+</div>
+{% endblock %}

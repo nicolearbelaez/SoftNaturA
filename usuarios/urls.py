@@ -30,6 +30,10 @@ urlpatterns = [
     path('pedidos/', views.pedidos_view, name="pedidos"),
     path('productos-mas-vendidos/', views.productos_mas_vendidos_view, name="productos_mas_vendidos"),
     path('usuarios-frecuentes/', views.usuarios_frecuentes_view, name="usuarios_frecuentes"),
+    path("contacto/", views.contacto, name="contacto"),
+    path('comentario/<int:id>/aprobar/', views.aprobar_comentario, name="aprobar_comentario"),
+    path('comentario/<int:id>/rechazar/', views.rechazar_comentario, name="rechazar_comentario"),
+
     # Recuperación de contraseña
     path(
         'password_reset/',

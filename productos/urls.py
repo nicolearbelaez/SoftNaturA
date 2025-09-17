@@ -23,6 +23,7 @@ urlpatterns = [
     path('guardar-calificacion/', views.guardar_calificacion, name='guardar_calificacion'),
     path('correctamente/', views.correctamente, name='correctamente'),
     path('agregar_categoria/', views.agregar_categoria, name='agregar_categoria'),
+    path('homesoft/', views.homeSoft, name="homesoft"),
 
 
 

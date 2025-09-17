@@ -7,8 +7,6 @@ section {
     justify-content: center;
 }
 
-
-/*Formulario de contacto*/
 form {
     border: 2px solid #FFC107;
     padding: 15px;
@@ -29,16 +27,12 @@ textarea {
     font-size: 10px;
 }
 
-
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-
-
-
 
 .icons {
     display: flex;
@@ -57,7 +51,8 @@ textarea {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #ffffffc6; /* Beige natural */
+    background: rgba(255, 255, 255, 0.7);
+    /* blanco con transparencia */
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     padding: 10px 30px;
     position: sticky;
@@ -79,15 +74,15 @@ textarea {
 }
 
 .nav-links a {
-    color: #FFC107; 
+    color: #E5BE01;
     text-decoration: none;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: bold;
-    transition: color 0.3s;
+    transition: color 0.3s; 
 }
 
 .nav-links a:hover {
-    color: #48a04f; 
+    color: #48a04f;
 }
 
 /* Dropdown contenedor */
@@ -98,14 +93,18 @@ textarea {
 
 /* Contenido del dropdown */
 .dropdown-content {
-    display: none; /* Se muestra al pasar el mouse */
+    display: none;
+    /* Se muestra al pasar el mouse */
     position: absolute;
-    top: 100%; /* Justo debajo del botón */
-    left: 50%; /* Centrado horizontal */
-    transform: translateX(-50%); /* Centrado exacto */
+    top: 100%;
+    /* Justo debajo del botón */
+    left: 50%;
+    /* Centrado horizontal */
+    transform: translateX(-50%);
+    /* Centrado exacto */
     background-color: white;
     min-width: 150px;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
     border-radius: 8px;
     z-index: 100;
     padding: 8px 0;
@@ -122,7 +121,6 @@ textarea {
     font-size: 14px;
     transition: all 0.3s ease;
 }
-
 
 
 /* Línea separadora */
@@ -180,24 +178,221 @@ textarea {
 }
 
 .search-box i.fa-search {
-    color: #FFC107;
-    -webkit-text-stroke: 1px #555555a1;
+    color: #E5BE01;
     font-size: 20px;
 }
 
-/* ---------- ICONOS HEADER ---------- */
-
-
+/* ---------- nuevos estilos fooder laura---------- */
+/* === CONFIGURACIÓN GENERAL DEL FOOTER === */
 footer {
-    background-color: #FFE766; /* amarillo claro pastel */
-    color: black; /* texto oscuro para contraste */
+    background-color: #fff09c;
+    color: black;
     text-align: center;
-    margin-top: 100px;
-    height: 150px;
-    padding: 50px 20px;
-    font-size: 16px; /* línea sutil arriba */
+    margin-top: 50px;
+    height: auto;
+    padding: 40px 20px;
+    font-size: 18px;
 }
 
+/* === CONTENEDOR PRINCIPAL DEL FOOTER === */
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+}
+
+/* === INFORMACIÓN DE LOS GIRASOLES (Calle 14, Barrio Centro, etc.) === */
+.footer-info {
+    max-width: 400px;
+    margin: 0;
+    text-align: left;
+    margin-left: -60px;
+}
+
+.footer-info p {
+    margin: 3px 0;
+    font-size: 16px;
+}
+
+/* === LOGO CENTRAL === */
+.footer-logo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: -20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.footer-logo img {
+    height: 90px;
+    width: auto;
+    margin-bottom: 20px; /* Más espacio entre logo e iconos */
+}
+
+/* === CONTENEDOR DE REDES SOCIALES === */
+.footer-social {
+    position: static;
+    display: flex;
+    justify-content: center;
+    margin-top: 60px; /* Bajar más los iconos */
+    margin-left: -90px;
+}
+
+/* === ICONOS DE REDES SOCIALES === */
+.redes-sociales {
+    display: flex;
+    gap: 15px;
+    margin-top: 0;
+}
+
+.redes-sociales a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    color: white;
+    font-size: 24px;
+    margin-right: 0;
+    text-decoration: none;
+    transition: transform 0.3s ease;
+}
+
+.redes-sociales a:hover {
+    transform: scale(1.1);
+}
+
+/* === COLORES ESPECÍFICOS DE CADA RED SOCIAL === */
+.redes-sociales a[href*="facebook"] {
+    background-color: #1877F2;
+}
+
+.redes-sociales a[href*="tiktok"] {
+    background-color: #000;
+}
+
+.redes-sociales a[href*="instagram"] {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+
+.redes-sociales a[href*="wa.me"] {
+    background-color: #25D366;
+}
+
+/* === CONTENEDOR DEL MENÚ DE NAVEGACIÓN (Home, Nosotros, etc.) === */
+.footer-menu {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: 20px;
+    
+}
+
+.footer-cont {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+/* === ESTILOS DEL MENÚ HOME, NOSOTROS, PRODUCTOS, CONTACTO === */
+/* MISMO COLOR Y TAMAÑO QUE "CALLE 14" */
+.footer-cont p, 
+.footer-cont a,
+.links-uno,
+.links-uno a {
+    margin: 0;
+    font-size: 16px !important; /* Mismo tamaño que "Calle 14" */
+    color: #070707 !important; /* Mismo color que "Calle 14" */
+    text-align: right;
+    line-height: 1.4;
+    text-decoration: none !important;
+    font-family: Arial, sans-serif !important;
+    font-weight: normal !important;
+}
+
+/* === EFECTOS HOVER PARA LOS ENLACES DEL MENÚ === */
+.footer-cont a:hover,
+.links-uno a:hover {
+    color:  #070707 !important; /* Un poco más oscuro al pasar el mouse */
+    text-decoration: underline !important;
+}
+
+/* === ESTADOS VISITED Y ACTIVE PARA LOS ENLACES === */
+.footer-cont a:visited,
+.footer-cont a:active,
+.links-uno a:visited,
+.links-uno a:active {
+    color: #070707 !important;
+    text-decoration: none !important;
+}
+
+/* === PIE DE PÁGINA (Copyright) === */
+.footer-copyright {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+.footer-copyright h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333; /* Cambiado de verde a gris oscuro */
+}
+/* ---------- estilos de menu---------- */
+
+.footer-menu {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: 20px;
+}
+
+.footer-cont {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.footer-cont p,
+.footer-cont a {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+    text-align: right;
+    line-height: 1.2;
+    text-decoration: none;
+}
+
+.footer-cont a:hover {
+    color: #666;
+    text-decoration: underline;
+}
+
+.footer-copyright {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+.footer-copyright h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
 
 .user-menu {
     position: relative;
@@ -215,7 +410,7 @@ footer {
     background: white;
     border: 1px solid #ccc;
     border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     min-width: 160px;
     z-index: 9999;
     margin-top: 5px;
@@ -245,7 +440,104 @@ footer {
 
 #userIcon {
     font-size: 30px;
-    color: #FFC107;
+    color: #E5BE01;
     margin-bottom: 12px;
 }
 
+/* --- Estilos del carrito en el navbar --- */
+.carrito-nav {
+    position: relative;
+    margin-left: 15px;
+}
+
+.carrito-nav a {
+    color: #E5BE01;
+    font-size: 20px;
+    text-decoration: none;
+    position: relative;
+}
+
+.contador-carrito {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    background-color: #d32f2f;
+    color: #fff;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 50%;
+    font-weight: bold;
+}
+
+.carrito-dropdown {
+    display: none;
+    position: absolute;
+    top: 120%;
+    right: 0;
+    width: 320px;
+    max-height: 400px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    z-index: 2000;
+}
+
+.carrito-dropdown h4 {
+    text-align: center;
+    margin: 0 0 10px;
+    color: black;
+}
+
+.carrito-dropdown table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.carrito-dropdown th,
+.carrito-dropdown td {
+    font-size: 13px;
+    padding: 6px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+.carrito-dropdown img {
+    width: 40px;
+    border-radius: 5px;
+}
+
+.carrito-dropdown .btn-finalizar {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #ebc729c5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+}
+
+.carrito-dropdown .btn-danger {
+    display: block;
+    width: 100%;
+    margin-top: 8px;    
+    padding: 10px;
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+}
+.carrito-dropdown .btn-finalizar:hover{
+    color: white;
+}
+
+.carrito-dropdown .btn-danger:hover{
+    color: white;
+}

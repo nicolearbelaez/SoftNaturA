@@ -3,6 +3,10 @@
 
 {% block content %}
 <style>
+    * {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
     .container {
         max-width: 800px;
         margin: 50px auto;
@@ -14,7 +18,7 @@
 
     h2 {
         text-align: center;
-        color: #28a745;
+        color: #E5BE01;
         margin-bottom: 30px;
         font-size: 28px;
     }
@@ -30,7 +34,7 @@
         display: inline-block;
         padding: 10px 20px;
         margin-top: 20px;
-        background-color: #28a745;
+        background-color: #E5BE01;
         color: white;
         text-decoration: none;
         font-weight: bold;
@@ -40,7 +44,11 @@
     }
 
     .btn-volver:hover {
-        background-color: #218838;
+        background-color: #E5BE01;
+    }
+
+    input {
+        width: 330px;
     }
 
     .btn-guardar {
@@ -53,12 +61,12 @@
         cursor: pointer;
         text-align: center;
         font-weight: bold;
-        background-color: #28a745;
+        background-color: #E5BE01;
         font-size: 16px;
     }
 
     .btn-guardar:hover {
-        background-color: #218838;
+        background-color: #E5BE01;
     }
 
     .btn-agregar {
@@ -66,7 +74,7 @@
         justify-content: center;
         margin-top: 40px;
         padding: 12px 22px;
-        background-color: #28a745;
+        background-color: #E5BE01;
         color: white;
         font-weight: bold;
         border-radius: 8px;
@@ -76,10 +84,12 @@
         margin-bottom: 20px;
         border: none;
         outline: none;
+        width: 200px;
+        margin-left: 1130px;
     }
 
     .btn-agregar:hover {
-        background-color: #218838;
+        background-color: #E5BE01;
     }
 
     #form-agregar {
@@ -92,12 +102,13 @@
         align-items: center;
         margin: 20px 40px 0 40px;
     }
-        .btn-agregar-category {
+
+    .btn-agregar-category {
         display: flex;
         justify-content: center;
         margin-top: 40px;
         padding: 12px 22px;
-        background-color: #28a745;
+        background-color: #E5BE01;
         color: white;
         font-weight: bold;
         border-radius: 8px;
@@ -107,27 +118,33 @@
         margin-bottom: 20px;
         border: none;
         outline: none;
+        width: 200px;
     }
-        .btn-agregar-.btn-agregar-category {
-        background-color: #218838;
+
+    .btn-agregar-category:hover {
+        background-color: #E5BE01;
     }
 </style>
+
 <div class="acciones-superior">
     <a class="btn-volver" href="{% url 'usuarios:dashboard' %}">← Volver al dashboard</a>
-    <button class="btn-agregar" onclick="mostrarFormulario()"> 🛒 Agregar Producto</button>
-    <button class="btn-agregar-category" onclick="mostrarFormulario2()"> Agregar categorias</button>
+    <button class="btn-agregar" onclick="mostrarFormulario()">Agregar Producto</button>
+    <button class="btn-agregar-category" onclick="mostrarFormulario2()">Agregar Categorías</button>
 </div>
+
+<!-- Formulario para agregar categoría -->
 <div class="container" id="form-agregar-category" style="display: none;">
     <h2>Agregar Categoría</h2>
     <form method="POST" enctype="multipart/form-data" action="{% url 'productos:agregar_categoria' %}">
         {% csrf_token %}
         <input type="text" class="texto" name="nombCategory" placeholder="Nueva categoría" required>
-        <button type="submit" class="btn-guardar">Guardar categoria</button>
+        <button type="submit" class="btn-guardar">Guardar categoría</button>
     </form>
 </div>
+
+<!-- Formulario para agregar producto -->
 <div class="container" id="form-agregar">
     <h2>Agregar Producto</h2>
-
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <label for="nombreProduc">Nombre del producto</label>
@@ -144,14 +161,17 @@
 
         <label for="stock">Cantidad en stock</label>
         {{ form.stock }}
+
         <label for="fecha_caducidad">Fecha de caducidad</label>
         {{ form.fecha_caducidad }}
+
         <label for="imgProduc">Imagen</label>
         {{ form.imgProduc }}
 
         <button type="submit" class="btn-guardar">Guardar Producto</button>
     </form>
 </div>
+
 <script>
     function mostrarFormulario() {
         const form = document.getElementById('form-agregar');
@@ -162,6 +182,7 @@
             form.style.display = 'none';
         }
     }
+
     function mostrarFormulario2() {
         const form = document.getElementById('form-agregar-category');
         if (form.style.display === 'none') {
@@ -173,17 +194,12 @@
     }
 </script>
 
-<hr style="margin: 50px 0;">
-
-
-
 
 <h2 style="text-align: center;">Lista de Productos</h2>
 
-
 <table style="width: 100%; border-collapse: collapse; margin-top: 30px;">
     <thead>
-        <tr style="background-color: #28a745; color: white;">
+        <tr style="background-color: #E5BE01; color: white;">
             <th style="padding: 12px;">Imagen</th>
             <th style="padding: 12px;">Nombre</th>
             <th style="padding: 12px;">Precio</th>
@@ -210,43 +226,47 @@
                 {% if product.stock > 0 %}
                 {{ product.stock }}
                 {% else %}
-                <span style="color: red; font-weight: bold;">Agotado</span>
+                <span style="color: #E5BE01; font-weight: bold;">Agotado</span>
                 {% endif %}
             </td>
             <td style="padding: 12px;">
+                {% if product.fecha_caducidad %}
+                {{ product.fecha_caducidad }}
                 {% if product.esta_vencido %}
-                <span style="color: red; font-weight: bold;">Producto vencido</span>
+                <span style="color: #E5BE01; font-weight: bold;"> (Vencido)</span>
                 {% else %}
-                <span style="color: green; font-weight: bold;">Vigente</span>
+                <span style="color: #E5BE01; font-weight: bold;"> (Vigente)</span>
+                {% endif %}
+                {% else %}
+                <span style="color: gray;">Sin fecha</span>
                 {% endif %}
             </td>
-            <td style="padding: 12px; text-align: center;">
+            <td style="padding: 10px; text-align: center; width: 30px;">
                 <a href="{% url 'productos:editar_producto' product.id %}" class="btn-volver"
-                    style="background-color:rgb(31, 191, 76);">Editar</a>
+                    style="background-color: #FFC107;"> <i class="fa fa-edit"></i></a>
                 <a href="{% url 'productos:eliminar_producto' product.id %}" class="btn-volver"
-                    style="background-color: rgb(31, 191, 76);"
-                    onclick="return confirm('¿Estás seguro de eliminar este producto?')"> Eliminar</a>
+                    style="background-color: #FFC107;"
+                    onclick="return confirm('¿Estás seguro de eliminar este producto?')"> <i class="fa fa-trash"></i></a>
                 {% if product.estado %}
-                <a href="{% url 'productos:inactivar_producto' product.id %}" class="btn-volver"
-                    style="background-color: rgb(31, 191, 76);"> Inactivar</a>
+                    <a href="{% url 'productos:inactivar_producto' product.id %}" class="btn-volver"
+                        style="background-color: #FFC107;"><i class="fa fa-user-slash"></i></a>
                 {% else %}
-                <a href="{% url 'productos:activar_producto' product.id %}" class="btn-volver"
-                    style="background-color: green;"> Activar</a>
+                    <a href="{% url 'productos:activar_producto' product.id %}" class="btn-volver"
+                        style="background-color: #FFC107;"> <i class="fa fa-user-check"></i></a>
                 {% endif %}
             </td>
-
         </tr>
         {% empty %}
         <tr>
-            <td colspan="6" style="text-align: center; padding: 20px;">No hay productos registrados.</td>
+            <td colspan="7" style="text-align: center; padding: 20px;">No hay productos registrados.</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
 <div style="text-align: center; margin-bottom: 20px;">
-    <a href="{% url 'productos:exportar_excel' %}" class="btn-volver" style="background-color: #28a745;">📥 Exportar
+    <a href="{% url 'productos:exportar_excel' %}" class="btn-volver" style="background-color: #E5BE01;"> Exportar
         Inventario a Excel</a>
 </div>
-
 
 {% endblock %}

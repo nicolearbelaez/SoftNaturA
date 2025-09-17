@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
-from .models import Usuario
+from .models import Usuario, Mensaje
 
 
 class UsuarioCreationForm(forms.ModelForm):
@@ -40,4 +40,15 @@ class EditarPerfilForm(forms.ModelForm):
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class MensajeForm(forms.ModelForm):
+    class Meta:
+        model = Mensaje
+        fields = ["nombre", "correo", "asunto", "mensaje"]
+        widgets = {
+            "nombre": forms.TextInput(attrs={"class": "form-control", "placeholder": "Tu nombre"}),
+            "correo": forms.EmailInput(attrs={"class": "form-control", "placeholder": "Tu correo"}),
+            "asunto": forms.TextInput(attrs={"class": "form-control", "placeholder": "Asunto"}),
+            "mensaje": forms.Textarea(attrs={"class": "form-control", "rows": 4, "placeholder": "Escribe tu mensaje"}),
         }

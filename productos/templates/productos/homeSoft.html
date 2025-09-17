@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'productos/css/homesoft.css' %}?v={{ timestamp }}">
+</head>
+<body>
+    <header class="container-header">
+        <!-- Logo -->
+        <div class="container-logo">
+            <img id="img-logo" src="/media/uploads/products/LOGOREAL.png">
+        </div>
+        <div class="container-nav">
+            <nav class="container-menu">
+                <ul>
+                    <li><a class="links-a" href="{% url 'productos:homesoft' %}">Inicio</a></li>
+                    <li><a class="links-a" href="{% url 'productos:producto' %}">Productos</a></li>
+                    <li><a class="links-a" href="{% url 'usuarios:contacto' %}">Contacto</a></li>
+
+                </ul>
+            </nav>
+        </div>
+        <!-- Links -->
+        <div class="container-links">
+            <a class="links-home" href="{% url 'usuarios:register'%}">Crear cuenta</a>
+            <a class="links-home" href="{% url 'usuarios:login'%}">Iniciar sesión</a>
+        </div>
+    </header>
+    <section class="container-carousel">
+        <div class="carousel">
+            <img src="/media/uploads/products/imgBigSol.jpeg" alt="" class="carousel-image">
+            <img src="/media/uploads/products/imgYoga.jpeg" class="carousel-image">
+        </div>
+        <button class="carousel-button prev">⟨</button>
+        <button class="carousel-button next">⟩</button>
+    </section>
+    <section class="container-infoNosotros">
+        <div class="container-nosotros">
+            <h3 id="txt-big">Acerca de Nosotros</h3>
+            <p id="txt-nosotros">Todos nuestros productos cuentan con registro INVIMA, garantizando así nuestro compromiso de mejorar la calidad de vida de nuestros clientes.</p>
+        </div>
+    </section>
+    <div class="container-bloquesTres">
+        <div class="bloques">
+            <h3>Misión</h3>
+            <p id="txt-nosotros">Somos una empresa líder en la comercialización y distribución de productos naturales e integrales, brindando la mejor calidad y economía en nuestros productos y servicio. Contamos con personal altamente calificado que contribuye a la satisfacción y atención del cliente, apoyando al progreso de nuestra región, al desarrollo y bienestar de la comunidad.</p>
+        </div>
+        <div class="bloques">
+            <svg class="icons-info" xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2">
+                <path d="M2 12h20M12 2l10 10-10 10-10-10z"/>
+            </svg>
+            <h3>Visión</h3>
+            <p id="txt-nosotros">Tienda Naturista Los Girasoles quiere impactar el mundo a través de tratamientos integrales con productos naturales, llevando salud y bienestar. Para el 2025 será la principal distribuidora de productos naturales e integrales a nivel nacional online, siendo una organización sólida y próspera. Para el 2028 estaremos en mercados internacionales, contando con el apoyo de nuestros clientes y laboratorios.</p>
+        </div>
+        <div class="bloques">
+            <h2>Valores</h2>
+            <p id="txt-nosotros">ffff</p>
+        </div>
+    </div>
+    <div class="container-img-grande">
+        <p id="txt-prodHome">Nuestros Productos</p>
+        <p id="txt-subHome">Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus, modi assumenda! Debitis laborum dignissimos, aliquam non, exercitationem aut, consectetur incidunt perspiciatis eligendi nemo repellendus. Quod natus molestias libero consequatur saepe.</p>
+        <button id="btn-catalogo">Catalogo</button>
+        <img class="img-abajo" src="/media/uploads/products/imgcarrousel.jpeg">
+    </div>
+
+    <div class="container-prodHome">
+        <h3 id="txt-prod-us">CONOCE NUESTROS PRODUCTOS</h3>
+        <div class="container-imgsHome">
+            {% for producto in mas_vendidos %}
+                <div class="imgsHome">
+                    <img class="img-newProduc" src="{{producto.imgProduc.url }}" alt="{{ producto.nombProduc }}">
+                    <p>{{ producto.nombProduc }}</p>
+                </div>
+            {% empty %}
+                <p>No hay más productos vendidos aún</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="container-comentarios">
+        <h3 id="txt-comentarios">Comentarios de Nuestros Clientes</h3>
+        {% if comentarios %}
+            <div class="lista-comentarios">
+                {% for c in comentarios %}
+                    <div class="comentario-card">
+                        <p class="comentario-usuario"><strong>{{ c.usuario.username }}</strong></p>
+                        <p class="comentario-texto">{{ c.comentario}}</p>
+                        <p class="comentario-rating">
+                            Servicio: {{ c.puntuacion_servicio }}/5⭐
+                        </p>
+                        <small class="comentario-fecha">{{ c.fecha_creacion|date:"Y-m-d" }}</small>
+                    </div>
+                    {% endfor %}
+            </div>
+        {% else %}
+        <p class="no-comentarios">Todavía no hay comentarios</p>
+        {% endif %}
+    </div>
+    <script src="{% static 'productos/js/home.js' %}?v={{ timestamp }}"></script>
+</body>
+</html>

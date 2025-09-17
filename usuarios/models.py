@@ -27,7 +27,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     nombre = models.CharField(max_length=150, unique=True)
     phone_number = models.CharField(max_length=20, blank=True)
     rol = models.CharField(max_length=20, choices=ROLES, default='cliente')
-    activo = models.BooleanField(default=True)
 
     is_active = models.BooleanField(default=True)  
     is_staff = models.BooleanField(default=False)  
@@ -48,6 +47,7 @@ class Pedido(models.Model):
         ('enviado', 'Enviado'),
         ('entregado', 'Entregado'),
     ])
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def __str__(self):
         return f"Pedido #{self.id} de {self.usuario.email}"
@@ -59,3 +59,13 @@ class PedidoItem(models.Model):
 
     def __str__(self):
         return f"{self.cantidad} x {self.producto.nombre}"
+    
+class Mensaje(models.Model):
+    nombre = models.CharField(max_length=150)
+    correo = models.EmailField()
+    asunto = models.CharField(max_length=200)
+    mensaje = models.TextField()
+    fecha_envio = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.nombre} - {self.asunto}"

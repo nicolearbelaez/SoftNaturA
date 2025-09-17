@@ -1,15 +1,20 @@
-{% extends 'productos/baseP.html' %}
+{% extends 'usuarios/base.html' %}
 {% block content %}
 <style>
+    * {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
     h2 {
         text-align: center;
-        color: #28a745;
+        color: #E5BE01;
         margin-bottom: 30px;
         font-size: 28px;
     }
+
     .btn-guardar {
         display: inline-block;
-        background-color: #28a745;
+        background-color: #E5BE01;
         color: white;
         padding: 10px 20px;
         border-radius: 8px;
@@ -20,12 +25,14 @@
         transition: background-color 0.3s ease;
         margin-right: 10px;
     }
+
     .btn-guardar:hover {
-        background-color: #218838;
+        background-color: #E5BE01;
     }
+
     .btn-volver {
         display: inline-block;
-        background-color: #dc3545;
+        background-color: #E5BE01;
         color: white;
         padding: 10px 20px;
         border-radius: 8px;
@@ -33,8 +40,9 @@
         font-weight: bold;
         transition: background-color 0.3s ease;
     }
+
     .btn-volver:hover {
-        background-color: #c82333;
+        background-color: #E5BE01;
     }
 </style>
 

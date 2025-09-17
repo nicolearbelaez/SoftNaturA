@@ -9,7 +9,7 @@ from django.db.models import Q
 import openpyxl
 from django.http import HttpResponse
 from .models import Servicio, Calificacion
-from usuarios.models import Usuario 
+from usuarios.models import Usuario , Pedido
 from .models import CarritoItem
 
 
@@ -50,46 +50,44 @@ def producto(request):
 
 
 def productos_view(request, categoria_id=None):
-    # Obtener parámetro de búsqueda
-    buscar = request.GET.get('q', '')  # 'q' es el nombre del input en el form
-    
-    # Si se pasa un categoria_id, filtrar por esa categoría
+    buscar = request.GET.get('buscar', '')  # 👈 corregido, antes decía 'q'
+
     if categoria_id:
         try:
             categoria = Category.objects.get(id=categoria_id)
-            productos = Producto.objects.filter(categoria=categoria)
+            productos = Producto.objects.filter(categoria=categoria, estado=True)
         except Category.DoesNotExist:
-            productos = Producto.objects.all()
+            productos = Producto.objects.filter(estado=True)
             categoria = None
     else:
-        productos = Producto.objects.all()
+        productos = Producto.objects.filter(estado=True)
         categoria = None
-    
-    # Aplicar filtro de búsqueda si existe
+
+    # 🔎 Aplicar búsqueda
     if buscar:
         productos = productos.filter(
             Q(nombProduc__icontains=buscar) |
             Q(descripcion__icontains=buscar)
         )
-    
+
+    # Carrito en sesión
     carrito = request.session.get('carrito', {})
     items = []
     subtotal = 0
     total_cantidad = 0
-    
-    # Procesar items del carrito
+
     for key, value in carrito.items():
         if not isinstance(value, dict):
             continue
-        
+
         cantidad = int(value.get("cantidad", 0))
         precio = float(value.get("precio", 0))
         nombre = value.get("nombProduc", "Sin nombre")
         precio_total = cantidad * precio
-        
+
         subtotal += precio_total
         total_cantidad += cantidad
-        
+
         items.append({
             "producto_id": key,
             "producto": nombre,
@@ -97,14 +95,12 @@ def productos_view(request, categoria_id=None):
             "precio_unitario": precio,
             "precio_total": precio_total
         })
-    
-    # Calcular IVA y total
+
     iva = subtotal * 0.19
     total = subtotal + iva
-    
-    # Obtener todas las categorías para el menú
+
     categorias = Category.objects.all()
-    
+
     return render(request, 'productos/producto.html', {
         'products': productos,
         'carrito': items,
@@ -114,9 +110,8 @@ def productos_view(request, categoria_id=None):
         'total_cantidad': total_cantidad,
         'categorias': categorias,
         'categoria_actual': categoria,
-        'buscar': buscar,  # Pasar el término de búsqueda al template
+        'buscar': buscar,  # 👈 importante para mantener lo que escribió el usuario
     })
-
 
 def agregarAlCarrito(request, producto_id):
     carrito = request.session.get('carrito', {})
@@ -221,6 +216,14 @@ def checkout(request):
     iva = total * 0.19
     total_con_iva = total + iva
 
+    # ✅ Guardar pedido en la base de datos
+    if request.user.is_authenticated:
+        pedido = Pedido.objects.create(
+            usuario=request.user,
+            total=total_con_iva,
+            estado="pendiente"  # luego lo puedes cambiar a "pagado"
+        )
+
     return render(request, 'productos/checkout.html', {
         'productos': productos,
         'total': total,
@@ -266,9 +269,9 @@ def productos_por_categoria(request, categoria_id):
     try:
         categoria = Category.objects.get(id=categoria_id)
         # IMPORTANTE: Aquí filtras los productos por la categoría seleccionada
-        productos = Producto.objects.filter(Categoria=categoria)
+        productos = Producto.objects.filter(Categoria=categoria, estado=True)
     except Category.DoesNotExist:
-        productos = Producto.objects.all()
+        productos = Producto.objects.filter(estado=True)
         categoria = None
     
     # Código del carrito (igual que tu vista original)
@@ -412,3 +415,22 @@ def agregar_categoria(request):
         'form': form,
         'categorias': categorias
     })
+
+def homeSoft(request):
+    mas_vendidos = Producto.objects.filter(estado=True).order_by("vendidos")[:3]
+    comentarios = Calificacion.objects.filter(aprobado=True).order_by('-fecha_creacion')
+    return render(request, "productos/homeSoft.html", {
+        "mas_vendidos": mas_vendidos,
+        "comentarios": comentarios
+        })
+
+def aprobar_comentario(request, id):
+    calificacion = get_object_or_404(Calificacion, id=id)
+    calificacion.aprobado = True
+    calificacion.save()
+    return redirect('productos:informe_calificaciones')
+
+def rechazar_comentario(request,id):
+    calificacion = get_object_or_404(Calificacion, id=id)
+    calificacion.delete()
+    return redirect('productos:informe_calificaciones')

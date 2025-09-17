@@ -3,17 +3,22 @@
 {% block styles %}
 
 <style>
+    * {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
     .container-produc {
         display: flex;
         justify-content: center;
     }
+
 
     .container-principal {
         width: 250px;
         background-color: #ffffffec;
         border-radius: 12px;
         padding: 15px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.329);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -56,14 +61,14 @@
         width: 130px;
         /* un poquito más ancho */
         height: 42px;
-        background-color: #FFC107;
+        background-color: #E5BE01;
         /* Amarillo mango */
         color: #fff;
         border: none;
         border-radius: 5px;
         /* más redondeado */
         font-weight: bold;
-        font-size: 15px;
+        font-size: 16px;
         cursor: pointer;
         transition: all 0.3s ease;
         text-decoration: none;
@@ -76,155 +81,11 @@
     }
 
     .btn-comprar:hover {
-        background-color: #FFA000;
+        background-color: #ffd500;
         /* Amarillo más oscuro */
         transform: scale(1.05);
         /* efecto zoom */
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
-    }
-
-    /* Ícono del carrito */
-    .carrito-icono {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background-color: #FFA000;
-        /* amarillo */
-        color: #333;
-        /* más natural */
-        padding: 12px 14px;
-        border-radius: 50%;
-        cursor: pointer;
-        font-size: 22px;
-        z-index: 1001;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        transition: all 0.3s ease;
-    }
-
-    .carrito-icono:hover {
-        background-color: #e0a800;
-        /* un amarillo más oscuro */
-        transform: scale(1.1);
-    }
-
-    /* Contador */
-    .contador-carrito {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        background-color: #d32f2f;
-        /* rojo suave */
-        color: white;
-        border-radius: 50%;
-        padding: 4px 7px;
-        font-size: 12px;
-        font-weight: bold;
-    }
-
-    /* Dropdown */
-    .carrito-dropdown {
-        display: none;
-        position: fixed;
-        bottom: 80px;
-        right: 20px;
-        width: 320px;
-        max-height: 420px;
-        background-color: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
-        overflow-y: auto;
-        z-index: 1000;
-        padding: 18px;
-        font-family: 'Segoe UI', sans-serif;
-    }
-
-    /* Título */
-    .carrito-dropdown h4 {
-        margin-top: 0;
-        text-align: center;
-        font-size: 18px;
-        color: #4CAF50;
-        /* verde hoja */
-        font-weight: bold;
-    }
-
-    /* Tabla de productos */
-    .carrito-dropdown table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-    }
-
-    .carrito-dropdown th,
-    .carrito-dropdown td {
-        font-size: 14px;
-        padding: 8px;
-        text-align: center;
-        border-bottom: 1px solid #eee;
-    }
-
-    .carrito-dropdown tr:nth-child(even) {
-        background-color: #fafafa;
-    }
-
-    /* Botón eliminar */
-    .carrito-dropdown .btn-danger {
-        display: block;
-        width: 100%;
-        margin-top: 12px;
-        padding: 10px;
-        background-color: #d32f2f;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    .carrito-dropdown .btn-danger:hover {
-        background-color: #b71c1c;
-    }
-
-    /* Botón finalizar */
-    .carrito-dropdown .btn-finalizar {
-        display: block;
-        width: 100%;
-        margin-top: 10px;
-        padding: 10px;
-        background-color: #4CAF50;
-        /* verde natural */
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    .carrito-dropdown .btn-finalizar:hover {
-        background-color: #388E3C;
-    }
-
-
-    .btn-whatsapp {
-        position: fixed;
-        bottom: 90px;
-        right: 20px;
-        z-index: 1001;
-        background-color: #0fb132;
-        color: white;
-        font-size: 26px;
-        padding: 14px 16px;
-        border-radius: 50%;
-        text-align: center;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        transition: transform 0.3s ease, background-color 0.3s ease;
-    }
-
-    .btn-whatsapp:hover {
-        background-color: #1ebe5d;
-        transform: scale(1.1);
     }
 </style>
 {% endblock %}
@@ -253,67 +114,5 @@
 
     {% endfor %}
 </section>
-<div class="carrito-icono" id="iconoCarrito">
-    <i class="fas fa-shopping-cart"></i>
-    <span class="contador-carrito">{{ total_cantidad }}</span>
-</div>
-<div class="carrito-dropdown" id="carritoDropdown">
-    <table>
-        <thead>
-            <tr>
-                <th scope="row" colspan="4" class="text">
-                    <h3>Tu carrito</h3>
-                </th>
-            </tr>
-            <tr>
-                <th scope="col">Imagen</th>
-                <th scope="col">Nombre</th>
-                <th scope="col">Precio</th>
-                <th scope="col">Cantidad</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% if request.session.carrito %}
-            {% for key, value in request.session.carrito.items %}
-            <tr>
-                <td>
-                    <img src="{{ value.imgProduc }}"
-                        style="width: 60px; height: auto; object-fit: contain; border-radius: 5px;">
-                </td>
-                <td>{{ value.nombProduc }}</td>
-                <td>${{ value.precio }}</td>
-                <td>{{ value.cantidad }}
-                    <div class="cantidad-control">
-                        <a href="{% url 'productos:agregar' key %}" class="badge btn btn-dark badge-dark">+</a>
-                        <a href="{% url 'productos:restar' key %}" class="badge btn btn-dark badge-dark">-</a>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-            {% else %}
-            <tr>
-                <td colspan="4">
-                    <div class="alert">Sin productos</div>
-                </td>
-            </tr>
-            {% endif %}
-        </tbody>
-    </table>
-    <hr>
-    <p>Subtotal: ${{ subtotal }}</p>
-    <hr>
-    <p>IVA (19%): ${{ iva }}</p>
-    <hr>
-    <h4>Total: ${{ total }}</h4>
-    <hr>
-    <a href="{% url 'productos:checkout' %}" class="btn-finalizar">Finalizar compra</a>
-    <hr>
-    <a href="{% url 'productos:limpiar' %}" class="btn btn-danger">Limpiar carrito</a>
-</div>
-<a href="https://wa.me/573106194290" class="btn-whatsapp" target="_blank" title="¡Chatea con nosotros en WhatsApp!">
-    <i class="fab fa-whatsapp"></i>
-</a>
-
-
 
 {% endblock %}

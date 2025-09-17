@@ -1,31 +1,251 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Admin</title>
-    <link rel="stylesheet" href="{% static 'usuarios/css/loginAdm.css' %}?v={{ timestamp }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Admin</title>
+  <link rel="stylesheet" href="{% static 'usuarios/css/loginAdm.css' %}?v={{ timestamp }}">
+
 </head>
+<style>
+  /* Fondo de la página completa */
+  body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f4f4f4;
+    /* Color de fondo gris claro */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  /* Contenedor del formulario con borde amarillo */
+  .contenedor-form-adm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 400px;
+    /* Ancho del formulario - CAMBIAR AQUÍ PARA HACER MÁS GRANDE O PEQUEÑO */
+    justify-content: center;
+    padding: 30px;
+    /* Espaciado interno */
+    border-radius: 20px;
+    /* Redondez de las esquinas - CAMBIAR AQUÍ */
+    background-color: white;
+    /* Color de fondo del formulario */
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.15);
+    /* Sombra del formulario */
+    border: 3px solid #f9d71c;
+    /* Color del borde amarillo - CAMBIAR COLOR AQUÍ */
+    text-align: center;
+    /* CENTRAR TODO EL CONTENIDO DEL FORMULARIO */
+  }
+
+  /* Logo "Unidos pensando en su salud" */
+  .contenedor-form-adm img {
+    width: 250px;
+    /* Tamaño del logo - CAMBIAR AQUÍ */
+    margin-bottom: 25px;
+    /* Espacio debajo del logo */
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    /* CENTRAR EL LOGO */
+  }
+
+  /* Título "Acceso al sistema de administración" */
+  .subtitulo-admin {
+    font-size: 18px;
+    /* Tamaño del título - CAMBIAR AQUÍ */
+    color: #3f3f3f;
+    /* Color del título */
+    margin: 10px 0 20px 0;
+    /* MÁS ESPACIO DEBAJO DEL TÍTULO - CAMBIAR AQUÍ */
+    font-weight: 500;
+    line-height: 1.4;
+    text-align: center;
+    /* CENTRAR EL TÍTULO */
+  }
+
+
+  /* Estilo del formulario */
+  .contenedor-login,
+  .contenedor-login-adm {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+    /* Espacio entre elementos - AUMENTAR O DISMINUIR AQUÍ */
+  }
+
+  /* Etiquetas "Email:" y "Contraseña:" */
+  .btn-txt {
+    font-weight: bold;
+    color: rgb(63, 63, 63);
+    /* Color de las etiquetas */
+    text-align: center;
+    /* CENTRAR LAS ETIQUETAS */
+    font-size: 16px;
+    /* Tamaño de las etiquetas - CAMBIAR AQUÍ */
+    margin-bottom: 8px;
+  }
+
+  /* Campos de entrada (email y contraseña) */
+  input,
+  select,
+  textarea {
+    padding: 12px 15px;
+    /* Espaciado interno: vertical horizontal */
+    border: 2px solid #e1e5e9;
+    /* Color del borde normal */
+    border-radius: 8px;
+    /* Redondez de los campos */
+    width: 100%;
+    /* Ancho completo */
+    margin-bottom: 10px;
+    font-size: 16px;
+    /* Tamaño del texto */
+    background-color: #f8fafc;
+    /* Color de fondo del campo */
+    box-sizing: border-box;
+    /* Para que el padding no afecte el ancho */
+    transition: all 0.3s ease;
+    /* Transición suave */
+  }
+
+  /* Campos cuando están seleccionados (focus) */
+  input:focus,
+  select:focus,
+  textarea:focus {
+    border-color: #f9d71c;
+    /* Color del borde cuando está seleccionado */
+    background-color: white;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(249, 215, 28, 0.1);
+    /* Sombra al seleccionar */
+  }
+
+  /* Botón de ingreso */
+  .btn-ingresar {
+    padding: 14px 20px;
+    /* Espaciado interno */
+    background: linear-gradient(135deg, #f9d71c 0%, #f1c84b 100%);
+    /* Gradiente amarillo */
+    color: white;
+    /* Color del texto */
+    border: none;
+    font-weight: bold;
+    border-radius: 8px;
+    /* Redondez del botón */
+    cursor: pointer;
+    font-size: 16px;
+    /* Tamaño del texto */
+    margin-top: 15px;
+    width: 100%;
+    /* Ancho completo */
+    transition: all 0.3s ease;
+    /* Transición suave */
+    box-shadow: 0 4px 15px rgba(249, 215, 28, 0.3);
+    /* Sombra del botón */
+  }
+
+  /* Botón cuando pasas el mouse encima */
+  .btn-ingresar:hover {
+    background: linear-gradient(135deg, #f1c84b 0%, #e6b800 100%);
+    transform: translateY(-2px);
+    /* Efecto de elevación */
+    box-shadow: 0 6px 20px rgba(249, 215, 28, 0.4);
+  }
+
+  /* Botón cuando lo presionas */
+  .btn-ingresar:active {
+    transform: translateY(0);
+  }
+
+  /* Enlace "¿Olvidaste tu contraseña?" */
+  .txt-reset {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .txt-reset a {
+    color: #f9d71c;
+    /* Color del enlace - CAMBIAR AQUÍ */
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+
+  .txt-reset a:hover {
+    color: #e6b800;
+    /* Color al pasar mouse - CAMBIAR AQUÍ */
+    text-decoration: underline;
+  }
+
+  /* Enlace de registro */
+  .txt-register {
+    text-align: center;
+    margin-top: 20px;
+    color: rgb(63, 63, 63);
+  }
+
+  .txt-register a {
+    text-decoration: none;
+    color: #f9d71c;
+    /* Color del enlace de registro */
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+
+  .txt-register a:hover {
+    color: #e6b800;
+    transition: all 0.3s ease;
+  }
+
+  /* Mensajes de error */
+  p[style*="color:red"] {
+    background-color: #fee2e2;
+    /* Fondo del error */
+    color: #dc2626 !important;
+    /* Texto del error */
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid #dc2626;
+    margin-top: 15px;
+    font-size: 14px;
+    text-align: center;
+  }
+</style>
+
 <body>
-    <div class="contenedor-form-adm">
-    <h2>Login Admin</h2>
-    <form method="post" class="contenedor-login-adm">
-    {% csrf_token %}
+  <div class="contenedor-form-adm">
+    <img src="/media/uploads/products/Gemini_Generated_Image_givzp3givzp3givz__1_-removebg-preview.png"
+      style="width: 250px; margin-bottom: 25px;">
+    <form method="post" class="contenedor-login">
+      {% csrf_token %}
+      <p class="subtitulo-admin">Acceso al sistema de administración</p>
 
-    <label for="email" class="btn-txt">Email:</label>
-    {{ form.email }}
+      <form method="post" class="contenedor-login-adm">
+        {% csrf_token %}
 
-    <label for="password" class="btn-txt">Contraseña:</label>
-    {{ form.password }}
+        <label for="email" class="btn-txt">Email:</label>
+        {{ form.email }}
 
-    <button type="submit" class="btn-ingresar">Ingresar</button>
-</form>
+        <label for="password" class="btn-txt">Contraseña:</label>
+        {{ form.password }}
 
+        <button type="submit" class="btn-ingresar">Ingresar</button>
+      </form>
 
-    {% if mensaje %}
-    <p style="color:red; margin-top: 10px;">{{ mensaje }}</p>
-    {% endif %}
-</div>
+      {% if mensaje %}
+      <p style="color:red; margin-top: 10px;">{{ mensaje }}</p>
+      {% endif %}
+  </div>
 </body>
+
 </html>

@@ -6,7 +6,7 @@
     display: inline-block;
     margin-bottom: 1rem;
     padding: 12px 22px;
-    background-color: #28a745;
+    background-color: #E5BE01;
     color: white;
     text-decoration: none;
     border-radius: 6px;
@@ -15,13 +15,13 @@
   }
 
   .btn-volver:hover {
-    background-color: #28a745;
+    background-color: #E5BE01;
   }
 
   h1 {
     margin: 10px 0 20px;
     text-align: center;
-    color: #28a745;
+    color: #E5BE01;
   }
 
   .filtros {
@@ -61,22 +61,22 @@
   }
 
   .btn-filtrar {
-    background-color: #0a7d23;
+    background-color: #E5BE01;
     color: #fff;
     padding: 10px;
   }
 
   .btn-filtrar:hover {
-    background-color: #28a745;
+    background-color: #E5BE01;
   }
 
   .btn-exportar {
-    background-color: #0a7d23;
+    background-color: #E5BE01;
     color: #fff;
   }
 
   .btn-exportar:hover {
-    background-color: #28a745;
+    background-color: #E5BE01;
   }
 
   table {
@@ -87,7 +87,7 @@
   }
 
   thead {
-    background-color: #28a745;
+    background-color: #E5BE01;
     color: white;
   }
 
@@ -114,7 +114,7 @@
   }
 
   .btn-agregar {
-    background-color: #28a745;
+    background-color: #E5BE01;
     color: white;
     font-weight: bold;
     border-radius: 8px;
@@ -159,6 +159,7 @@
       <th>Productos</th>
       <th>Comentario</th>
       <th>Fecha</th>
+      <th>Acciones</th>
     </tr>
   </thead>
   <tbody>
@@ -169,6 +170,15 @@
       <td>{{ c.puntuacion_productos }}</td>
       <td>{{ c.comentario }}</td>
       <td>{{ c.fecha_creacion|date:"Y-m-d H:i" }}</td>
+
+      <td>
+        {% if not c.aprobado %}
+        <a href="{% url 'usuarios:aprobar_comentario' c.id %}" class="btn-aceptar">Aprobar</a>
+        <a href="{% url 'usuarios:rechazar_comentario' c.id %}" class="btn-rechazar">Rechazar</a>
+        {% else %}
+        <span style="color: green; font-weight: bold;"> Aprobado </span>
+        {% endif %}
+      </td>
     </tr>
     {% empty %}
     <tr>

@@ -1,16 +1,23 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gestión de Usuarios</title>
   <style>
+    * {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    h2 {
+      color: #E5BE01;
+    }
+
     .contenedor-login-adm {
       background-color: rgb(255, 253, 253);
       border-radius: 12px;
-      border: 10px solid rgb(202, 194, 194);
       margin-top: 50px;
     }
 
@@ -21,8 +28,8 @@
     }
 
     .tabla-usuarios thead {
-      background-color: #28a745;
-      color: rgb(248, 242, 242);
+      background-color: #E5BE01;
+      color: #f8f2f2;
     }
 
     .tabla-usuarios th,
@@ -36,7 +43,7 @@
 
     .btn-volver {
       display: inline-block;
-      background-color: #28a745;
+      background-color: #E5BE01;
       color: white;
       padding: 10px 16px;
       border-radius: 6px;
@@ -51,31 +58,16 @@
 
     .modal {
       position: fixed;
-      top: 20%;
-      left: 35%;
-      width: 30%;
-      background: white;
-      padding: 20px;
-      border: 2px solid #aaa;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 400px;
+      max-width: 90%;
+      background: #fff;
+      padding: 25px 30px;
+      border-radius: 12px;
+      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
       z-index: 1000;
-    }
-
-    .modal input,
-    .modal select {
-      width: 100%;
-      margin-bottom: 10px;
-      padding: 8px;
-    }
-
-    .botones-modal {
-      display: flex;
-      justify-content: space-between;
-    }
-
-    #modal-editar {
-      display: none;
     }
 
     body.modal-open::before {
@@ -87,20 +79,6 @@
       height: 100vh;
       background-color: rgba(0, 0, 0, 0.6);
       z-index: 999;
-    }
-
-    .modal {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 400px;
-      max-width: 90%;
-      background: #fff;
-      padding: 25px 30px;
-      border-radius: 12px;
-      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
-      z-index: 1000;
     }
 
     .modal h2 {
@@ -145,12 +123,12 @@
     }
 
     .botones-modal button[type="submit"] {
-      background-color: #22dd2b;
+      background-color: #E5BE01;
       color: white;
     }
 
     .botones-modal button[type="submit"]:hover {
-      background-color: #22dd2b;
+      background-color: #E5BE01;
     }
 
     .botones-modal button[type="button"] {
@@ -165,29 +143,33 @@
     .btn-volver,
     .agregar {
       padding: 10px 18px;
-      border: 2px solid #4CAF50;
-      background-color: #28a745;
+      border: 2px solid #E5BE01;
+      background-color: #E5BE01;
       color: white;
-      font-size: 15px;
+      font-size: 16px;
       border-radius: 6px;
       cursor: pointer;
       transition: all 0.3s ease;
       text-decoration: none;
       margin-top: 40px;
+      margin-left: 50px;
     }
 
     .agregar {
-      margin-left: 750px;
+      margin-left: 1350px;
+      font-weight: bold;
     }
 
     .btn-volver:hover,
     .agregar:hover {
-      background-color: #4CAF50;
+      background-color: #E5BE01;
       color: white;
     }
 
     /* Botones en la tabla */
-    .editar, .inactivar, .activar {
+    .editar,
+    .inactivar,
+    .activar {
       padding: 6px 10px;
       border-radius: 6px;
       border: none;
@@ -196,9 +178,21 @@
       font-weight: bold;
       margin-right: 6px;
     }
-    .editar { background:#007bff; color:#fff; }
-    .inactivar { background:#f44336; color:#fff; }
-    .activar { background:#28a745; color:#fff; }
+
+    .editar {
+      background: #E5BE01;
+      color: #fff;
+    }
+
+    .inactivar {
+      background: #E5BE01;
+      color: #fff;
+    }
+
+    .activar {
+      background: #E5BE01;
+      color: #fff;
+    }
   </style>
 </head>
 
@@ -212,7 +206,7 @@
 
   <section class="contenedor-form-adm">
     <div class="contenedor-login-adm">
-
+      <h2 style="text-align: center;">Lista de Productos</h2>
       <table class="tabla-usuarios">
         <thead>
           <tr>
@@ -226,36 +220,30 @@
 
         <tbody>
           {% for usuario in usuarios %}
-          <tr {% if not usuario.activo %}style="background-color:rgb(160, 160, 160);" {% endif %} data-id="{{ usuario.id }}">
+          <tr {% if not usuario.is_active %}style="background-color:rgb(160, 160, 160);" {% endif %}
+            data-id="{{ usuario.id }}">
             <td>{{ usuario.nombre }}</td>
             <td>{{ usuario.email }}</td>
-            <td>{{ usuario.numTelefono }}</td>
+            <td>{{ usuario.phone_number }}</td>
             <td>{{ usuario.rol }}</td>
             <td>
-              {# --- Botón Editar: lo mostramos activo o disabled según estado --- #}
-              {% if usuario.activo %}
-                <button class="editar"
-                        data-nombre="{{ usuario.nombre }}"
-                        data-email="{{ usuario.email }}"
-                        data-telefono="{{ usuario.numTelefono }}"
-                        data-rol="{{ usuario.rol }}">
-                  Editar
-                </button>
+              {% if usuario.is_active %}
+              <button class="editar" data-nombre="{{ usuario.nombre }}" data-email="{{ usuario.email }}"
+                data-telefono="{{ usuario.phone_number }}" data-rol="{{ usuario.rol }}">
+                Editar
+              </button>
               {% else %}
-                <button class="editar" disabled
-                        data-nombre="{{ usuario.nombre }}"
-                        data-email="{{ usuario.email }}"
-                        data-telefono="{{ usuario.numTelefono }}"
-                        data-rol="{{ usuario.rol }}">
-                  Editar
-                </button>
+              <button class="editar" disabled data-nombre="{{ usuario.nombre }}" data-email="{{ usuario.email }}"
+                data-telefono="{{ usuario.phone_number }}" data-rol="{{ usuario.rol }}">
+                Editar
+              </button>
               {% endif %}
 
               <a href="{% url 'usuarios:cambiar_estado_usuario' usuario.id %}">
-                {% if usuario.activo %}
-                  <button class="inactivar">Inactivar</button>
+                {% if usuario.is_active %}
+                <button class="inactivar">Inactivar</button>
                 {% else %}
-                  <button class="activar">Activar</button>
+                <button class="activar">Activar</button>
                 {% endif %}
               </a>
             </td>
@@ -283,12 +271,12 @@
       <input type="email" name="correo" required />
 
       <label>Teléfono:</label>
-      <input type="text" name="numTelefono" required />
+      <input type="text" name="phone_number" required />
 
       <label>Rol:</label>
       <select name="rol">
-        <option value="Administrador">Administrador</option>
-        <option value="Cliente">Cliente</option>
+        <option value="admin">Administrador</option>
+        <option value="cliente">Cliente</option>
       </select>
 
       <div class="botones-modal">
@@ -310,8 +298,8 @@
       <input type="text" id="editar-telefono" required />
       <label>Rol:</label>
       <select id="editar-rol">
-        <option value="Administrador">Administrador</option>
-        <option value="Cliente">Cliente</option>
+        <option value="admin">Administrador</option>
+        <option value="cliente">Cliente</option>
       </select>
       <div class="botones-modal">
         <button type="submit">Guardar</button>
@@ -339,20 +327,18 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-      // Asociar listener a cada botón Editar
       document.querySelectorAll(".editar").forEach((boton) => {
         boton.addEventListener("click", function () {
           filaSeleccionada = boton.closest("tr");
           document.getElementById("editar-nombre").value = boton.getAttribute("data-nombre") || "";
           document.getElementById("editar-email").value = boton.getAttribute("data-email") || "";
           document.getElementById("editar-telefono").value = boton.getAttribute("data-telefono") || "";
-          document.getElementById("editar-rol").value = boton.getAttribute("data-rol") || "Cliente";
+          document.getElementById("editar-rol").value = boton.getAttribute("data-rol") || "cliente";
           document.getElementById("modal-editar").style.display = "block";
           document.body.classList.add("modal-open");
         });
       });
 
-      // Guardar cambios del modal de edición (solo frontend)
       document.getElementById("form-editar").addEventListener("submit", function (e) {
         e.preventDefault();
         if (filaSeleccionada) {

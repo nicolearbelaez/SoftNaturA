@@ -21,16 +21,14 @@
             <a href="{% url 'productos:producto' %}">
                 <img class="logo" src="/media/uploads/products/LOGOREAL.png" alt="Logo Los Girasoles">
             </a>
-
             <!-- Buscador -->
-            <form class="search-box" method="GET" action="">
+            <form class="search-box" method="GET" action="{% url 'productos:producto' %}">
                 <input type="text" name="buscar" placeholder="¿Qué estás buscando?" value="{{ buscar }}">
                 <button type="submit"><i class="fa fa-search"></i></button>
             </form>
-
             <!-- Links de navegación -->
             <div class="nav-links">
-
+                <a href="{% url 'productos:homesoft' %}">Inicio</a>
                 <a href="{% url 'usuarios:nosotros' %}">Nosotros</a>
 
                 <!-- Dropdown Productos -->
@@ -51,7 +49,6 @@
 
                 <a href="{% url 'usuarios:contacto' %}">Contacto</a>
 
-
                 {% if user.is_authenticated %}
                 <div class="user-menu">
                     <span class="user-nombre">{{ user.nombre }}</span>
@@ -66,8 +63,49 @@
                 <a href="{% url 'usuarios:login' %}">Iniciar sesión</a>
                 {% endif %}
 
+                <!-- Carrito -->
+                <div class="carrito-nav">
+                    <a href="#" id="iconoCarrito">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="contador-carrito">{{ carrito_cantidad }}</span>
+                    </a>
+                    <div class="carrito-dropdown" id="carritoDropdown">
+                        <h4>Tu carrito</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Img</th>
+                                    <th>Nombre</th>
+                                    <th>Precio</th>
+                                    <th>Cant.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if request.session.carrito %}
+                                {% for key, value in request.session.carrito.items %}
+                                <tr>
+                                    <td><img src="{{ value.imgProduc }}"></td>
+                                    <td>{{ value.nombProduc }}</td>
+                                    <td>${{ value.precio }}</td>
+                                    <td>{{ value.cantidad }}</td>
+                                </tr>
+                                {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="4">Sin productos</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                        <hr>
+                        <p>Subtotal: ${{ carrito_subtotal }}</p>
+                        <p>IVA (19%): ${{ carrito_iva }}</p>
+                        <h4>Total: ${{ carrito_total }}</h4>
+                        <a href="{% url 'productos:checkout' %}" class="btn-finalizar">Finalizar compra</a>
+                        <a href="{% url 'productos:limpiar' %}" class="btn btn-danger">Limpiar carrito</a>
+                    </div>
+                </div>
             </div>
-
         </nav>
         {% block content %}
         {% endblock %}
@@ -83,7 +121,12 @@
                 <p>Barrio Centro</p>
                 <p>Ibagué</p>
                 <p>Colombia</p>
-                <p>Llámenos: 3212334148</p>
+                <p>Contáctenos: 3212334148</p>
+            </div>
+
+            <!-- Solo agrega esta sección del logo -->
+            <div class="footer-logo">
+                <img class="logo" src="/media/uploads/products/LOGOREAL.png" alt="Logo Los Girasoles">
             </div>
 
             <div class="footer-social">
@@ -99,6 +142,19 @@
                         aria-label="Instagram">
                         <i class="fab fa-instagram"></i>
                     </a>
+                    <a href="https://wa.me/573106194290" class="btn-whatsapp" target="_blank"
+                        title="¡Chatea con nosotros en WhatsApp!">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-menu">
+                <div class="footer-cont">
+                    <p>Home</p>
+                    <a class="links-uno" href="{% url 'usuarios:nosotros' %}">Nosotros</a>
+                    <a class="links-uno" href="{% url 'productos:producto' %}">Productos</a>
+                    <a class="links-uno" href="{% url 'usuarios:contacto' %}">Contacto</a>
                 </div>
             </div>
 
@@ -109,12 +165,14 @@
     </footer>
     {% endblock %}
 
+
+
     {% block scripts %}
     {% endblock %}
 </body>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // CARRITO
+        // Carrito
         const iconoCarrito = document.getElementById("iconoCarrito");
         const carritoDropdown = document.getElementById("carritoDropdown");
         if (iconoCarrito && carritoDropdown) {

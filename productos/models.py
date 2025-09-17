@@ -20,6 +20,7 @@ class Producto(models.Model):
     stock = models.IntegerField(default=0)  # ✅ Nuevo campo
     estado = models.BooleanField(default=True)  # True = Activo, False = Inactivo
     fecha_caducidad = models.DateField(null=True, blank=True)  # ⬅️ Campo de fecha de vencimiento
+    vendidos= models.IntegerField(default=0)
 
     def esta_vencido(self):
         if self.fecha_caducidad:
@@ -47,6 +48,7 @@ class Calificacion(models.Model):
     puntuacion_productos = models.IntegerField(default=3, validators=[MinValueValidator(1), MaxValueValidator(5)])
     comentario = models.TextField(blank=True, null=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
+    aprobado = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.servicio.nombre} - {self.puntuacion_servicio} / {self.puntuacion_productos}'

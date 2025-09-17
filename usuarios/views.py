@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Usuario
+from .models import Usuario , Mensaje
 from productos.models import Producto, Calificacion
 from .forms import LoginForm, UsuarioCreationForm
 from django.contrib.auth.hashers import make_password, check_password
@@ -13,6 +13,10 @@ from django.http import HttpResponse
 import csv
 from .models import Pedido
 from django.db.models import Sum, Count
+from django.db.models.functions import TruncMonth
+import calendar
+from django.contrib import messages
+from .forms import MensajeForm
 
 
 # Create your views here.
@@ -29,9 +33,50 @@ def contacto(request):
 def index(request):
     return render(request,"usuarios/index.html")
 
+
+
 @admin_required
 def dashboard(request):
-    return render(request,"usuarios/dashboard.html")
+    # Métricas principales
+    total_usuarios = Usuario.objects.count()
+    total_productos = Producto.objects.count()
+    total_pedidos = Pedido.objects.count()
+    total_ventas = Pedido.objects.aggregate(Sum("total"))["total__sum"] or 0
+
+    # Ventas por mes (para gráfico de barras)
+    ventas_por_mes = (
+        Pedido.objects
+        .annotate(month=TruncMonth("fecha_creacion"))
+        .values("month")
+        .annotate(total=Sum("total"))
+        .order_by("month")
+    )
+
+    labels = []
+    data = []
+    for v in ventas_por_mes:
+        labels.append(calendar.month_abbr[v["month"].month])  # Ene, Feb, Mar...
+        data.append(float(v["total"]))
+
+    # Estado de pedidos (para gráfico circular)
+    pedidos_estado = Pedido.objects.values("estado").annotate(cantidad=Count("id"))
+    estados = [p["estado"] for p in pedidos_estado]
+    cantidades = [p["cantidad"] for p in pedidos_estado]
+
+    context = {
+        "total_usuarios": total_usuarios,
+        "total_productos": total_productos,
+        "total_pedidos": total_pedidos,
+        "total_ventas": total_ventas,
+        "labels": labels,
+        "data": data,
+        "estado_labels": estados,
+        "estado_data": cantidades,
+        "ventas": Pedido.objects.all().order_by("-fecha_creacion")[:10],  # últimas 10
+    }
+    return render(request, "usuarios/dashboard.html", context)
+
+
 
 @admin_required
 def gstUsuarios(request):
@@ -120,7 +165,7 @@ def mis_pedidos(request):
 @admin_required
 def cambiar_estado_usuario(request, usuario_id):
     usuario = get_object_or_404(Usuario, id=usuario_id)
-    usuario.activo = not usuario.activo
+    usuario.is_active = not usuario.is_active
     usuario.save()
     return redirect('usuarios:gstUsuarios')  # Cambia si tu ruta tiene otro nombre
 
@@ -221,3 +266,30 @@ def usuarios_frecuentes_view(request):
 
 
 
+def contacto(request):
+    if request.method == "POST":
+        nombre = request.POST.get("nombre")
+        correo = request.POST.get("correo")
+        asunto = request.POST.get("asunto")
+        mensaje = request.POST.get("mensaje")
+
+        Mensaje.objects.create(
+            nombre=nombre,
+            correo=correo,
+            asunto=asunto,
+            mensaje=mensaje
+        )
+        return redirect("usuarios:contacto")
+
+    return render(request, "usuarios/contacto.html")
+
+def aprobar_comentario(request, id):
+    calificacion = get_object_or_404(Calificacion, id=id)
+    calificacion.aprobado = True
+    calificacion.save()
+    return redirect('productos:informe_calificaciones')
+
+def rechazar_comentario(request,id):
+    calificacion = get_object_or_404(Calificacion, id=id)
+    calificacion.delete()
+    return redirect('productos:informe_calificaciones')
