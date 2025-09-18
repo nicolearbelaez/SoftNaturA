@@ -1,117 +1,347 @@
-{% extends 'usuarios/base.html' %}
-{% block content %}
-{% if messages %}
-<ul class="mensajes">
-    {% for message in messages %}
-    <li>{{ message }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Perfil</title>
+</head>
+
+<body>
+    <style>
+        /* === 1. ESTILOS GENERALES DEL BODY === */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #ffffff;
+            /* FONDO BLANCO PURO */
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* === 2. CONTENEDOR PRINCIPAL DEL FORMULARIO === */
+        .formulario-personalizado {
+            width: 400px;
+            margin: 80px auto 40px auto;
+            padding: 30px;
+            border: 2px solid #f1c84b;
+            /* BORDE AMARILLO DORADO */
+            border-radius: 15px;
+            background: #ffffff;
+            /* FONDO BLANCO */
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            /* SOMBRA GRIS SUAVE */
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* === 3. EFECTO DECORATIVO SUPERIOR === */
+        .formulario-personalizado::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #f1c84b, #e6b800, #f1c84b);
+            /* GRADIENTE AMARILLO DORADO */
+            animation: shimmer 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes shimmer {
+            0% {
+                opacity: 0.7;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* === 4. TÍTULO DEL FORMULARIO === */
+        .formulario-personalizado h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #000000;
+            /* TÍTULO NEGRO */
+            font-size: 28px;
+            font-weight: 600;
+            text-shadow: none;
+            /* SIN SOMBRA */
+            position: relative;
+        }
+
+        /* === 5. LÍNEA DECORATIVA BAJO EL TÍTULO === */
+        .formulario-personalizado h2::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #f1c84b, transparent);
+            /* LÍNEA AMARILLO DORADA */
+            border-radius: 2px;
+        }
+
+        /* === 6. ETIQUETAS DE LOS CAMPOS === */
+        .formulario-personalizado label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333333;
+            /* COLOR GRIS OSCURO */
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.3s ease;
+        }
+
+        /* === 7. CAMPOS DE ENTRADA (INPUTS) === */
+        .formulario-personalizado input {
+            width: 100%;
+            padding: 15px 18px;
+            margin-bottom: 20px;
+            border: 2px solid #d0d0d0;
+            /* BORDE GRIS CLARO */
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 16px;
+            font-family: 'Arial', sans-serif;
+            background: #ffffff;
+            /* FONDO BLANCO */
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        /* === 8. EFECTOS AL ENFOCAR INPUTS === */
+        .formulario-personalizado input:focus {
+            outline: none;
+            border-color: #666666;
+            /* BORDE GRIS OSCURO AL ENFOCAR */
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1),
+                /* RESPLANDOR GRIS */
+                0 8px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* === 9. EFECTOS AL PASAR MOUSE SOBRE INPUTS === */
+        .formulario-personalizado input:hover {
+            border-color: #888888;
+            /* BORDE GRIS MEDIO AL HOVER */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* === 10. BOTÓN PRINCIPAL "GUARDAR CAMBIOS" === */
+        .btn-verde {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #f1c84b 0%, #e6b800 50%, #f1c84b 100%);
+            /* GRADIENTE AMARILLO DORADO */
+            color: #000000;
+            /* TEXTO NEGRO */
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'Arial', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        /* === 11. EFECTO DE BRILLO EN EL BOTÓN === */
+        .btn-verde::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        /* === 12. EFECTOS AL PASAR MOUSE SOBRE EL BOTÓN === */
+        .btn-verde:hover {
+            background: linear-gradient(135deg, #e6b800 0%, #f1c84b 50%, #e6b800 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2),
+                0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-verde:hover::before {
+            left: 100%;
+        }
+
+        /* === 13. EFECTO AL HACER CLIC EN EL BOTÓN === */
+        .btn-verde:active {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        /* === 14. CONTENEDOR DE MENSAJES DEL SISTEMA === */
+        .mensajes {
+            list-style: none;
+            text-align: center;
+            margin: 0 auto 25px auto;
+            padding: 15px 20px;
+            border: 2px solid #d0d0d0;
+            /* BORDE GRIS */
+            background: #f8f8f8;
+            /* FONDO GRIS MUY CLARO */
+            color: #333333;
+            /* TEXTO GRIS OSCURO */
+            font-weight: 600;
+            font-family: 'Arial', sans-serif;
+            border-radius: 12px;
+            width: 50%;
+            min-width: 300px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            animation: slideInDown 0.5s ease-out;
+        }
+
+        /* === 15. ANIMACIÓN DE ENTRADA PARA MENSAJES === */
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translate3d(0, -30px, 0);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        .mensajes li {
+            padding: 5px 0;
+            font-size: 16px;
+        }
+
+        /* === 16. BOTÓN "VOLVER" EN ESQUINA SUPERIOR IZQUIERDA === */
+        .botones {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+
+        /* === 17. BOTÓN "VOLVER" === */
+        .botones a {
+            text-decoration: none;
+            background: linear-gradient(135deg, #f1c84b, #e6b800);
+            /* GRADIENTE AMARILLO DORADO */
+            color: #000000;
+            /* TEXTO NEGRO */
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-family: 'Arial', sans-serif;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+        }
+
+        /* === 18. EFECTO DE BRILLO EN BOTÓN "VOLVER" === */
+        .botones a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        /* === 19. EFECTOS AL PASAR MOUSE SOBRE "VOLVER" === */
+        .botones a:hover {
+            background: linear-gradient(135deg, #e6b800, #f1c84b);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .botones a:hover::before {
+            left: 100%;
+        }
+
+        .botones a:active {
+            transform: translateY(0);
+        }
+
+        /* === 20. TÍTULO PRINCIPAL DE LA PÁGINA === */
+        h2 {
+            text-align: center;
+            color: #000000;
+            /* TÍTULO NEGRO */
+            font-family: 'Arial', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-shadow: none;
+            /* SIN SOMBRA */
+        }
+
+        /* === 21. RESPONSIVIDAD PARA MÓVILES === */
+        @media (max-width: 480px) {
+            .formulario-personalizado {
+                width: 90%;
+                margin: 80px auto 20px auto;
+                padding: 20px;
+            }
+
+            .mensajes {
+                width: 80%;
+                min-width: unset;
+            }
+
+            .botones {
+                top: 10px;
+                left: 10px;
+            }
+
+            .botones a {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
 
 
-<style>
-    .formulario-personalizado {
-        width: 400px;
-        margin: 40px auto;
-        padding: 25px;
-        border: 2px solid #E5BE01;
-        border-radius: 12px;
-        background-color: #f9fff9;
-        box-shadow: 0 0 10px rgba(0, 100, 0, 0.1);
-    }
+    <div class="mensajes" style="display: none;">
+        <li>Mensaje de ejemplo</li>
+    </div>
 
-    .formulario-personalizado h2 {
-        text-align: center;
-        margin-bottom: 20px;
-        color: #E5BE01;
-    }
+    <h2>Editar Perfil</h2>
+    <div class="formulario-personalizado">
+        <form method="post">
+            <label for="id_nombre">Nombre:</label>
+            <input type="text" id="id_nombre" name="nombre">
 
-    .formulario-personalizado label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-        color: #003300;
-    }
+            <label for="id_email">Email:</label>
+            <input type="email" id="id_email" name="email">
 
-    .formulario-personalizado input {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 15px;
-        border: 1px solid #E5BE01;
-        border-radius: 6px;
-        box-sizing: border-box;
-        font-size: 14px;
-    }
+            <label for="id_phone_number">Teléfono:</label>
+            <input type="tel" id="id_phone_number" name="phone_number">
 
-    .btn-verde {
-        width: 100%;
-        padding: 12px;
-        background-color: #E5BE01;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
+            <button type="submit" class="btn-verde">Guardar cambios</button>
+        </form>
+    </div>
+    <div class="botones">
+        <a href="javascript:history.back()">Volver</a>
+    </div>
+</body>
 
-    .btn-verde:hover {
-        background-color: #E5BE01;
-    }
-
-    .mensajes {
-        list-style: none;
-        text-align: center;
-        margin-bottom: 20px;
-        padding: 10px;
-        border: 1px solid #E5BE01;
-        background-color: #e6ffe6;
-        color: #E5BE01;
-        font-weight: bold;
-        border-radius: 10px;
-        width: 50%;
-        margin: 0 auto 20px auto;
-    }
-
-    .botones {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-    }
-
-    .botones a {
-        text-decoration: none;
-        background-color: #E5BE01;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 8px;
-        transition: background-color 0.3s ease;
-    }
-
-    .botones a:hover {
-        background-color: #E5BE01;
-    }
-</style>
-<h2>Editar Perfil</h2>
-<div class="formulario-personalizado">
-    <form method="post">
-        {% csrf_token %}
-
-        <label for="id_nombre">Nombre:</label>
-        {{ form.nombre }}
-
-        <label for="id_email">Email:</label>
-        {{ form.email }}
-
-        <label for="id_phone_number">Teléfono:</label>
-        {{ form.phone_number }}
-
-        <button type="submit" class="btn-verde">Guardar cambios</button>
-    </form>
-</div>
-<div class="botones">
-    <a href="javascript:history.back()">Volver</a>
-</div>
-
-{% endblock %}
+</html>

@@ -48,6 +48,7 @@ class Pedido(models.Model):
         ('entregado', 'Entregado'),
     ])
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    
 
     def __str__(self):
         return f"Pedido #{self.id} de {self.usuario.email}"

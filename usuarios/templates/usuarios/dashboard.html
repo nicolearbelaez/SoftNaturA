@@ -1,4 +1,4 @@
-{% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -6,18 +6,14 @@
   <meta charset="UTF-8">
   <title>Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
       margin: 0;
-      background: white;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    .header{
-      margin-left: 1400px;
-    }
-    /* SIDEBAR */
+    /* ===== SIDEBAR ===== */
     .sidebar {
       position: fixed;
       top: 0;
@@ -66,7 +62,7 @@
     }
 
     .sidebar a:hover {
-      background: #C79A00;
+      background: #f4c20d;
       color: #fff;
       padding-left: 28px;
     }
@@ -75,33 +71,18 @@
       margin-right: 10px;
     }
 
-    /* Dropdown usuario */
-    .user-dropdown {
-      margin-bottom: 30px;
-      padding: 15px 20px;
-      border-top: 1px solid rgba(255, 212, 69, 0.3);
-    }
-
-    .user-dropdown a {
-      display: block;
-      padding: 8px 0;
-      font-weight: 5000;
-      color: #fff;
-      text-decoration: none;
-    }
-
-
-    /* MAIN */
+    /* ===== MAIN ===== */
     .main {
       margin-left: 240px;
       padding: 20px;
     }
 
-    .main h1 {
-      color: #1f2933;
+    h1 {
+      margin-bottom: 20px;
+      color: #333;
     }
 
-    /* CARDS */
+    /* ===== CARDS ===== */
     .cards {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -115,7 +96,7 @@
       border-radius: 12px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, .08);
       text-align: center;
-      transition: transform 0.2s;
+      transition: transform 0.2s, background 0.3s;
     }
 
     .card:hover {
@@ -123,73 +104,70 @@
       background: #FFF59D;
     }
 
-    .card h3 {
+    .card h2 {
       font-size: 16px;
       color: #6B7280;
+      margin-bottom: 8px;
     }
 
     .card p {
       font-size: 22px;
       font-weight: bold;
-      color: #8C6A00;
-      margin: 8px 0 0;
+      color: #333;
     }
 
-    /* CHARTS */
-    .charts {
+    /* ===== SECTIONS ===== */
+    .sections {
       display: grid;
-      grid-template-columns: 2fr 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: 20px;
-      margin-bottom: 30px;
     }
 
-    .chart-card {
-      background: #fff;
+    .section {
+      background: white;
       padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, .08);
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      min-height: 180px;
+      transition: box-shadow 0.3s ease;
     }
 
-    .chart-card h2 {
-      margin-bottom: 10px;
+    .section:hover {
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .section h3 {
+      margin-bottom: 12px;
       font-size: 18px;
-      color: #1f2933;
+      border-bottom: 2px solid #f4c20d;
+      padding-bottom: 5px;
+      color: #333;
     }
 
-    /* TABLES */
-    .table-card {
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, .08);
-      margin-bottom: 20px;
+    .section ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
+    .section ul li {
+      margin-bottom: 8px;
+      font-size: 14px;
+      padding: 6px 10px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      color: #444;
+      transition: background 0.2s;
     }
 
-    th,
-    td {
-      padding: 10px;
-      text-align: center;
-    }
-
-    th {
-      background: #E5BE01;
-      color: #1f2933;
-    }
-
-    tr:nth-child(even) {
-      background: #FFF7D6;
+    .section ul li:hover {
+      background: #FFF59D;
     }
   </style>
 </head>
 
 <body>
-  <!-- SIDEBAR -->
+  <!-- ===== SIDEBAR ===== -->
   <div class="sidebar">
     <div>
       <div class="profile">
@@ -208,138 +186,80 @@
     </div>
   </div>
 
-  <!-- MAIN -->
+  <!-- ===== MAIN ===== -->
   <div class="main">
-    <input class="header" type="text" placeholder="Buscar...">
     <h1>Dashboard Administrador</h1>
 
-    <!-- CARDS -->
+    <!-- Tarjetas resumen -->
     <div class="cards">
       <div class="card">
-        <h3>Ventas</h3>
-        <p>${{ total_ventas|default:"0" }}</p>
+        <h2>Ventas</h2>
+        <p>${{ total_ventas|intcomma }}</p>
       </div>
       <div class="card">
-        <h3>Productos</h3>
-        <p>{{ total_productos|default:"0" }}</p>
+        <h2>Productos</h2>
+        <p>{{ total_productos }}</p>
       </div>
       <div class="card">
-        <h3>Usuarios</h3>
-        <p>{{ total_usuarios|default:"0" }}</p>
+        <h2>Usuarios</h2>
+        <p>{{ total_usuarios }}</p>
       </div>
       <div class="card">
-        <h3>Pedidos</h3>
-        <p>{{ total_pedidos|default:"0" }}</p>
+        <h2>Pedidos</h2>
+        <p>{{ total_pedidos }}</p>
       </div>
     </div>
 
-    <!-- GRÁFICAS -->
-    <div class="charts">
-      <div class="chart-card">
-        <h2>Ventas por Mes</h2>
-        <canvas id="ventasChart"></canvas>
-      </div>
-      <div class="chart-card">
-        <h2>Progreso</h2>
-        <canvas id="progressChart"></canvas>
-      </div>
-    </div>
-
-    <!-- TABLAS -->
-    <div class="table-card">
-      <h2>Ventas Realizadas</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Cliente</th>
-            <th>Fecha</th>
-            <th>Total</th>
-            <th>Método</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for venta in ventas %}
-          <tr>
-            <td>{{ venta.id }}</td>
-            <td>{{ venta.cliente.username }}</td>
-            <td>{{ venta.fecha|date:"d/m/Y" }}</td>
-            <td>${{ venta.total }}</td>
-            <td>{{ venta.metodo_pago }}</td>
-            <td>{{ venta.estado_pago }}</td>
-          </tr>
+    <!-- Secciones dinámicas -->
+    <div class="sections">
+      <!-- Ventas por Mes -->
+      <div class="section">
+        <h3>Ventas por Mes</h3>
+        <ul>
+          {% for mes, valor in ventas_info %}
+          <li>{{ mes }} → ${{ valor|intcomma }}</li>
           {% empty %}
-          <tr>
-            <td colspan="6">No hay ventas registradas</td>
-          </tr>
+          <li>No hay ventas registradas.</li>
+          {% endfor %}
+        </ul>
+      </div>
 
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    <!-- MENSAJES RECIENTES -->
-    <div class="card">
-      <h2>Últimos Mensajes de Contacto</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Correo</th>
-            <th>Asunto</th>
-            <th>Fecha</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for m in Mensajes %}
-          <tr>
-            <td>{{ m.nombre }}</td>
-            <td>{{ m.correo }}</td>
-            <td>{{ m.asunto }}</td>
-            <td>{{ m.fecha_envio|date:"d/m/Y H:i" }}</td>
-          </tr>
+      <!-- Estado de Pedidos -->
+      <div class="section">
+        <h3>Estado de Pedidos</h3>
+        <ul>
+          {% for estado, cantidad in estado_info %}
+          <li>{{ estado }} → {{ cantidad }}</li>
           {% empty %}
-          <tr>
-            <td colspan="4">No hay mensajes recientes</td>
-          </tr>
+          <li>No hay pedidos registrados.</li>
           {% endfor %}
-        </tbody>
-      </table>
+        </ul>
+      </div>
+
+      <!-- Productos Más Vendidos -->
+      <div class="section">
+        <h3>Productos Más Vendidos</h3>
+        <ul>
+          {% for nombre, vendidos in prod_info %}
+          <li>{{ nombre }} — {{ vendidos }} vendidos</li>
+          {% empty %}
+          <li>No hay productos vendidos.</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Usuarios con Más Compras -->
+      <div class="section">
+        <h3>Usuarios con Más Compras</h3>
+        <ul>
+          {% for nombre, pedidos in usuarios_info %}
+          <li>{{ nombre }} — {{ pedidos }} pedidos</li>
+          {% empty %}
+          <li>No hay usuarios con compras registradas.</li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
   </div>
-
-
-  <!-- CHARTS JS -->
-  <script>
-    new Chart(document.getElementById('ventasChart'), {
-      type: 'bar',
-      data: {
-        labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
-        datasets: [{
-          label: 'Ventas',
-          data: [120, 200, 150, 300, 250, 400],
-          backgroundColor: '#C79A00'
-        }]
-      }
-    });
-
-    new Chart(document.getElementById('progressChart'), {
-      type: 'doughnut',
-      data: {
-        labels: ['Completado', 'Pendiente'],
-        datasets: [{
-          data: [65, 35],
-          backgroundColor: ['#E5BE01', '#FFF59D']
-        }]
-      },
-      options: {
-        cutout: '70%',
-        plugins: {
-          legend: { display: false }
-        }
-      }
-    });
-  </script>
 </body>
-
 </html>

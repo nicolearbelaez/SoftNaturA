@@ -17,6 +17,7 @@ from django.db.models.functions import TruncMonth
 import calendar
 from django.contrib import messages
 from .forms import MensajeForm
+import json
 
 
 # Create your views here.
@@ -43,7 +44,7 @@ def dashboard(request):
     total_pedidos = Pedido.objects.count()
     total_ventas = Pedido.objects.aggregate(Sum("total"))["total__sum"] or 0
 
-    # Ventas por mes (para gráfico de barras)
+    # Ventas por mes (para tabla/barras)
     ventas_por_mes = (
         Pedido.objects
         .annotate(month=TruncMonth("fecha_creacion"))
@@ -51,31 +52,37 @@ def dashboard(request):
         .annotate(total=Sum("total"))
         .order_by("month")
     )
-
-    labels = []
-    data = []
+    ventas_info = []
     for v in ventas_por_mes:
-        labels.append(calendar.month_abbr[v["month"].month])  # Ene, Feb, Mar...
-        data.append(float(v["total"]))
+        mes = calendar.month_abbr[v["month"].month]
+        ventas_info.append((mes, float(v["total"])))
 
-    # Estado de pedidos (para gráfico circular)
+    # Estado de pedidos
     pedidos_estado = Pedido.objects.values("estado").annotate(cantidad=Count("id"))
-    estados = [p["estado"] for p in pedidos_estado]
-    cantidades = [p["cantidad"] for p in pedidos_estado]
+    estado_info = [(p["estado"], p["cantidad"]) for p in pedidos_estado]
+
+    # Productos más vendidos
+    productos_mas_vendidos = Producto.objects.order_by("-vendidos")[:5]
+    prod_info = [(p.nombProduc, p.vendidos) for p in productos_mas_vendidos]
+
+    # Usuarios más frecuentes
+    usuarios_frecuentes = (
+        Usuario.objects.annotate(num_pedidos=Count("pedido"))
+        .order_by("-num_pedidos")[:5]
+    )
+    usuarios_info = [(u.nombre, u.num_pedidos) for u in usuarios_frecuentes]
 
     context = {
         "total_usuarios": total_usuarios,
         "total_productos": total_productos,
         "total_pedidos": total_pedidos,
         "total_ventas": total_ventas,
-        "labels": labels,
-        "data": data,
-        "estado_labels": estados,
-        "estado_data": cantidades,
-        "ventas": Pedido.objects.all().order_by("-fecha_creacion")[:10],  # últimas 10
+        "ventas_info": ventas_info,
+        "estado_info": estado_info,
+        "prod_info": prod_info,
+        "usuarios_info": usuarios_info,
     }
     return render(request, "usuarios/dashboard.html", context)
-
 
 
 @admin_required
@@ -249,7 +256,7 @@ def estadisticas_ventas(request):
 
 def ventas_view(request):
     ventas = Pedido.objects.all().order_by('-fecha')
-    return render(request, "usuarios/ventas.html", {"ventas": ventas})
+    return render(request, "usuarios/dashboard.html", {"ventas": ventas})
 
 def pedidos_view(request):
     pedidos = Pedido.objects.all().order_by('-fecha_creacion')

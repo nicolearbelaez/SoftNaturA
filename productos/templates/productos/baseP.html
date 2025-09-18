@@ -21,12 +21,14 @@
             <a href="{% url 'productos:producto' %}">
                 <img class="logo" src="/media/uploads/products/LOGOREAL.png" alt="Logo Los Girasoles">
             </a>
+
             <!-- Buscador -->
             <form class="search-box" method="GET" action="{% url 'productos:producto' %}">
                 <input type="text" name="buscar" placeholder="¿Qué estás buscando?" value="{{ buscar }}">
                 <button type="submit"><i class="fa fa-search"></i></button>
             </form>
-            <!-- Links de navegación -->
+
+            <!-- Links -->
             <div class="nav-links">
                 <a href="{% url 'productos:homesoft' %}">Inicio</a>
                 <a href="{% url 'usuarios:nosotros' %}">Nosotros</a>
@@ -75,7 +77,6 @@
                             <thead>
                                 <tr>
                                     <th>Img</th>
-                                    <th>Nombre</th>
                                     <th>Precio</th>
                                     <th>Cant.</th>
                                 </tr>
@@ -84,10 +85,23 @@
                                 {% if request.session.carrito %}
                                 {% for key, value in request.session.carrito.items %}
                                 <tr>
-                                    <td><img src="{{ value.imgProduc }}"></td>
-                                    <td>{{ value.nombProduc }}</td>
+                                    <td><img src="{{ value.imgProduc }}" width="50"></td>
                                     <td>${{ value.precio }}</td>
-                                    <td>{{ value.cantidad }}</td>
+                                    <td>
+                                        <div class="carrito-cantidad">
+                                            <form action="{% url 'productos:restar' key %}" method="post">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn-cantidad">-</button>
+                                            </form>
+
+                                            <span>{{ value.cantidad }}</span>
+
+                                            <form action="{% url 'productos:agregar' key %}" method="post">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn-cantidad">+</button>
+                                            </form>
+                                        </div>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                                 {% else %}
