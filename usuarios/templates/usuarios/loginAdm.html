@@ -1,78 +1,101 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Admin</title>
+  <title>Login Admin - Verificación</title>
   <link rel="stylesheet" href="{% static 'usuarios/css/loginAdm.css' %}?v={{ timestamp }}">
-
 </head>
+
 <style>
-  /* Fondo de la página completa */
+  * {
+    box-sizing: border-box;
+  }
+
   body {
     margin: 0;
     padding: 0;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #f4f4f4;
-    /* Color de fondo gris claro */
+    background: linear-gradient(135deg, #f4f4f4 0%, #e8e8e8 100%);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
   }
 
-  /* Contenedor del formulario con borde amarillo */
   .contenedor-form-adm {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 400px;
-    /* Ancho del formulario - CAMBIAR AQUÍ PARA HACER MÁS GRANDE O PEQUEÑO */
+    width: 100%;
+    max-width: 450px;
     justify-content: center;
-    padding: 30px;
-    /* Espaciado interno */
+    padding: 40px 35px;
     border-radius: 20px;
-    /* Redondez de las esquinas - CAMBIAR AQUÍ */
     background-color: white;
-    /* Color de fondo del formulario */
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.15);
-    /* Sombra del formulario */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
     border: 3px solid #f9d71c;
-    /* Color del borde amarillo - CAMBIAR COLOR AQUÍ */
     text-align: center;
-    /* CENTRAR TODO EL CONTENIDO DEL FORMULARIO */
+    animation: fadeIn 0.5s ease;
   }
 
-  /* Logo "Unidos pensando en su salud" */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   .contenedor-form-adm img {
-    width: 250px;
-    /* Tamaño del logo - CAMBIAR AQUÍ */
+    width: 100%;
+    max-width: 250px;
+    height: auto;
     margin-bottom: 25px;
-    /* Espacio debajo del logo */
     display: block;
     margin-left: auto;
     margin-right: auto;
-    /* CENTRAR EL LOGO */
   }
 
-  /* Título "Acceso al sistema de administración" */
   .subtitulo-admin {
     font-size: 18px;
-    /* Tamaño del título - CAMBIAR AQUÍ */
     color: #3f3f3f;
-    /* Color del título */
-    margin: 10px 0 20px 0;
-    /* MÁS ESPACIO DEBAJO DEL TÍTULO - CAMBIAR AQUÍ */
-    font-weight: 500;
+    margin: 0 0 25px 0;
+    font-weight: 600;
     line-height: 1.4;
     text-align: center;
-    /* CENTRAR EL TÍTULO */
   }
 
+  /* Paso del formulario */
+  .form-step {
+    display: none;
+    width: 100%;
+    animation: slideIn 0.4s ease;
+  }
 
-  /* Estilo del formulario */
+  .form-step.active {
+    display: block;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
   .contenedor-login,
   .contenedor-login-adm {
     display: flex;
@@ -80,172 +103,732 @@
     flex-direction: column;
     width: 100%;
     gap: 12px;
-    /* Espacio entre elementos - AUMENTAR O DISMINUIR AQUÍ */
   }
 
-  /* Etiquetas "Email:" y "Contraseña:" */
   .btn-txt {
     font-weight: bold;
     color: rgb(63, 63, 63);
-    /* Color de las etiquetas */
     text-align: center;
-    /* CENTRAR LAS ETIQUETAS */
     font-size: 16px;
-    /* Tamaño de las etiquetas - CAMBIAR AQUÍ */
     margin-bottom: 8px;
   }
 
-  /* Campos de entrada (email y contraseña) */
   input,
   select,
   textarea {
     padding: 12px 15px;
-    /* Espaciado interno: vertical horizontal */
     border: 2px solid #e1e5e9;
-    /* Color del borde normal */
     border-radius: 8px;
-    /* Redondez de los campos */
     width: 100%;
-    /* Ancho completo */
     margin-bottom: 10px;
     font-size: 16px;
-    /* Tamaño del texto */
     background-color: #f8fafc;
-    /* Color de fondo del campo */
-    box-sizing: border-box;
-    /* Para que el padding no afecte el ancho */
     transition: all 0.3s ease;
-    /* Transición suave */
   }
 
-  /* Campos cuando están seleccionados (focus) */
   input:focus,
   select:focus,
   textarea:focus {
     border-color: #f9d71c;
-    /* Color del borde cuando está seleccionado */
     background-color: white;
     outline: none;
     box-shadow: 0 0 0 3px rgba(249, 215, 28, 0.1);
-    /* Sombra al seleccionar */
   }
 
-  /* Botón de ingreso */
   .btn-ingresar {
     padding: 14px 20px;
-    /* Espaciado interno */
-    background: linear-gradient(135deg, #f9d71c 0%, #f1c84b 100%);
-    /* Gradiente amarillo */
+    background: #E5BE01;
     color: white;
-    /* Color del texto */
     border: none;
     font-weight: bold;
     border-radius: 8px;
-    /* Redondez del botón */
     cursor: pointer;
-    font-size: 16px;
-    /* Tamaño del texto */
-    margin-top: 15px;
+    font-size: 17px;
+    margin-top: 13px;
     width: 100%;
-    /* Ancho completo */
     transition: all 0.3s ease;
-    /* Transición suave */
     box-shadow: 0 4px 15px rgba(249, 215, 28, 0.3);
-    /* Sombra del botón */
   }
 
-  /* Botón cuando pasas el mouse encima */
   .btn-ingresar:hover {
-    background: linear-gradient(135deg, #f1c84b 0%, #e6b800 100%);
+    background: #F27405;
     transform: translateY(-2px);
-    /* Efecto de elevación */
     box-shadow: 0 6px 20px rgba(249, 215, 28, 0.4);
   }
 
-  /* Botón cuando lo presionas */
   .btn-ingresar:active {
     transform: translateY(0);
   }
 
-  /* Enlace "¿Olvidaste tu contraseña?" */
-  .txt-reset {
-    text-align: center;
-    margin-top: 20px;
+  .btn-ingresar:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
   }
 
-  .txt-reset a {
-    color: #f9d71c;
-    /* Color del enlace - CAMBIAR AQUÍ */
+  /* Código de verificación */
+  .code-input-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+  }
+
+  .code-digit {
+    width: 50px;
+    height: 60px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    background-color: #f8fafc;
+    transition: all 0.3s ease;
+  }
+
+  .code-digit:focus {
+    border-color: #f9d71c;
+    background-color: white;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(249, 215, 28, 0.1);
+  }
+
+  /* Indicador de pasos */
+  .step-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 25px;
+  }
+
+  .step-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #e1e5e9;
+    transition: all 0.3s ease;
+  }
+
+  .step-dot.active {
+    background-color: #E5BE01;
+    transform: scale(1.2);
+  }
+
+  .txt-reset,
+  .txt-register {
+    text-align: center;
+    margin-top: 18px;
+    color: rgb(63, 63, 63);
+    font-size: 16px;
+  }
+
+  .txt-register p {
+    margin: 0;
+  }
+
+  .txt-reset a,
+  .txt-register a {
+    color: #E5BE01;
     text-decoration: none;
     font-weight: bold;
     transition: all 0.3s ease;
   }
 
-  .txt-reset a:hover {
-    color: #e6b800;
-    /* Color al pasar mouse - CAMBIAR AQUÍ */
+  .txt-reset a:hover,
+  .txt-register a:hover {
+    color: #F27405;
     text-decoration: underline;
   }
 
-  /* Enlace de registro */
-  .txt-register {
-    text-align: center;
-    margin-top: 20px;
-    color: rgb(63, 63, 63);
-  }
-
-  .txt-register a {
-    text-decoration: none;
-    color: #f9d71c;
-    /* Color del enlace de registro */
-    font-weight: bold;
-    transition: all 0.3s ease;
-  }
-
-  .txt-register a:hover {
-    color: #e6b800;
-    transition: all 0.3s ease;
-  }
-
-  /* Mensajes de error */
+  .mensaje-error,
+  .mensaje-exito,
   p[style*="color:red"] {
-    background-color: #fee2e2;
-    /* Fondo del error */
-    color: #dc2626 !important;
-    /* Texto del error */
     padding: 12px;
     border-radius: 8px;
-    border-left: 4px solid #dc2626;
     margin-top: 15px;
     font-size: 14px;
     text-align: center;
+  }
+
+  .mensaje-error,
+  p[style*="color:red"] {
+    background-color: #fee2e2;
+    color: #dc2626 !important;
+    border-left: 4px solid #dc2626;
+  }
+
+  .mensaje-exito {
+    background-color: #d1fae5;
+    color: #065f46;
+    border-left: 4px solid #10b981;
+  }
+
+  .info-verificacion {
+    background-color: #e0f2fe;
+    color: #0c4a6e;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 15px 0;
+    font-size: 13px;
+    border-left: 4px solid #0284c7;
+  }
+
+  .btn-reenviar {
+    background: none;
+    border: none;
+    color: #E5BE01;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: underline;
+    margin-top: 10px;
+    padding: 5px;
+    transition: all 0.3s ease;
+  }
+
+  .btn-reenviar:hover {
+    color: #F27405;
+  }
+
+  .btn-reenviar:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+    text-decoration: none;
+  }
+
+  .temporizador {
+    font-size: 13px;
+    color: #666;
+    margin-top: 10px;
+  }
+
+  .btn-volver-paso {
+    background: none;
+    border: 2px solid #e1e5e9;
+    color: #666;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .btn-volver-paso:hover {
+    border-color: #E5BE01;
+    color: #E5BE01;
+  }
+
+  /* Tablets grandes */
+  @media (max-width: 1024px) {
+    .contenedor-form-adm {
+      max-width: 470px;
+    }
+  }
+
+  /* Tablets */
+  @media (max-width: 768px) {
+    body {
+      padding: 15px;
+    }
+
+    .contenedor-form-adm {
+      max-width: 100%;
+      padding: 35px 30px;
+    }
+
+    .contenedor-form-adm img {
+      max-width: 220px;
+      margin-bottom: 20px;
+    }
+
+    .subtitulo-admin {
+      font-size: 17px;
+      margin-bottom: 22px;
+    }
+
+    .code-digit {
+      width: 45px;
+      height: 55px;
+      font-size: 22px;
+    }
+  }
+
+  /* Móviles grandes */
+  @media (max-width: 600px) {
+    body {
+      padding: 10px;
+    }
+
+    .contenedor-form-adm {
+      padding: 30px 25px;
+      border-width: 2px;
+      border-radius: 16px;
+    }
+
+    .contenedor-form-adm img {
+      max-width: 200px;
+      margin-bottom: 18px;
+    }
+
+    .subtitulo-admin {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .btn-txt {
+      font-size: 15px;
+    }
+
+    input,
+    select,
+    textarea {
+      padding: 11px 13px;
+      font-size: 15px;
+    }
+
+    .btn-ingresar {
+      padding: 13px 18px;
+      font-size: 16px;
+    }
+
+    .code-digit {
+      width: 42px;
+      height: 52px;
+      font-size: 20px;
+    }
+
+    .code-input-container {
+      gap: 8px;
+    }
+
+    .txt-reset,
+    .txt-register {
+      font-size: 13px;
+      margin-top: 15px;
+    }
+  }
+
+  /* Móviles pequeños */
+  @media (max-width: 400px) {
+    body {
+      padding: 8px;
+    }
+
+    .contenedor-form-adm {
+      padding: 25px 18px;
+      border-radius: 14px;
+    }
+
+    .contenedor-form-adm img {
+      max-width: 180px;
+      margin-bottom: 15px;
+    }
+
+    .subtitulo-admin {
+      font-size: 15px;
+      margin-bottom: 18px;
+    }
+
+    .btn-txt {
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    input,
+    select,
+    textarea {
+      padding: 10px 12px;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .btn-ingresar {
+      padding: 12px 16px;
+      font-size: 15px;
+      margin-top: 10px;
+    }
+
+    .code-digit {
+      width: 38px;
+      height: 48px;
+      font-size: 18px;
+    }
+
+    .code-input-container {
+      gap: 6px;
+    }
+
+    .txt-reset,
+    .txt-register {
+      font-size: 12px;
+      margin-top: 12px;
+    }
+
+    .mensaje-error,
+    .mensaje-exito,
+    .info-verificacion,
+    p[style*="color:red"] {
+      font-size: 12px;
+      padding: 10px;
+    }
+
+    .contenedor-login,
+    .contenedor-login-adm {
+      gap: 10px;
+    }
+  }
+
+  /* Pantallas muy pequeñas */
+  @media (max-width: 350px) {
+    .contenedor-form-adm {
+      padding: 20px 15px;
+    }
+
+    .contenedor-form-adm img {
+      max-width: 160px;
+    }
+
+    .subtitulo-admin {
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
+
+    .code-digit {
+      width: 35px;
+      height: 45px;
+      font-size: 16px;
+    }
+
+    .code-input-container {
+      gap: 5px;
+    }
+  }
+
+  /* Landscape en móviles */
+  @media (max-width: 768px) and (orientation: landscape) {
+    body {
+      align-items: flex-start;
+      padding-top: 20px;
+      padding-bottom: 20px;
+    }
+
+    .contenedor-form-adm {
+      margin-top: 10px;
+      margin-bottom: 10px;
+      padding: 25px 30px;
+    }
+
+    .contenedor-form-adm img {
+      max-width: 150px;
+      margin-bottom: 12px;
+    }
+
+    .subtitulo-admin {
+      font-size: 15px;
+      margin-bottom: 15px;
+    }
+
+    .code-digit {
+      width: 40px;
+      height: 48px;
+    }
+
+    .step-indicator {
+      margin-bottom: 15px;
+    }
   }
 </style>
 
 <body>
   <div class="contenedor-form-adm">
     <img src="/media/uploads/products/Gemini_Generated_Image_givzp3givzp3givz__1_-removebg-preview.png"
-      style="width: 250px; margin-bottom: 25px;">
-    <form method="post" class="contenedor-login">
+      alt="Logo Unidos pensando en su salud">
+
+    <!-- Indicador de pasos -->
+    <div class="step-indicator">
+      <div class="step-dot active" id="dot1"></div>
+      <div class="step-dot" id="dot2"></div>
+    </div>
+
+    <p class="subtitulo-admin" id="subtitulo">Acceso al sistema de administración</p>
+
+    <form method="post" class="contenedor-login-adm" id="loginForm">
       {% csrf_token %}
-      <p class="subtitulo-admin">Acceso al sistema de administración</p>
 
-      <form method="post" class="contenedor-login-adm">
-        {% csrf_token %}
-
+      <!-- PASO 1: Email y Contraseña -->
+      <div class="form-step active" id="step1">
         <label for="email" class="btn-txt">Email:</label>
-        {{ form.email }}
+        <input type="email" id="email" name="email" required>
 
         <label for="password" class="btn-txt">Contraseña:</label>
-        {{ form.password }}
+        <input type="password" id="password" name="password" required>
 
-        <button type="submit" class="btn-ingresar">Ingresar</button>
-      </form>
+        <button type="button" class="btn-ingresar" id="btnStep1">Continuar</button>
+
+        <div class="txt-reset">
+          <a href="{% url 'usuarios:password_reset' %}">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <div class="txt-register">
+          <p>¿Aún no tienes cuenta? <a href="{% url 'usuarios:register' %}">Regístrate</a></p>
+        </div>
+      </div>
+
+      <!-- PASO 2: Código de Verificación -->
+      <div class="form-step" id="step2">
+        <div class="info-verificacion">
+          📧 Hemos enviado un código de 6 dígitos a tu correo electrónico
+        </div>
+
+        <label class="btn-txt">Ingresa el código de verificación:</label>
+
+        <div class="code-input-container">
+          <input type="text" class="code-digit" maxlength="1" id="digit1" name="digit1">
+          <input type="text" class="code-digit" maxlength="1" id="digit2" name="digit2">
+          <input type="text" class="code-digit" maxlength="1" id="digit3" name="digit3">
+          <input type="text" class="code-digit" maxlength="1" id="digit4" name="digit4">
+          <input type="text" class="code-digit" maxlength="1" id="digit5" name="digit5">
+          <input type="text" class="code-digit" maxlength="1" id="digit6" name="digit6">
+        </div>
+
+        <input type="hidden" name="codigo_verificacion" id="codigoCompleto">
+        <input type="hidden" name="email_verified" id="emailVerified">
+        <input type="hidden" name="password_verified" id="passwordVerified">
+
+        <button type="submit" class="btn-ingresar" id="btnVerificar">Verificar y Entrar</button>
+
+        <button type="button" class="btn-reenviar" id="btnReenviar">
+          Reenviar código
+        </button>
+        <div class="temporizador" id="temporizador"></div>
+
+        <button type="button" class="btn-volver-paso" id="btnVolver">
+          ← Volver
+        </button>
+      </div>
 
       {% if mensaje %}
-      <p style="color:red; margin-top: 10px;">{{ mensaje }}</p>
+      <p class="mensaje-error">{{ mensaje }}</p>
       {% endif %}
+    </form>
   </div>
+
+  <script>
+    // Obtener el token CSRF
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    const csrftoken = getCookie('csrftoken');
+
+    // Manejo del paso 1
+    document.getElementById('btnStep1').addEventListener('click', async function () {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const btnStep1 = this;
+
+      if (!email || !password) {
+        alert('Por favor, completa todos los campos');
+        return;
+      }
+
+      // Deshabilitar botón y mostrar loading
+      btnStep1.disabled = true;
+      btnStep1.textContent = 'Enviando código...';
+
+      try {
+        // Enviar solicitud al backend para verificar credenciales y enviar código
+        const response = await fetch('/usuarios/enviar-codigo-verificacion/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Guardar datos para enviar después
+          document.getElementById('emailVerified').value = email;
+          document.getElementById('passwordVerified').value = password;
+
+          // Cambiar al paso 2
+          document.getElementById('step1').classList.remove('active');
+          document.getElementById('step2').classList.add('active');
+          document.getElementById('dot1').classList.remove('active');
+          document.getElementById('dot2').classList.add('active');
+          document.getElementById('subtitulo').textContent = 'Verificación de seguridad';
+
+          // Enfocar primer dígito
+          document.getElementById('digit1').focus();
+
+          // Iniciar temporizador
+          iniciarTemporizador();
+        } else {
+          alert(data.mensaje || 'Error al enviar el código. Verifica tus credenciales.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error de conexión. Por favor, intenta nuevamente.');
+      } finally {
+        // Rehabilitar botón
+        btnStep1.disabled = false;
+        btnStep1.textContent = 'Continuar';
+      }
+    });
+
+    // Manejo de inputs de código
+    const codeDigits = document.querySelectorAll('.code-digit');
+
+    codeDigits.forEach((digit, index) => {
+      digit.addEventListener('input', function (e) {
+        if (e.target.value.length === 1) {
+          if (index < codeDigits.length - 1) {
+            codeDigits[index + 1].focus();
+          }
+        }
+        actualizarCodigoCompleto();
+      });
+
+      digit.addEventListener('keydown', function (e) {
+        if (e.key === 'Backspace' && !e.target.value && index > 0) {
+          codeDigits[index - 1].focus();
+        }
+      });
+
+      // Solo permitir números
+      digit.addEventListener('keypress', function (e) {
+        if (!/[0-9]/.test(e.key)) {
+          e.preventDefault();
+        }
+      });
+
+      // Pegar código completo
+      digit.addEventListener('paste', function (e) {
+        e.preventDefault();
+        const pastedData = e.clipboardData.getData('text').slice(0, 6);
+        pastedData.split('').forEach((char, i) => {
+          if (codeDigits[i] && /[0-9]/.test(char)) {
+            codeDigits[i].value = char;
+          }
+        });
+        actualizarCodigoCompleto();
+      });
+    });
+
+    function actualizarCodigoCompleto() {
+      const codigo = Array.from(codeDigits).map(d => d.value).join('');
+      document.getElementById('codigoCompleto').value = codigo;
+    }
+
+    // Botón volver
+    document.getElementById('btnVolver').addEventListener('click', function () {
+      document.getElementById('step2').classList.remove('active');
+      document.getElementById('step1').classList.add('active');
+      document.getElementById('dot2').classList.remove('active');
+      document.getElementById('dot1').classList.add('active');
+      document.getElementById('subtitulo').textContent = 'Acceso al sistema de administración';
+
+      // Limpiar código
+      codeDigits.forEach(d => d.value = '');
+    });
+
+    // Temporizador para reenvío
+    let tiempoRestante = 60;
+    let intervalo;
+
+    function iniciarTemporizador() {
+      tiempoRestante = 60;
+      document.getElementById('btnReenviar').disabled = true;
+
+      intervalo = setInterval(() => {
+        tiempoRestante--;
+        document.getElementById('temporizador').textContent =
+          `Puedes reenviar el código en ${tiempoRestante}s`;
+
+        if (tiempoRestante <= 0) {
+          clearInterval(intervalo);
+          document.getElementById('btnReenviar').disabled = false;
+          document.getElementById('temporizador').textContent = '';
+        }
+      }, 1000);
+    }
+
+    // Reenviar código
+    document.getElementById('btnReenviar').addEventListener('click', async function () {
+      const email = document.getElementById('emailVerified').value;
+      const password = document.getElementById('passwordVerified').value;
+      const btnReenviar = this;
+
+      btnReenviar.disabled = true;
+      btnReenviar.textContent = 'Reenviando...';
+
+      try {
+        const response = await fetch('/usuarios/enviar-codigo-verificacion/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Limpiar campos
+          codeDigits.forEach(d => d.value = '');
+          document.getElementById('digit1').focus();
+
+          // Reiniciar temporizador
+          iniciarTemporizador();
+
+          alert('Código reenviado a tu correo electrónico');
+        } else {
+          alert(data.mensaje || 'Error al reenviar el código');
+          btnReenviar.disabled = false;
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error de conexión. Por favor, intenta nuevamente.');
+        btnReenviar.disabled = false;
+      } finally {
+        btnReenviar.textContent = 'Reenviar código';
+      }
+    });
+
+    // Validación antes de enviar
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      const codigo = document.getElementById('codigoCompleto').value;
+
+      if (codigo.length !== 6) {
+        e.preventDefault();
+        alert('Por favor, ingresa el código de 6 dígitos completo');
+        return false;
+      }
+    });
+  </script>
 </body>
 
 </html>

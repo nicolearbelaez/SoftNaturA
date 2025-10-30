@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Dashboard{% endblock %}</title>
+
+  <!-- ===== ICONOS Y CSS ===== -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'usuarios/css/panel.css' %}">
+  {% block styles %}{% endblock %}
+</head>
+
+<body>
+
+  <!-- ===== SIDEBAR ===== -->
+  <div class="sidebar">
+    <div>
+      <div class="profile">
+        <i class="fa fa-user-circle"></i>
+        <h3>{{ request.user.nombre }}</h3>
+        <p>{{ request.user.email }}</p>
+      </div>
+
+      <a href="{% url 'usuarios:dashboard' %}"><i class="fa-solid fa-house"></i> Inicio</a>
+      <a href="{% url 'usuarios:gstUsuarios' %}"><i class="fa fa-users"></i> Usuarios</a>
+      <a href="{% url 'productos:listProduc' %}"><i class="fa fa-box"></i> Productos</a>
+      <a href="{% url 'usuarios:informe_calificaciones' %}"><i class="fa fa-chart-line"></i> Calificaciones</a>
+      <a href="{% url 'usuarios:pedidos' %}"><i class="fa fa-shopping-cart"></i> Pedidos</a>
+      <a href="{% url 'usuarios:informe_ventas' %}"><i class="fa fa-money-bill"></i> Ventas</a>
+    </div>
+
+    <div class="user-dropdown" id="userDropdown">
+      <hr>
+      <a href="{% url 'usuarios:editar_perfil' %}"><i class="fa fa-user-edit"></i> Editar perfil</a>
+      <a href="{% url 'usuarios:logout' %}"><i class="fa fa-sign-out-alt"></i> Cerrar sesión</a>
+    </div>
+  </div>
+
+  <!-- ===== CONTENIDO PRINCIPAL ===== -->
+  <div class="content">
+    {% block content %}{% endblock %}
+  </div>
+
+  <!-- ===== SCRIPTS ADICIONALES ===== -->
+  {% block scripts %}{% endblock %}
+
+  <!-- ===== JAVASCRIPT GLOBAL ===== -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Efecto en las tarjetas
+      const cards = document.querySelectorAll('.card[data-url]');
+      cards.forEach(card => {
+        card.addEventListener('click', () => {
+          window.location.href = card.getAttribute('data-url');
+        });
+      });
+
+    });
+  </script>
+</body>
+</html>

@@ -13,7 +13,6 @@ urlpatterns = [
     path('limpiar/', views.limpiar, name="limpiar"),
     path('agregar/', views.agregar_producto, name='agregar_producto'),
     path('editar/<int:id>/', views.editar_producto, name='editar_producto'),
-    path('eliminar/<int:id>/', views.eliminar_producto, name='eliminar_producto'),
     path('list_produc/', views.list_product, name='list_product'),
     path('checkout/', views.checkout, name='checkout'),
     path('categoria/<int:categoria_id>/', views.productos_por_categoria, name='productos_por_categoria'),
@@ -23,6 +22,9 @@ urlpatterns = [
     path('guardar-calificacion/', views.guardar_calificacion, name='guardar_calificacion'),
     path('correctamente/', views.correctamente, name='correctamente'),
     path('agregar_categoria/', views.agregar_categoria, name='agregar_categoria'),
+    path("categorias/", views.listar_categorias, name="listar_categorias"),
+    path("categorias/editar/<int:id>/", views.editar_categoria, name="editar_categoria"),
+    path("categorias/eliminar/<int:id>/", views.eliminar_categoria, name="eliminar_categoria"),
     path('homesoft/', views.homeSoft, name="homesoft"),
 
 

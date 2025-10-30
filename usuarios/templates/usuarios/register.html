@@ -111,10 +111,28 @@
             font-size: 13px;
             text-align: left;
         }
+
+        .btn-volver {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background-color: #F27405;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-volver:hover {
+            background-color: #f2c641;
+        }
     </style>
 </head>
 
 <body>
+    <a href="{% url 'productos:producto' %}" class="btn-volver">← Volver</a>
     <div class="contenedor-pagina">
         <header class="header-registro"></header>
         <div class="form-contenedor">
@@ -218,4 +236,5 @@
         }
     </script>
 </body>
+
 </html>

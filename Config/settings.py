@@ -26,7 +26,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'todo',
     'usuarios',
     'productos',
     'pagos',
@@ -131,10 +130,10 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
 EMAIL_HOST_USER = 'naturistasoftnatur@gmail.com'
-EMAIL_HOST_PASSWORD = 'bfdbmrbauqdscdmj'
+EMAIL_HOST_PASSWORD = 'jsaovucsgwdhtdro'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
 
 
 MERCADOPAGO_PUBLIC_KEY = "TEST-ef5caefe-1424-481c-a06d-507ac8dd86bf"

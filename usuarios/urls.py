@@ -26,13 +26,17 @@ urlpatterns = [
     path('', views.gstUsuarios, name='gstUsuarios'),
     path('informe-calificaciones/', views.informe_calificaciones, name='informe_calificaciones'),
     path('mis-pedidos/', views.mis_pedidos, name='mis_pedidos'),
-    path('ventas/', views.ventas_view, name="ventas"),
     path('pedidos/', views.pedidos_view, name="pedidos"),
     path('productos-mas-vendidos/', views.productos_mas_vendidos_view, name="productos_mas_vendidos"),
     path('usuarios-frecuentes/', views.usuarios_frecuentes_view, name="usuarios_frecuentes"),
     path("contacto/", views.contacto, name="contacto"),
     path('comentario/<int:id>/aprobar/', views.aprobar_comentario, name="aprobar_comentario"),
     path('comentario/<int:id>/rechazar/', views.rechazar_comentario, name="rechazar_comentario"),
+    path('ventas/', views.informe_ventas, name='informe_ventas'),
+    path('activar/<uidb64>/<token>/', views.activar_cuenta, name="activar"),
+    path('pedidos/<int:pedido_id>/cambiar-estado/', views.cambiar_estado_pedido, name='cambiar_estado_pedido'),
+    path("editar/<int:pk>/", views.editar_usuario, name="editar_usuario"),
+    path('enviar-codigo-verificacion/', views.enviar_codigo_verificacion, name='enviar_codigo_verificacion'),
 
     # Recuperación de contraseña
     path(

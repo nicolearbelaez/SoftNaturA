@@ -2,346 +2,378 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Perfil</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Perfil</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f8f9fb 0%, #e8eef3 100%);
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .volver {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+    }
+
+    .volver a {
+      text-decoration: none;
+      background-color: #e5be01;
+      color: #000;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .volver a:hover {
+      background-color: #f29727;
+      transform: translateX(-3px);
+    }
+
+    .card {
+      background-color: #fff;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      width: 100%;
+      max-width: 480px;
+      text-align: left;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card h1 {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 10px;
+      color: #2c3e50;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #7f8c8d;
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #2c3e50;
+      font-size: 14px;
+    }
+
+    .form-group label .required {
+      color: #e74c3c;
+      margin-left: 3px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background-color: #fafafa;
+    }
+
+    .form-group input:focus {
+      border-color: #e5be01;
+      outline: none;
+      background-color: #fff;
+      box-shadow: 0 0 0 3px rgba(229, 190, 1, 0.1);
+    }
+
+    .form-group input:disabled {
+      background-color: #f5f5f5;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .btn-guardar {
+      background-color: #e5be01;
+      border: none;
+      color: #000;
+      padding: 14px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      width: 100%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .btn-guardar:hover {
+      background-color: #f29727;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(229, 190, 1, 0.3);
+    }
+
+    .btn-guardar:active {
+      transform: translateY(0);
+    }
+
+    .mensaje {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .mensaje.exito {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+
+    .mensaje.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+
+    .info-adicional {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+      font-size: 13px;
+      color: #7f8c8d;
+    }
+
+    /* Tablets grandes y pantallas medianas */
+    @media (max-width: 1024px) {
+      .card {
+        max-width: 500px;
+      }
+
+      .volver {
+        top: 20px;
+        left: 20px;
+      }
+    }
+
+    /* Tablets en modo portrait */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        justify-content: flex-start;
+        padding-top: 80px;
+      }
+
+      .card {
+        max-width: 100%;
+        padding: 35px 25px;
+        margin-top: 0;
+      }
+
+      .card h1 {
+        font-size: 24px;
+      }
+
+      .volver {
+        top: 15px;
+        left: 15px;
+      }
+
+      .volver a {
+        padding: 8px 16px;
+        font-size: 14px;
+      }
+    }
+
+    /* Móviles grandes */
+    @media (max-width: 600px) {
+      .card {
+        padding: 30px 20px;
+        border-radius: 12px;
+      }
+
+      .card h1 {
+        font-size: 22px;
+        margin-bottom: 8px;
+      }
+
+      .subtitle {
+        font-size: 13px;
+        margin-bottom: 25px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group input {
+        padding: 11px 12px;
+        font-size: 14px;
+      }
+
+      .btn-guardar {
+        padding: 13px 18px;
+        font-size: 15px;
+      }
+
+      .info-adicional {
+        font-size: 12px;
+      }
+    }
+
+    /* Móviles pequeños */
+    @media (max-width: 400px) {
+      body {
+        padding: 10px;
+        padding-top: 70px;
+      }
+
+      .card {
+        padding: 25px 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .card h1 {
+        font-size: 20px;
+      }
+
+      .subtitle {
+        font-size: 12px;
+      }
+
+      .volver {
+        top: 10px;
+        left: 10px;
+      }
+
+      .volver a {
+        padding: 7px 14px;
+        font-size: 13px;
+        gap: 5px;
+      }
+
+      .form-group label {
+        font-size: 13px;
+      }
+
+      .form-group input {
+        padding: 10px;
+        font-size: 14px;
+      }
+
+      .btn-guardar {
+        padding: 12px 16px;
+        font-size: 14px;
+      }
+    }
+
+    /* Modo landscape en móviles */
+    @media (max-width: 768px) and (orientation: landscape) {
+      body {
+        padding-top: 15px;
+        align-items: flex-start;
+      }
+
+      .card {
+        margin-top: 60px;
+        margin-bottom: 20px;
+      }
+
+      .volver {
+        top: 10px;
+        left: 10px;
+      }
+    }
+  </style>
 </head>
 
 <body>
-    <style>
-        /* === 1. ESTILOS GENERALES DEL BODY === */
-        body {
-            font-family: 'Arial', sans-serif;
-            background: #ffffff;
-            /* FONDO BLANCO PURO */
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
+  <div class="volver">
+    <a href="javascript:history.back()">← Volver</a>
+  </div>
 
-        /* === 2. CONTENEDOR PRINCIPAL DEL FORMULARIO === */
-        .formulario-personalizado {
-            width: 400px;
-            margin: 80px auto 40px auto;
-            padding: 30px;
-            border: 2px solid #f1c84b;
-            /* BORDE AMARILLO DORADO */
-            border-radius: 15px;
-            background: #ffffff;
-            /* FONDO BLANCO */
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            /* SOMBRA GRIS SUAVE */
-            position: relative;
-            overflow: hidden;
-        }
+  <div class="card">
+    <h1>Mi Perfil</h1>
+    <p class="subtitle">Actualiza tu información personal</p>
 
-        /* === 3. EFECTO DECORATIVO SUPERIOR === */
-        .formulario-personalizado::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #f1c84b, #e6b800, #f1c84b);
-            /* GRADIENTE AMARILLO DORADO */
-            animation: shimmer 2s ease-in-out infinite alternate;
-        }
+    <!-- Mensaje de éxito/error (mostrar según sea necesario) -->
+    <!-- <div class="mensaje exito">✓ Perfil actualizado correctamente</div> -->
+    <!-- <div class="mensaje error">✗ Hubo un error al actualizar tu perfil</div> -->
 
-        @keyframes shimmer {
-            0% {
-                opacity: 0.7;
-            }
+    <form method="post" id="profileForm">
+      <!-- {% csrf_token %} -->
 
-            100% {
-                opacity: 1;
-            }
-        }
+      <div class="form-group">
+        <label>Nombre <span class="required">*</span></label>
+        <input type="text" name="first_name" value="" placeholder="Ingresa tu nombre" required>
+      </div>
 
-        /* === 4. TÍTULO DEL FORMULARIO === */
-        .formulario-personalizado h2 {
-            text-align: center;
-            margin-bottom: 25px;
-            color: #000000;
-            /* TÍTULO NEGRO */
-            font-size: 28px;
-            font-weight: 600;
-            text-shadow: none;
-            /* SIN SOMBRA */
-            position: relative;
-        }
+      <div class="form-group">
+        <label>Correo Electrónico <span class="required">*</span></label>
+        <input type="email" name="email" value="" placeholder="correo@ejemplo.com" required>
+      </div>
 
-        /* === 5. LÍNEA DECORATIVA BAJO EL TÍTULO === */
-        .formulario-personalizado h2::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, #f1c84b, transparent);
-            /* LÍNEA AMARILLO DORADA */
-            border-radius: 2px;
-        }
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input type="tel" name="phone" value="" placeholder="+57 123 456 7890" pattern="[0-9+\s\-()]*">
+      </div>
 
-        /* === 6. ETIQUETAS DE LOS CAMPOS === */
-        .formulario-personalizado label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333333;
-            /* COLOR GRIS OSCURO */
-            font-size: 15px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: color 0.3s ease;
-        }
+      <button type="submit" class="btn-guardar">Actualizar Perfil</button>
 
-        /* === 7. CAMPOS DE ENTRADA (INPUTS) === */
-        .formulario-personalizado input {
-            width: 100%;
-            padding: 15px 18px;
-            margin-bottom: 20px;
-            border: 2px solid #d0d0d0;
-            /* BORDE GRIS CLARO */
-            border-radius: 10px;
-            box-sizing: border-box;
-            font-size: 16px;
-            font-family: 'Arial', sans-serif;
-            background: #ffffff;
-            /* FONDO BLANCO */
-            transition: all 0.3s ease;
-            position: relative;
-        }
+      <div class="info-adicional">
+        <p><strong>Nota:</strong> Los campos marcados con <span class="required">*</span> son obligatorios.</p>
+      </div>
+    </form>
+  </div>
 
-        /* === 8. EFECTOS AL ENFOCAR INPUTS === */
-        .formulario-personalizado input:focus {
-            outline: none;
-            border-color: #666666;
-            /* BORDE GRIS OSCURO AL ENFOCAR */
-            background: #ffffff;
-            box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1),
-                /* RESPLANDOR GRIS */
-                0 8px 20px rgba(0, 0, 0, 0.1);
-            transform: translateY(-2px);
-        }
+  <script>
+    // Simulación de manejo del formulario (en producción esto lo manejaría Django)
+    document.getElementById('profileForm').addEventListener('submit', function (e) {
+      e.preventDefault();
 
-        /* === 9. EFECTOS AL PASAR MOUSE SOBRE INPUTS === */
-        .formulario-personalizado input:hover {
-            border-color: #888888;
-            /* BORDE GRIS MEDIO AL HOVER */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
+      const formData = new FormData(this);
+      const nombre = formData.get('first_name');
+      const email = formData.get('email');
 
-        /* === 10. BOTÓN PRINCIPAL "GUARDAR CAMBIOS" === */
-        .btn-verde {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #f1c84b 0%, #e6b800 50%, #f1c84b 100%);
-            /* GRADIENTE AMARILLO DORADO */
-            color: #000000;
-            /* TEXTO NEGRO */
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: 700;
-            font-family: 'Arial', sans-serif;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        /* === 11. EFECTO DE BRILLO EN EL BOTÓN === */
-        .btn-verde::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s ease;
-        }
-
-        /* === 12. EFECTOS AL PASAR MOUSE SOBRE EL BOTÓN === */
-        .btn-verde:hover {
-            background: linear-gradient(135deg, #e6b800 0%, #f1c84b 50%, #e6b800 100%);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2),
-                0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-verde:hover::before {
-            left: 100%;
-        }
-
-        /* === 13. EFECTO AL HACER CLIC EN EL BOTÓN === */
-        .btn-verde:active {
-            transform: translateY(-1px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-        }
-
-        /* === 14. CONTENEDOR DE MENSAJES DEL SISTEMA === */
-        .mensajes {
-            list-style: none;
-            text-align: center;
-            margin: 0 auto 25px auto;
-            padding: 15px 20px;
-            border: 2px solid #d0d0d0;
-            /* BORDE GRIS */
-            background: #f8f8f8;
-            /* FONDO GRIS MUY CLARO */
-            color: #333333;
-            /* TEXTO GRIS OSCURO */
-            font-weight: 600;
-            font-family: 'Arial', sans-serif;
-            border-radius: 12px;
-            width: 50%;
-            min-width: 300px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            animation: slideInDown 0.5s ease-out;
-        }
-
-        /* === 15. ANIMACIÓN DE ENTRADA PARA MENSAJES === */
-        @keyframes slideInDown {
-            from {
-                opacity: 0;
-                transform: translate3d(0, -30px, 0);
-            }
-
-            to {
-                opacity: 1;
-                transform: translate3d(0, 0, 0);
-            }
-        }
-
-        .mensajes li {
-            padding: 5px 0;
-            font-size: 16px;
-        }
-
-        /* === 16. BOTÓN "VOLVER" EN ESQUINA SUPERIOR IZQUIERDA === */
-        .botones {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1000;
-        }
-
-        /* === 17. BOTÓN "VOLVER" === */
-        .botones a {
-            text-decoration: none;
-            background: linear-gradient(135deg, #f1c84b, #e6b800);
-            /* GRADIENTE AMARILLO DORADO */
-            color: #000000;
-            /* TEXTO NEGRO */
-            padding: 12px 25px;
-            border-radius: 10px;
-            font-family: 'Arial', sans-serif;
-            font-weight: 600;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            display: inline-block;
-        }
-
-        /* === 18. EFECTO DE BRILLO EN BOTÓN "VOLVER" === */
-        .botones a::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s ease;
-        }
-
-        /* === 19. EFECTOS AL PASAR MOUSE SOBRE "VOLVER" === */
-        .botones a:hover {
-            background: linear-gradient(135deg, #e6b800, #f1c84b);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-        }
-
-        .botones a:hover::before {
-            left: 100%;
-        }
-
-        .botones a:active {
-            transform: translateY(0);
-        }
-
-        /* === 20. TÍTULO PRINCIPAL DE LA PÁGINA === */
-        h2 {
-            text-align: center;
-            color: #000000;
-            /* TÍTULO NEGRO */
-            font-family: 'Arial', sans-serif;
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 30px;
-            text-shadow: none;
-            /* SIN SOMBRA */
-        }
-
-        /* === 21. RESPONSIVIDAD PARA MÓVILES === */
-        @media (max-width: 480px) {
-            .formulario-personalizado {
-                width: 90%;
-                margin: 80px auto 20px auto;
-                padding: 20px;
-            }
-
-            .mensajes {
-                width: 80%;
-                min-width: unset;
-            }
-
-            .botones {
-                top: 10px;
-                left: 10px;
-            }
-
-            .botones a {
-                padding: 10px 20px;
-                font-size: 14px;
-            }
-        }
-    </style>
-
-
-    <div class="mensajes" style="display: none;">
-        <li>Mensaje de ejemplo</li>
-    </div>
-
-    <h2>Editar Perfil</h2>
-    <div class="formulario-personalizado">
-        <form method="post">
-            <label for="id_nombre">Nombre:</label>
-            <input type="text" id="id_nombre" name="nombre">
-
-            <label for="id_email">Email:</label>
-            <input type="email" id="id_email" name="email">
-
-            <label for="id_phone_number">Teléfono:</label>
-            <input type="tel" id="id_phone_number" name="phone_number">
-
-            <button type="submit" class="btn-verde">Guardar cambios</button>
-        </form>
-    </div>
-    <div class="botones">
-        <a href="javascript:history.back()">Volver</a>
-    </div>
+      if (nombre && email) {
+        alert('Perfil actualizado correctamente\n\nNombre: ' + nombre + '\nEmail: ' + email);
+      }
+    });
+  </script>
 </body>
 
 </html>

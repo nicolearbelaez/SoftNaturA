@@ -1,83 +1,686 @@
-{% extends 'usuarios/base.html' %}
+{% extends 'usuarios/baseU.html' %}
 
 {% block content %}
 <style>
-  .btn-volver {
-    display: inline-block;
-    margin-bottom: 1rem;
-    padding: 12px 22px;
-    background-color: #E5BE01;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-    margin-right: 1600px;
-    margin-top: 50px;
+  body {
+    background-color: #f5f5f5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #495057;
   }
 
-  .btn-volver:hover {
-    background-color: #E5BE01;
+  .container {
+    max-width: 1700px;
+    margin: 0 auto;
+    padding: 20px;
+    margin-left: 30px;
   }
+
 
   h1 {
-    margin: 10px 0 20px;
     text-align: center;
+    margin: 10px 0 30px 0;
+    color: #292929;
+  }
+
+  /* Stats Cards */
+  .stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+
+  .stat-card {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    text-align: center;
+    transition: transform 0.2s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .stat-card h3 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+  }
+
+  .stat-card .numero {
+    font-size: 32px;
+    font-weight: bold;
+    margin: 0;
+    color: #333;
+  }
+
+  .stat-card.pendientes .numero {
     color: #E5BE01;
+  }
+
+  .stat-card.enviados .numero {
+    color: #28a745;
+  }
+
+  .stat-card.entregados .numero {
+    color: #007bff;
+  }
+
+  .stat-card.total .numero {
+    color: #005E27;
+  }
+
+  /* Filtros rápidos */
+  .filtros-rapidos {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 40px;
+    margin-left: 20px;
+
+  }
+
+  .filtros-rapidos h3 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .filtros-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .filtro-btn {
+    padding: 8px 16px;
+    border: 2px solid #dee2e6;
+    background: white;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    text-decoration: none;
+    color: #495057;
+    font-weight: 500;
+  }
+
+  .filtro-btn:hover {
+    text-decoration: none;
+    color: #495057;
+  }
+
+  .filtro-btn.todos {
+    border-color: #005E27;
+    color: #005E27;
+  }
+
+  .filtro-btn.todos.active,
+  .filtro-btn.todos:hover {
+    background: #005E27;
+    color: white;
+  }
+
+  .filtro-btn.pendientes {
+    border-color: #E5BE01;
+    color: #856404;
+  }
+
+  .filtro-btn.pendientes.active,
+  .filtro-btn.pendientes:hover {
+    background: #E5BE01;
+    color: #212529;
+  }
+
+  .filtro-btn.enviados {
+    border-color: #28a745;
+    color: #155724;
+  }
+
+  .filtro-btn.enviados.active,
+  .filtro-btn.enviados:hover {
+    background: #28a745;
+    color: white;
+  }
+
+  .filtro-btn.entregados {
+    border-color: #007bff;
+    color: #004085;
+  }
+
+  .filtro-btn.entregados.active,
+  .filtro-btn.entregados:hover {
+    background: #007bff;
+    color: white;
+  }
+
+  .table-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
   }
 
   table {
     width: 100%;
     border-collapse: collapse;
     background: white;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    background-color: #E5BE01;
+    font-size: 14px;
+  }
+
+
+  th {
+    text-align: center;
+    padding: 15px 12px;
+    font-weight: 600;
+    color: #333;
+    text-transform: uppercase;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    padding: 15px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #555;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  tbody tr {
+    transition: background-color 0.2s ease;
+  }
+
+  tbody tr:nth-child(even) {
+    background-color: #fafafa;
+  }
+
+  tbody tr:hover {
+    background-color: #f8f9fa;
+  }
+
+  .no-data {
+    text-align: center;
+    padding: 40px;
+    font-style: italic;
+    color: #999;
+    font-size: 16px;
+  }
+
+  .pedido-id {
+    font-weight: bold;
+    color: #007bff;
+    font-size: 15px;
+  }
+
+  .btn-estado {
+    display: inline-block;
+    padding: 6px 12px;
+    margin: 2px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    min-width: 80px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-estado.pendiente {
+    background: #e5bf01bd;
+    color: #292929;
+    border: 1px solid #E5BE01;
+  }
+
+  .btn-estado.pendiente:hover {
+    background: #F27405;
+    transform: translateY(-1px);
+  }
+
+  .btn-estado.enviado {
+    background: #28a745;
     color: white;
   }
 
-  .info-box {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    background-color: #E5BE01;
+  .btn-estado.enviado:hover {
+    background: #218838;
+    transform: translateY(-1px);
+  }
+
+  .btn-estado.entregado {
+    background: #005E27;
     color: white;
+  }
+
+  .btn-estado.entregado:hover {
+    background: #6e823e;
+    transform: translateY(-1px);
+  }
+
+  .estado-actual {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+  }
+
+  .estado-actual.pendiente {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    color: #856404;
+    border: 1px solid #ffc100;
+  }
+
+  .estado-actual.enviado {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    color: #155724;
+    border: 1px solid #28a745;
+  }
+
+  .estado-actual.entregado {
+    background: linear-gradient(135deg, #e8f4f0, #d1e7dd);
+    color: #0f5132;
+    border: 1px solid #8AA64E;
+  }
+
+  /* Buscador */
+  .search-container {
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 30px;
+    margin-left: -25px;
+
+  }
+
+  .search-input {
+    width: 98%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    font-size: 14px;
+    background-color: #f8f9fa;
+    transition: all 0.2s ease;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: #F2C641;
+    box-shadow: 0 0 0 3px rgba(242, 198, 65, 0.1);
+    background-color: white;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+
+  /* Responsive design */
+  @media (max-width: 994px) {
+    .container {
+      margin-left: 100px;
+      padding: 10px;
+    }
+
+    .btn-estado {
+      display: block;
+      margin: 2px 0;
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      margin-left: 140px;
+      padding: 10px;
+    }
+
+    .stats-container {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .filtros-buttons {
+      justify-content: center;
+    }
+
+    .btn-estado {
+      display: block;
+      margin: 2px 0;
+      width: 100%;
+    }
+
+    table {
+      font-size: 12px;
+    }
+
+    th,
+    td {
+      padding: 8px;
+    }
+
+    .stat-card .numero {
+      font-size: 24px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .stats-container {
+      grid-template-columns: 1fr;
+    }
+
+    .btn-estado {
+      display: block;
+      margin: 2px 0;
+      width: 100%;
+    }
+  }
+
+  .loading {
+    opacity: 0.6;
+    pointer-events: none;
   }
 </style>
-<a class="btn-volver" href="{% url 'usuarios:dashboard' %}">← Volver al dashboard</a>
+
+<!-- Token CSRF -->
+{% csrf_token %}
+
 <div class="container">
-  <h1 class="text-center text-success my-4">Gestión de pedidos</h1>
+  <h1>Lista de Pedidos</h1>
 
-  <table class="table table-bordered table-striped text-center">
-    <thead class="table-success">
-      <tr>
-        <th>ID</th>
-        <th>Usuario</th>
-        <th>Estado</th>
-        <th>Items</th>
-        <th>Fecha</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for pedido in pedidos %}
-      <tr>
-        <td>{{ pedido.id }}</td>
-        <td>{{ pedido.usuario }}</td>
-        <td>{{ pedido.estado }}</td>
-        <td>
-          {% for item in pedido.items.all %}
-          {{ item }}<br>
-          {% endfor %}
-        </td>
-        <td>{{ pedido.fecha_creacion }}</td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td class="info-box" colspan="5">No hay pedidos registrados</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <!-- Cards de estadísticas -->
+  <div class="stats-container">
+    <div class="stat-card total">
+      <h3>Total Pedidos</h3>
+      <p class="numero">{{ pedidos|length }}</p>
+    </div>
+    <div class="stat-card pendientes">
+      <h3>Pendientes</h3>
+      <p class="numero">{{ pedidos_pendientes|length|default:0 }}</p>
+    </div>
+    <div class="stat-card enviados">
+      <h3>Enviados</h3>
+      <p class="numero">{{ pedidos_enviados|length|default:0 }}</p>
+    </div>
+    <div class="stat-card entregados">
+      <h3>Entregados</h3>
+      <p class="numero">{{ pedidos_entregados|length|default:0 }}</p>
+    </div>
+  </div>
 
+
+
+  <!-- Tabla de pedidos -->
+  <div class="table-container">
+    <!-- Filtros rápidos -->
+    <div class="filtros-rapidos">
+      <h3>Filtros rápidos</h3>
+      <div class="filtros-buttons">
+        <a href="#" class="filtro-btn todos active" onclick="return filtrarPedidos('todos')">Todos los pedidos</a>
+        <a href="#" class="filtro-btn pendientes" onclick="return filtrarPedidos('pendiente')">Pendientes</a>
+        <a href="#" class="filtro-btn enviados" onclick="return filtrarPedidos('enviado')">Enviados</a>
+        <a href="#" class="filtro-btn entregados" onclick="return filtrarPedidos('entregado')">Entregados</a>
+      </div>
+      <!-- Buscador -->
+      <div class="search-container">
+        <input type="text" class="search-input" id="searchInput" placeholder="Buscar por ID de pedido, usuario...">
+      </div>
+
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Usuario</th>
+          <th>Estado Actual</th>
+          <th>Fecha</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="pedidosTable">
+        {% for pedido in pedidos %}
+        <tr data-estado="{{ pedido.estado|lower }}" data-usuario="{{ pedido.usuario|lower }}" data-id="{{ pedido.id }}"
+          data-search-text="{{ pedido.id }} {{ pedido.usuario|lower }}">
+          <td class="pedido-id">#{{ pedido.id }}</td>
+          <td>{{ pedido.usuario }}</td>
+          <td>
+            <span class="estado-actual {{ pedido.estado|lower }}">
+              {{ pedido.estado }}
+            </span>
+          </td>
+          <td>{{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</td>
+          <td>
+            <button class="btn-estado pendiente" onclick="cambiarEstado('{{ pedido.id }}', 'pendiente')"
+              title="Marcar como pendiente">
+              Pendiente
+            </button>
+            <button class="btn-estado enviado" onclick="cambiarEstado('{{ pedido.id }}', 'enviado')"
+              title="Marcar como enviado">
+              Enviado
+            </button>
+            <button class="btn-estado entregado" onclick="cambiarEstado('{{ pedido.id }}', 'entregado')"
+              title="Marcar como entregado">
+              Entregado
+            </button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="no-data">No hay pedidos registrados</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="pagination">
+      <span class="step-links">
+        {% if page_obj.has_previous %}
+        <a href="?page=1" title="Primera página"><i class="fa fa-angle-double-left"></i></a>
+        <a href="?page={{ page_obj.previous_page_number }}" title="Anterior"><i class="fa fa-angle-left"></i></a>
+        {% endif %}
+
+        <span class="current">
+          Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" title="Siguiente"><i class="fa fa-angle-right"></i></a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" title="Última página"><i
+            class="fa fa-angle-double-right"></i></a>
+        {% endif %}
+      </span>
+    </div>
+  </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Función para obtener el token CSRF
+  function getCSRFToken() {
+    const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfTokenElement) {
+      return csrfTokenElement.value;
+    }
+
+    // Si no existe el elemento, buscar en las cookies
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      const [name, value] = cookie.trim().split('=');
+      if (name === 'csrftoken') {
+        return value;
+      }
+    }
+
+    console.error('Token CSRF no encontrado');
+    return null;
+  }
+
+  function cambiarEstado(pedidoId, nuevoEstado) {
+    if (confirm(`¿Está seguro de cambiar el estado del pedido #${pedidoId} a "${nuevoEstado}"?`)) {
+      const csrfToken = getCSRFToken();
+
+      if (!csrfToken) {
+        alert('Error: No se pudo obtener el token de seguridad');
+        return;
+      }
+
+      // Deshabilitar botones temporalmente
+      const row = document.querySelector(`tr[data-id="${pedidoId}"]`);
+      if (row) {
+        row.classList.add('loading');
+      }
+
+      // Enviar petición AJAX
+      fetch(`/usuarios/pedidos/${pedidoId}/cambiar-estado/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({
+          'estado': nuevoEstado
+        })
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            // Actualizar la UI sin recargar la página
+            actualizarEstadoEnTabla(pedidoId, nuevoEstado);
+            alert(`Estado del pedido #${pedidoId} cambiado a "${nuevoEstado}" exitosamente`);
+          } else {
+            alert(data.message || 'Error al cambiar el estado del pedido');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error al procesar la solicitud: ' + error.message);
+        })
+        .finally(() => {
+          // Rehabilitar botones
+          if (row) {
+            row.classList.remove('loading');
+          }
+        });
+    }
+  }
+
+  function actualizarEstadoEnTabla(pedidoId, nuevoEstado) {
+    const row = document.querySelector(`tr[data-id="${pedidoId}"]`);
+    if (row) {
+      // Actualizar el data-estado
+      row.setAttribute('data-estado', nuevoEstado);
+
+      // Actualizar el elemento visual del estado
+      const estadoElement = row.querySelector('.estado-actual');
+      if (estadoElement) {
+        estadoElement.className = `estado-actual ${nuevoEstado}`;
+        estadoElement.textContent = nuevoEstado.charAt(0).toUpperCase() + nuevoEstado.slice(1);
+      }
+
+      // Actualizar las estadísticas
+      actualizarEstadisticas();
+    }
+  }
+
+  function actualizarEstadisticas() {
+    const rows = document.querySelectorAll('#pedidosTable tr[data-estado]');
+    let total = 0, pendientes = 0, enviados = 0, entregados = 0;
+
+    rows.forEach(row => {
+      if (row.style.display !== 'none') {
+        total++;
+        const estado = row.getAttribute('data-estado');
+        switch (estado) {
+          case 'pendiente':
+            pendientes++;
+            break;
+          case 'enviado':
+            enviados++;
+            break;
+          case 'entregado':
+            entregados++;
+            break;
+        }
+      }
+    });
+
+    document.querySelector('.stat-card.total .numero').textContent = total;
+    document.querySelector('.stat-card.pendientes .numero').textContent = pendientes;
+    document.querySelector('.stat-card.enviados .numero').textContent = enviados;
+    document.querySelector('.stat-card.entregados .numero').textContent = entregados;
+  }
+
+  function filtrarPedidos(estado) {
+    const rows = document.querySelectorAll('#pedidosTable tr[data-estado]');
+    const buttons = document.querySelectorAll('.filtro-btn');
+
+    // Actualizar botones activos
+    buttons.forEach(btn => btn.classList.remove('active'));
+
+    // Encontrar y activar el botón correcto
+    if (estado === 'todos') {
+      document.querySelector('.filtro-btn.todos').classList.add('active');
+    } else {
+      document.querySelector(`.filtro-btn.${estado}s`).classList.add('active');
+    }
+
+    // Filtrar filas
+    rows.forEach(row => {
+      if (estado === 'todos') {
+        row.style.display = '';
+      } else {
+        if (row.dataset.estado === estado) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      }
+    });
+
+    return false; // Prevenir navegación del link
+  }
+
+  // Búsqueda en tiempo real - CORREGIDA
+  document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+      searchInput.addEventListener('input', function () {
+        const searchTerm = this.value.toLowerCase().trim();
+        const rows = document.querySelectorAll('#pedidosTable tr[data-search-text]');
+
+        rows.forEach(row => {
+          const searchText = row.dataset.searchText || '';
+
+          if (searchTerm === '' || searchText.includes(searchTerm)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+
+        // Actualizar estadísticas después de filtrar
+        setTimeout(() => {
+          actualizarEstadisticas();
+        }, 100);
+      });
+    }
+  });
+</script>
+
 {% endblock %}

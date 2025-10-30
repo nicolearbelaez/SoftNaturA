@@ -1,3 +1,4 @@
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -86,7 +87,7 @@
                                 {% for key, value in request.session.carrito.items %}
                                 <tr>
                                     <td><img src="{{ value.imgProduc }}" width="50"></td>
-                                    <td>${{ value.precio }}</td>
+                                    <td>${{ value.precio|floatformat:0|intcomma }}</td>
                                     <td>
                                         <div class="carrito-cantidad">
                                             <form action="{% url 'productos:restar' key %}" method="post">
@@ -112,9 +113,9 @@
                             </tbody>
                         </table>
                         <hr>
-                        <p>Subtotal: ${{ carrito_subtotal }}</p>
-                        <p>IVA (19%): ${{ carrito_iva }}</p>
-                        <h4>Total: ${{ carrito_total }}</h4>
+                        <p>Subtotal: ${{ carrito_subtotal |floatformat:0|intcomma }}</p>
+                        <p>IVA (19%): ${{ carrito_iva |floatformat:0|intcomma }}</p>
+                        <h4>Total: ${{ carrito_total |floatformat:0|intcomma }}</h4>
                         <a href="{% url 'productos:checkout' %}" class="btn-finalizar">Finalizar compra</a>
                         <a href="{% url 'productos:limpiar' %}" class="btn btn-danger">Limpiar carrito</a>
                     </div>
@@ -177,28 +178,37 @@
             </div>
         </div>
     </footer>
-    {% endblock %}
 
 
-
-    {% block scripts %}
-    {% endblock %}
 </body>
+
+{% endblock %}
+
+{% block scripts %} {% endblock %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Carrito
         const iconoCarrito = document.getElementById("iconoCarrito");
         const carritoDropdown = document.getElementById("carritoDropdown");
+
         if (iconoCarrito && carritoDropdown) {
+            // Toggle manual
             iconoCarrito.onclick = function (e) {
                 e.stopPropagation();
                 carritoDropdown.style.display = carritoDropdown.style.display === "block" ? "none" : "block";
             };
-            document.onclick = function (e) {
+
+            // Cerrar al hacer click fuera
+            document.addEventListener("click", function (e) {
                 if (!iconoCarrito.contains(e.target) && !carritoDropdown.contains(e.target)) {
-                    carritoDropdown.style.display = 'none';
+                    carritoDropdown.style.display = "none";
                 }
-            };
+            });
+
+            // 👇 Mantenerlo abierto si viene de ?carrito=1
+            if (window.location.search.includes("carrito=1")) {
+                carritoDropdown.style.display = "block";
+            }
         }
 
         // MENÚ USUARIO
@@ -209,11 +219,11 @@
                 e.stopPropagation();
                 menuUsuario.style.display = menuUsuario.style.display === 'block' ? 'none' : 'block';
             };
-            document.onclick = function (e) {
+            document.addEventListener("click", function (e) {
                 if (!userIcon.contains(e.target) && !menuUsuario.contains(e.target)) {
                     menuUsuario.style.display = 'none';
                 }
-            };
+            });
         }
     });
 </script>

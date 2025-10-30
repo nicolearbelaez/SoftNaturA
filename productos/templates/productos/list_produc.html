@@ -1,26 +1,27 @@
-{% extends 'usuarios/base.html' %}
+{% extends 'usuarios/baseU.html' %}
 {% load static %}
+{% csrf_token %}
+{% load humanize %}
+{% block title %}Lista de Productos{% endblock %}
 
-{% block content %}
+{% block styles %}
 <style>
+    /* ========== GENERALES ========== */
     * {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        box-sizing: border-box;
     }
 
     .container {
-        max-width: 800px;
-        margin: 50px auto;
-        padding: 40px;
-        background-color: #ffffff;
-        border-radius: 16px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        max-width: 1700px;
+        margin-left: 20px;
+        padding: 20px;
     }
 
-    h2 {
+    h1 {
         text-align: center;
-        color: #E5BE01;
-        margin-bottom: 30px;
-        font-size: 28px;
+        margin: 10px 0 30px 0;
+        color: #292929;
     }
 
     label {
@@ -30,243 +31,1024 @@
         margin-bottom: 10px;
     }
 
-    .btn-volver {
+    /* ========== BOTONES PRINCIPALES ========== */
+    .btn-agregar {
         display: inline-block;
         padding: 10px 20px;
-        margin-top: 20px;
+        margin: 15px;
         background-color: #E5BE01;
-        color: white;
+        color: #292929;
+        font-weight: bold;
+        border-radius: 8px;
         text-decoration: none;
-        font-weight: bold;
-        border-radius: 8px;
-        text-align: center;
-        transition: background-color 0.3s;
-    }
-
-    .btn-volver:hover {
-        background-color: #E5BE01;
-    }
-
-    input {
-        width: 330px;
-    }
-
-    .btn-guardar {
-        display: block;
-        margin: 20px auto 0 auto;
-        border-radius: 8px;
-        padding: 10px 20px;
-        border: none;
-        color: white;
         cursor: pointer;
-        text-align: center;
-        font-weight: bold;
-        background-color: #E5BE01;
+        transition: background-color 0.3s;
+        border: none;
+        outline: none;
         font-size: 16px;
     }
 
-    .btn-guardar:hover {
-        background-color: #E5BE01;
+    .btn-agregar:hover {
+        background-color: #F29727;
     }
 
-    .btn-agregar {
-        display: flex;
-        justify-content: center;
-        margin-top: 40px;
+    .btn-agregar-category {
+        display: inline-block;
         padding: 12px 22px;
+        margin: 10px;
         background-color: #E5BE01;
-        color: white;
+        color: #292929;
         font-weight: bold;
         border-radius: 8px;
         text-decoration: none;
         cursor: pointer;
         transition: background-color 0.3s;
-        margin-bottom: 20px;
         border: none;
         outline: none;
-        width: 200px;
-        margin-left: 1130px;
+        font-size: 16px;
     }
 
-    .btn-agregar:hover {
+    .btn-categorias {
+        display: inline-block;
+        padding: 10px 20px;
+        margin: 15px;
         background-color: #E5BE01;
+        color: #292929;
+        font-weight: bold;
+        border-radius: 8px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        border: none;
+        outline: none;
+        font-size: 16px;
     }
 
-    #form-agregar {
-        display: none;
+    .btn-categorias:hover,
+    .btn-agregar-category:hover {
+        background-color: #F29727;
     }
 
     .acciones-superior {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
-        margin: 20px 40px 0 40px;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-left: 850px;
     }
 
-    .btn-agregar-category {
-        display: flex;
-        justify-content: center;
-        margin-top: 40px;
-        padding: 12px 22px;
-        background-color: #E5BE01;
-        color: white;
-        font-weight: bold;
+    .btn-exportar {
+        display: inline-block;
+        padding: 10px 18px;
         border-radius: 8px;
         text-decoration: none;
-        cursor: pointer;
-        transition: background-color 0.3s;
-        margin-bottom: 20px;
-        border: none;
-        outline: none;
-        width: 200px;
+        color: #292929;
+        font-weight: bold;
+        transition: background-color 0.2s ease;
+        background-color: #E5BE01;
+        font-size: 16px;
     }
 
-    .btn-agregar-category:hover {
+    .btn-exportar:hover {
+        background-color: #F29727;
+    }
+
+    /* ========== BUSCADOR ========== */
+    .search-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e0e0e0;
+        margin: 20px 0;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 25px;
+        font-size: 14px;
+        background-color: #f8f9fa;
+        transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #F2C641;
+        box-shadow: 0 0 0 3px rgba(242, 198, 65, 0.1);
+        background-color: white;
+    }
+
+    .search-stats {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #666;
+        text-align: center;
+    }
+
+    /* ========== LISTA DE CATEGORÍAS ========== */
+    .category-list {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        display: none;
+    }
+
+    .category-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 14px;
+        margin-bottom: 10px;
+        background-color: #f8f8f8;
+        border-radius: 8px;
+        transition: background-color 0.2s ease;
+        font-size: 14px;
+    }
+
+    .category-item:hover {
+        background-color: #fff6d1;
+    }
+
+    .acciones a {
+        margin-left: 6px;
+        padding: 5px 8px;
+        border-radius: 6px;
+        text-decoration: none;
+        color: white;
+        font-size: 15px;
+        transition: background-color 0.3s;
+    }
+
+    .acciones .edit {
         background-color: #E5BE01;
+        color: black;
+    }
+
+    .acciones .edit:hover {
+        background-color: #F29727;
+    }
+
+    .acciones .delete {
+        background-color: #dc3545;
+    }
+
+    .acciones .delete:hover {
+        background-color: #b02a37;
+    }
+
+    /* ========== TARJETAS DE PRODUCTOS ========== */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .product-card {
+        background-color: #ffffffec;
+        border-radius: 20px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .product-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header {
+        position: relative;
+        padding: 15px;
+        text-align: center;
+    }
+
+    .card-header img {
+        width: 85%;
+        max-width: 100%;
+        height: 250px;
+        object-fit: contain;
+        border-radius: 12px;
+        padding: 10px;
+    }
+
+    .card-header .estado {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: #28a745;
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+    }
+
+    .card-body {
+        padding: 20px;
+        color: #333;
+        flex: 1;
+    }
+
+    .card-body h3 {
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .card-body p {
+        font-size: 17px;
+        margin: 4px 0;
+    }
+
+    .card-body .fecha {
+        color: #28a745;
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    .card-body .precio {
+        font-size: 20px;
+        font-weight: bold;
+        color: black;
+    }
+
+    .card-body .stock {
+        background: #f1f2f6;
+        border-radius: 10px;
+        display: inline-block;
+        padding: 5px 10px;
+        margin-top: 8px;
+    }
+
+    .product-card .acciones {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        padding: 15px;
+        gap: 8px;
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .product-card .acciones .btn {
+        padding: 8px 14px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: bold;
+        color: #fff;
+        transition: 0.2s;
+        white-space: nowrap;
+    }
+
+    .product-card .acciones .btn-edit {
+        background: #E5BE01;
+        color: #292929;
+    }
+
+    .product-card .acciones .btn-edit:hover {
+        background: #F29727;
+    }
+
+    .product-card .acciones .btn-delete {
+        background: #e74c3c;
+    }
+
+    .product-card .acciones .btn-more {
+        background: #005E27;
+    }
+
+    .product-card .acciones .btn-more2 {
+        background: gray;
+    }
+
+    /* ========== MODALES ========== */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        padding: 15px;
+    }
+
+    .modal-content {
+        background: #fff;
+        padding: 25px 30px;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 420px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .modal-content h2 {
+        font-size: 20px;
+        margin-bottom: 15px;
+        color: #333;
+        text-align: center;
+    }
+
+    .modal-content label {
+        font-weight: 600;
+        font-size: 14px;
+        margin-top: 12px;
+        margin-bottom: 5px;
+        display: block;
+        color: #444;
+    }
+
+    .modal-content input,
+    .modal-content select,
+    .modal-content textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        outline: none;
+        font-size: 14px;
+        transition: border 0.2s;
+    }
+
+    .modal-content input:focus,
+    .modal-content select:focus,
+    .modal-content textarea:focus {
+        border: 1px solid #007bff;
+    }
+
+    /* Modal de Productos (más grande) */
+    .modalProduc {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.65);
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        padding: 15px;
+    }
+
+    .modal-content-produc {
+        background: #fff;
+        padding: 30px;
+        border-radius: 14px;
+        width: 100%;
+        max-width: 750px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .modal-content-produc h2 {
+        font-size: 28px;
+        margin-bottom: 20px;
+        color: #333;
+        text-align: center;
+        font-weight: 700;
+    }
+
+    .modal-content-produc form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .modal-content-produc label {
+        grid-column: span 2;
+        font-weight: bold;
+        font-size: 15px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        display: block;
+        color: #444;
+        text-align: center;
+    }
+
+    .modal-content-produc input,
+    .modal-content-produc select,
+    .modal-content-produc textarea {
+        width: 100%;
+        padding: 14px 18px;
+        border: none;
+        border-radius: 10px;
+        outline: none;
+        font-size: 15px;
+        background: #f7f7f7;
+        transition: all 0.25s ease;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-content-produc input:focus,
+    .modal-content-produc select:focus,
+    .modal-content-produc textarea:focus {
+        background: #fff;
+        box-shadow: 0 0 6px rgba(242, 198, 65, 0.6);
+    }
+
+    .modal-content-produc form,
+    .modal-content-produc fieldset {
+        border: none !important;
+        outline: none !important;
+    }
+
+    /* ========== BOTONES DE MODALES ========== */
+    .modal .acciones,
+    .modalProduc .acciones {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .btn-guardar {
+        flex: 1;
+        background: #E5BE01;
+        color: #292929;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .btn-guardar:hover {
+        background: #F27405;
+    }
+
+    .btn-cancelar {
+        flex: 1;
+        background: gray;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .btn-cancelar:hover {
+        background: #c82333;
+    }
+
+    .modal-content-produc .acciones {
+        grid-column: span 2;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .btn-guardar-produc {
+        background-color: #E5BE01;
+        color: white;
+        padding: 12px 22px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .btn-guardar-produc:hover {
+        background-color: #F29727;
+    }
+
+    .btn-cancelar-produc {
+        background-color: #e74c3c;
+        color: white;
+        padding: 12px 22px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    /* ========== ANIMACIONES ========== */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ============================= */
+    /* 📱 RESPONSIVIDAD ADAPTATIVA */
+    /* ============================= */
+
+    /* Desktop grande */
+    @media (max-width: 13x00px) {
+        .container {
+            max-width: 95%;
+            padding: 20px 15px;
+        }
+
+        .acciones-superior {
+            display: inline-block;
+            margin-right: 15px;
+        }
+
+        .product-grid {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+    }
+
+    /* Laptop y tablets horizontales */
+    @media (max-width: 1200px) {
+        .container {
+            margin-left: 40px;
+        }
+
+        h1 {
+            font-size: 26px;
+        }
+
+        .acciones-superior {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .product-grid {
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 15px;
+        }
+
+        .card-header img {
+            height: 220px;
+        }
+    }
+
+    /* Tablets verticales */
+    @media (max-width: 992px) {
+        .container {
+            padding: 15px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin: 15px 0 20px 0;
+        }
+
+        .acciones-superior {
+            display: inline-block;
+            gap: 10px;
+            margin-left: 150px;
+        }
+
+        .btn-agregar,
+        .btn-categorias,
+        .btn-exportar {
+            width: 100%;
+            margin: 0;
+            text-align: center;
+        }
+
+        .product-grid {
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 15px;
+        }
+
+        .modal-content-produc {
+            padding: 25px;
+        }
+
+        .modal-content-produc h2 {
+            font-size: 24px;
+        }
+
+        .modal-content-produc form {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .modal-content-produc label {
+            grid-column: span 1;
+        }
+    }
+
+    /* Móviles grandes */
+    @media (max-width: 768px) {
+        body {
+            font-size: 14px;
+        }
+
+        .container {
+            padding: 10px;
+        }
+
+        h1 {
+            font-size: 22px;
+            margin: 10px 0 15px 0;
+        }
+
+        .search-container {
+            padding: 15px;
+        }
+
+        .btn-agregar,
+        .btn-categorias,
+        .btn-exportar,
+        .btn-agregar-category {
+            font-size: 14px;
+            padding: 10px 15px;
+
+        }
+
+        .product-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .card-header img {
+            height: 200px;
+        }
+
+        .card-body h3 {
+            font-size: 20px;
+        }
+
+        .card-body p {
+            font-size: 15px;
+        }
+
+        .category-list {
+            padding: 15px;
+            margin: 15px;
+        }
+
+        .modal-content {
+            padding: 20px;
+        }
+
+        .modal-content-produc {
+            padding: 20px;
+        }
+
+        .modal-content-produc h2 {
+            font-size: 22px;
+        }
+    }
+
+    /* Móviles pequeños */
+    @media (max-width: 576px) {
+        h1 {
+            font-size: 20px;
+        }
+
+        .btn-agregar,
+        .btn-categorias,
+        .btn-exportar,
+        .btn-agregar-category {
+            font-size: 13px;
+            padding: 10px;
+        }
+
+        .search-input {
+            font-size: 13px;
+            padding: 10px;
+        }
+
+        .card-header img {
+            height: 180px;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        .card-body h3 {
+            font-size: 18px;
+        }
+
+        .card-body p {
+            font-size: 14px;
+        }
+
+        .card-body .precio {
+            font-size: 18px;
+        }
+
+        .product-card .acciones {
+            padding: 12px;
+            gap: 5px;
+        }
+
+        .product-card .acciones .btn {
+            font-size: 13px;
+            padding: 6px 10px;
+        }
+
+        .modal-content {
+            padding: 15px;
+        }
+
+        .modal-content h2,
+        .modal-content-produc h2 {
+            font-size: 18px;
+        }
+
+        .modal-content input,
+        .modal-content select,
+        .modal-content textarea,
+        .modal-content-produc input,
+        .modal-content-produc select,
+        .modal-content-produc textarea {
+            font-size: 13px;
+            padding: 10px;
+        }
+
+        .btn-guardar,
+        .btn-cancelar,
+        .btn-guardar-produc,
+        .btn-cancelar-produc {
+            font-size: 13px;
+            padding: 10px 15px;
+        }
+    }
+
+    /* Móviles muy pequeños */
+    @media (max-width: 400px) {
+        h1 {
+            font-size: 18px;
+        }
+
+        .card-header img {
+            height: 150px;
+        }
+
+        .product-card .acciones {
+            flex-direction: column;
+        }
+
+        .product-card .acciones .btn {
+            width: 100%;
+            text-align: center;
+        }
     }
 </style>
+{% endblock %}
 
-<div class="acciones-superior">
-    <a class="btn-volver" href="{% url 'usuarios:dashboard' %}">← Volver al dashboard</a>
-    <button class="btn-agregar" onclick="mostrarFormulario()">Agregar Producto</button>
-    <button class="btn-agregar-category" onclick="mostrarFormulario2()">Agregar Categorías</button>
+
+{% block content %}
+<div class="container">
+    <h1 style="text-align: center;">Gestión de Productos</h1>
+
+
+    <!-- Buscador de Productos -->
+    <div class="search-container">
+        <div class="acciones-superior">
+            <button class="btn-agregar" onclick="abrirModal('modalAgregarProducto')">Agregar Producto</button>
+            <button class="btn-categorias" onclick="toggleCategorias()">Ver Categorías</button>
+            <a href="{% url 'productos:exportar_excel' %}" class="btn-exportar">
+                Exportar a Excel</a>
+
+        </div>
+        <input type="text" class="search-input" id="searchInput"
+            placeholder="Buscar por nombre, precio, descripción o stock...">
+        <div class="search-stats" id="searchStats"></div>
+    </div>
+
+    <!-- Lista de Categorías -->
+    <div id="categoryList" class="category-list">
+        <h2>Lista de categorias</h2>
+        {% for categoria in categorias %}
+        <div class="category-item">
+            <span>{{ categoria.nombCategory }}</span>
+            <div class="acciones">
+                <a onclick="abrirEditar(this)" data-url="{% url 'productos:editar_categoria' categoria.id %}"
+                    data-nombre="{{ categoria.nombCategory }}" class="edit">
+                    <i class="fa fa-pen"></i>
+                </a>
+                <a href="{% url 'productos:eliminar_categoria' categoria.id %}" class="delete"
+                    onclick="return confirm('¿Seguro que deseas eliminar esta categoría?')">
+                    <i class="fa fa-trash"></i>
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <p style="text-align:center;">No hay categorías registradas.</p>
+        {% endfor %}
+
+        <!-- Botón agregar categoría -->
+        <div style="text-align:center; margin-top: 15px;">
+            <button class="btn-agregar-category" onclick="abrirModal('modalAgregarCategoria')">
+                + Agregar Categoría
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Agregar Categoría -->
+    <div id="modalAgregarCategoria" class="modal">
+        <div class="modal-content">
+            <h2>Agregar Categoría</h2>
+            <form method="POST" action="{% url 'productos:agregar_categoria' %}">
+                {% csrf_token %}
+                <input type="text" name="nombCategory" placeholder="Nombre de la Categoría" required>
+
+                <div class="acciones">
+                    <button type="submit" class="btn-guardar">Guardar</button>
+                    <button type="button" class="btn-cancelar"
+                        onclick="cerrarModal('modalAgregarCategoria')">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Editar Categoría -->
+    <div id="modalEditar" class="modal">
+        <div class="modal-content">
+            <h2>Editar Categoría</h2>
+            <form method="POST" id="editarForm">
+                {% csrf_token %}
+                <label>Nombre:</label>
+                <input type="text" id="editNombre" name="nombre" required>
+
+                <div class="acciones">
+                    <button type="submit" class="btn-guardar">Guardar</button>
+                    <button type="button" class="btn-cancelar" onclick="cerrarModal('modalEditar')">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Agregar Producto -->
+    <div id="modalAgregarProducto" class="modalProduc" style="display:none;">
+        <div class="modal-content-produc">
+            <h2>Agregar Producto</h2>
+            <form method="POST" enctype="multipart/form-data" action="{% url 'productos:agregar_producto' %}">
+                {% csrf_token %}
+
+                <label for="nombreProduc">Nombre del producto</label>
+                {{ form.nombProduc }}
+
+                <label for="descripcion">Descripción</label>
+                {{ form.descripcion }}
+
+                <label for="precio">Precio</label>
+                {{ form.precio|intcomma|default:"0" }}
+
+                <label for="categoriaProduc">Categoría</label>
+                {{ form.Categoria }}
+
+                <label for="stock">Cantidad en stock</label>
+                {{ form.stock }}
+
+                <label for="fecha_caducidad">Fecha de caducidad</label>
+                {{ form.fecha_caducidad }}
+
+                <label for="imgProduc">Imagen</label>
+                {{ form.imgProduc }}
+
+                <div class="acciones">
+                    <button type="submit" class="btn-guardar-produc">Guardar</button>
+                    <button type="button" class="btn-cancelar-produc"
+                        onclick="cerrarModal('modalAgregarProducto')">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <h1 style="text-align: center;">Lista de Productos</h1>
+
+    <div id="productosGrid" class="product-grid">
+        {% for product in productos %}
+        <div class="product-card"
+            data-search-text="{{ product.nombProduc|lower }} {{ product.precio }} {{ product.descripcion|lower }} {{ product.stock }} {% if product.fecha_caducidad %}{{ product.fecha_caducidad }}{% endif %} {% if product.esta_vencido %}vencido{% else %}vigente{% endif %} {% if product.stock == 0 %}agotado{% endif %}">
+
+            <!-- Header con imagen y estado -->
+            <div class="card-header">
+                {% if product.imgProduc %}
+                <img src="{{ product.imgProduc.url }}" alt="{{ product.nombProduc }}">
+                {% else %}
+                <img src="{% static 'productos/img/no-image.png' %}" alt="Sin imagen">
+                {% endif %}
+
+                {% if product.esta_vencido %}
+                <span class="estado" style="background:#e74c3c;">Vencido</span>
+                {% elif product.stock == 0 %}
+                <span class="estado" style="background:#f39c12;">Agotado</span>
+                {% else %}
+                <span class="estado">En Stock</span>
+                {% endif %}
+            </div>
+
+            <!-- Body -->
+            <div class="card-body">
+                <h3>{{ product.nombProduc }}</h3>
+                <p>{{ product.descripcion }}</p>
+
+                {% if product.fecha_caducidad %}
+                <p class="fecha">Vigente hasta {{ product.fecha_caducidad }}</p>
+                {% else %}
+                <p class="fecha">Sin fecha</p>
+                {% endif %}
+
+                <p class="precio">${{ product.precio|intcomma|default:"0" }}</p>
+                <p class="stock">{{ product.stock }} unid.</p>
+            </div>
+
+            <!-- Acciones -->
+            <div class="acciones">
+                <a href="{% url 'productos:editar_producto' product.id %}" class="btn-edit">
+                    <i class="fa fa-edit"></i> Editar
+                </a>
+                {% if product.estado %}
+                <a href="{% url 'productos:inactivar_producto' product.id %}" class="btn-more">
+                    <i class="fa fa-user-slash"></i> Inactivar
+                </a>
+                {% else %}
+                <a href="{% url 'productos:activar_producto' product.id %}" class="btn-more2">
+                    <i class="fa fa-user-check"></i> Activar
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <p style="text-align:center;">No hay productos registrados.</p>
+        {% endfor %}
+    </div>
 </div>
 
-<!-- Formulario para agregar categoría -->
-<div class="container" id="form-agregar-category" style="display: none;">
-    <h2>Agregar Categoría</h2>
-    <form method="POST" enctype="multipart/form-data" action="{% url 'productos:agregar_categoria' %}">
-        {% csrf_token %}
-        <input type="text" class="texto" name="nombCategory" placeholder="Nueva categoría" required>
-        <button type="submit" class="btn-guardar">Guardar categoría</button>
-    </form>
-</div>
+{% endblock %}
 
-<!-- Formulario para agregar producto -->
-<div class="container" id="form-agregar">
-    <h2>Agregar Producto</h2>
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <label for="nombreProduc">Nombre del producto</label>
-        {{ form.nombProduc }}
-
-        <label for="descripcion">Descripción</label>
-        {{ form.descripcion }}
-
-        <label for="precio">Precio</label>
-        {{ form.precio }}
-
-        <label for="categoriaProduc">Categoría</label>
-        {{ form.Categoria }}
-
-        <label for="stock">Cantidad en stock</label>
-        {{ form.stock }}
-
-        <label for="fecha_caducidad">Fecha de caducidad</label>
-        {{ form.fecha_caducidad }}
-
-        <label for="imgProduc">Imagen</label>
-        {{ form.imgProduc }}
-
-        <button type="submit" class="btn-guardar">Guardar Producto</button>
-    </form>
-</div>
-
+{% block scripts %}
 <script>
-    function mostrarFormulario() {
-        const form = document.getElementById('form-agregar');
-        if (form.style.display === 'none') {
-            form.style.display = 'block';
-            window.scrollTo({ top: form.offsetTop, behavior: 'smooth' });
-        } else {
-            form.style.display = 'none';
+    // Búsqueda de productos
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('searchInput');
+        const searchStats = document.getElementById('searchStats');
+        const cards = document.querySelectorAll('.product-card[data-search-text]');
+        const totalCards = cards.length;
+
+        function actualizarEstadisticas() {
+            const visibleCards = Array.from(cards).filter(card => card.style.display !== 'none').length;
+            if (searchInput.value.trim() === '') {
+                searchStats.textContent = `Mostrando ${totalCards} producto${totalCards !== 1 ? 's' : ''}`;
+            } else {
+                searchStats.textContent = `Encontrados ${visibleCards} de ${totalCards} producto${totalCards !== 1 ? 's' : ''}`;
+            }
         }
+
+        if (searchInput) {
+            actualizarEstadisticas();
+            searchInput.addEventListener('input', function () {
+                const searchTerm = this.value.toLowerCase().trim();
+                cards.forEach(card => {
+                    const searchText = card.dataset.searchText || '';
+                    card.style.display = (searchTerm === '' || searchText.includes(searchTerm)) ? '' : 'none';
+                });
+                actualizarEstadisticas();
+            });
+        }
+    });
+
+    function toggleCategorias() {
+        const list = document.getElementById("categoryList");
+        list.style.display = (list.style.display === "block") ? "none" : "block";
     }
 
-    function mostrarFormulario2() {
-        const form = document.getElementById('form-agregar-category');
-        if (form.style.display === 'none') {
-            form.style.display = 'block';
-            window.scrollTo({ top: form.offsetTop, behavior: 'smooth' });
-        } else {
-            form.style.display = 'none';
-        }
+    function abrirModal(id) {
+        document.getElementById(id).style.display = "flex";
+    }
+
+    function cerrarModal(id) {
+        document.getElementById(id).style.display = "none";
+    }
+
+    function abrirEditar(element) {
+        const modalEditar = document.getElementById("modalEditar");
+        const inputNombre = document.getElementById("editNombre");
+        const form = document.getElementById("editarForm");
+        inputNombre.value = element.getAttribute("data-nombre");
+        form.action = element.getAttribute("data-url");
+        modalEditar.style.display = "flex";
     }
 </script>
-
-
-<h2 style="text-align: center;">Lista de Productos</h2>
-
-<table style="width: 100%; border-collapse: collapse; margin-top: 30px;">
-    <thead>
-        <tr style="background-color: #E5BE01; color: white;">
-            <th style="padding: 12px;">Imagen</th>
-            <th style="padding: 12px;">Nombre</th>
-            <th style="padding: 12px;">Precio</th>
-            <th style="padding: 12px;">Descripción</th>
-            <th style="padding: 12px;">Stock</th>
-            <th style="padding: 12px;">Fecha de caducidad</th>
-            <th style="padding: 12px;">Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for product in productos %}
-        <tr style="border-bottom: 1px solid #ccc;">
-            <td style="padding: 12px; text-align: center;">
-                {% if product.imgProduc %}
-                <img src="{{ product.imgProduc.url }}" alt="{{ product.nombProduc }}" width="60">
-                {% else %}
-                <img src="{% static 'productos/img/no-image.png' %}" alt="Sin imagen" width="60">
-                {% endif %}
-            </td>
-            <td style="padding: 12px;">{{ product.nombProduc }}</td>
-            <td style="padding: 12px;">${{ product.precio }}</td>
-            <td style="padding: 12px;">{{ product.descripcion }}</td>
-            <td style="padding: 12px;">
-                {% if product.stock > 0 %}
-                {{ product.stock }}
-                {% else %}
-                <span style="color: #E5BE01; font-weight: bold;">Agotado</span>
-                {% endif %}
-            </td>
-            <td style="padding: 12px;">
-                {% if product.fecha_caducidad %}
-                {{ product.fecha_caducidad }}
-                {% if product.esta_vencido %}
-                <span style="color: #E5BE01; font-weight: bold;"> (Vencido)</span>
-                {% else %}
-                <span style="color: #E5BE01; font-weight: bold;"> (Vigente)</span>
-                {% endif %}
-                {% else %}
-                <span style="color: gray;">Sin fecha</span>
-                {% endif %}
-            </td>
-            <td style="padding: 10px; text-align: center; width: 30px;">
-                <a href="{% url 'productos:editar_producto' product.id %}" class="btn-volver"
-                    style="background-color: #FFC107;"> <i class="fa fa-edit"></i></a>
-                <a href="{% url 'productos:eliminar_producto' product.id %}" class="btn-volver"
-                    style="background-color: #FFC107;"
-                    onclick="return confirm('¿Estás seguro de eliminar este producto?')"> <i class="fa fa-trash"></i></a>
-                {% if product.estado %}
-                    <a href="{% url 'productos:inactivar_producto' product.id %}" class="btn-volver"
-                        style="background-color: #FFC107;"><i class="fa fa-user-slash"></i></a>
-                {% else %}
-                    <a href="{% url 'productos:activar_producto' product.id %}" class="btn-volver"
-                        style="background-color: #FFC107;"> <i class="fa fa-user-check"></i></a>
-                {% endif %}
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="7" style="text-align: center; padding: 20px;">No hay productos registrados.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<div style="text-align: center; margin-bottom: 20px;">
-    <a href="{% url 'productos:exportar_excel' %}" class="btn-volver" style="background-color: #E5BE01;"> Exportar
-        Inventario a Excel</a>
-</div>
-
 {% endblock %}

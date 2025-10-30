@@ -1,357 +1,805 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
+{% extends 'usuarios/baseU.html' %}
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gestión de Usuarios</title>
-  <style>
-    * {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+{% block title %}Gestión de Usuarios{% endblock %}
 
-    h2 {
-      color: #E5BE01;
-    }
+{% block styles %}
+<style>
+  :root {
+    --verde: #005E27;
+    --naranja: #F29727;
+    --naranja-oscuro: #F27405;
+  }
 
-    .contenedor-login-adm {
-      background-color: rgb(255, 253, 253);
-      border-radius: 12px;
-      margin-top: 50px;
-    }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #fafafa;
+    margin: 0;
+  }
 
-    .tabla-usuarios {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-    }
+  .contenedor {
+    max-width: 1700px;
+    margin: 0 auto;
+    padding: 20px;
+    margin-right: 40px;
+  }
 
-    .tabla-usuarios thead {
-      background-color: #E5BE01;
-      color: #f8f2f2;
-    }
+  .agregar {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 15px;
+    background-color: #E5BE01;
+    color: #292929;
+    font-weight: bold;
+    border-radius: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border: none;
+    outline: none;
+    margin-right: 800px;
+    font-size: 16px;
+  }
 
-    .tabla-usuarios th,
-    .tabla-usuarios td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #ccc;
-      width: 120px;
-      word-wrap: break-word;
-    }
+  .agregar:hover {
+    background-color: var(--naranja);
+  }
 
-    .btn-volver {
-      display: inline-block;
-      background-color: #E5BE01;
-      color: white;
-      padding: 10px 16px;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: bold;
-      transition: background-color 0.3s ease;
-    }
+  /* Botón de exportar */
+  .btn-export {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #292929;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
+    background-color: #E5BE01;
+    cursor: pointer;
+    font-size: 16px;
+    border: none;
+    margin-right: 100px;
+    width: 100px;
+  }
 
-    .btn-volver:hover {
-      background-color: rgb(6, 82, 6);
-    }
+  .btn-export:hover {
+    background: #F29727;
 
-    .modal {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 400px;
-      max-width: 90%;
-      background: #fff;
-      padding: 25px 30px;
-      border-radius: 12px;
-      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
-      z-index: 1000;
-    }
+  }
 
-    body.modal-open::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: rgba(0, 0, 0, 0.6);
-      z-index: 999;
-    }
+  .acciones-superiores {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-left: 50px;
+  }
 
-    .modal h2 {
-      margin-bottom: 20px;
-      font-size: 24px;
-      color: #333;
-      text-align: center;
-    }
+  h1 {
+    text-align: center;
+    margin: 10px 0 22px 0;
+    color: #292929;
+  }
 
-    .modal input[type="text"],
-    .modal input[type="email"],
-    .modal select {
-      width: 100%;
-      padding: 10px 12px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 15px;
-      transition: border-color 0.3s;
-    }
+  .tabla-usuarios {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
 
-    .modal input:focus,
-    .modal select:focus {
-      border-color: #009688;
-      outline: none;
-    }
+  .tabla-usuarios thead {
+    background-color: #ffffff;
+    color: black;
+  }
 
-    .botones-modal {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-    }
+  .tabla-usuarios th {
+    text-align: center;
+    padding: 14px 16px;
+    font-weight: 600;
+    color: #292929;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
 
-    .botones-modal button {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
+  .tabla-usuarios td {
+    padding: 14px 16px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+    font-size: 16px;
+  }
 
-    .botones-modal button[type="submit"] {
-      background-color: #E5BE01;
-      color: white;
-    }
+  .tabla-usuarios tbody tr:nth-child(even) {
+    background: #fafafa;
+  }
 
-    .botones-modal button[type="submit"]:hover {
-      background-color: #E5BE01;
-    }
+  tbody tr:nth-child(even) {
+    background-color: #fafafa;
+  }
 
-    .botones-modal button[type="button"] {
-      background-color: #f44336;
-      color: white;
-    }
+  tbody tr:hover {
+    background-color: #f8f9fa;
+  }
 
-    .botones-modal button[type="button"]:hover {
-      background-color: #d32f2f;
-    }
+  .acciones button,
+  .acciones a button {
+    border: none;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-right: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-    .btn-volver,
-    .agregar {
-      padding: 10px 18px;
-      border: 2px solid #E5BE01;
-      background-color: #E5BE01;
-      color: white;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-decoration: none;
-      margin-top: 40px;
+  .editar {
+    background-color: #E5BE01;
+    color: #292929;
+  }
+
+  .editar:hover {
+    background-color: var(--naranja);
+  }
+
+  .inactivar {
+    background-color: var(--verde);
+    color: #ffffff;
+  }
+
+  .inactivar:hover {
+    background-color: #6e823e;
+  }
+
+  .activar {
+    background-color: #ffc100;
+    color: #292929;
+  }
+
+  .activar:hover {
+    background-color: #d4a72f;
+  }
+
+  .fila-inactiva {
+    background-color: #fff3cd;
+    color: #333;
+  }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 100000;
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 420px;
+    max-width: 92%;
+    background: #fff;
+    padding: 22px;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    z-index: 100001;
+  }
+
+  .modal h3 {
+    margin: 0 0 12px 0;
+    text-align: center;
+    font-size: 20px;
+  }
+
+  .modal label {
+    display: block;
+    font-size: 13px;
+    margin: 8px 0 6px 0;
+    color: #333;
+  }
+
+  .modal input[type="text"],
+  .modal input[type="email"],
+  .modal input[type="password"],
+  .modal select {
+    width: 100%;
+    padding: 10px 12px;
+    box-sizing: border-box;
+    margin-bottom: 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+
+  .botones-modal {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .botones-modal .guardar {
+    flex: 1;
+    background-color: var(--verde);
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+
+  .botones-modal .guardar:hover {
+    background-color: #6e823e;
+  }
+
+  .botones-modal .cancelar {
+    flex: 1;
+    background-color: #e0e0e0;
+    color: #333;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+
+  .botones-modal .cancelar:hover {
+    filter: brightness(0.97);
+  }
+
+  .search-container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    margin-bottom: 20px;
+  }
+
+  .search-input {
+    width: 1228px;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    font-size: 16px;
+    background-color: #f8f9fa;
+    transition: all 0.2s ease;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: #F2C641;
+    box-shadow: 0 0 0 3px rgba(242, 198, 65, 0.1);
+    background-color: white;
+  }
+
+  .search-stats {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+
+
+
+  @media (min-width: 1095px) {
+    .contenedor {
+      max-width: 1850px;
       margin-left: 50px;
     }
 
     .agregar {
-      margin-left: 1350px;
-      font-weight: bold;
+      display: inline-block;
+      width: 40%;
+      margin: 8px 0;
+      margin-left: 120px;
     }
 
-    .btn-volver:hover,
-    .agregar:hover {
-      background-color: #E5BE01;
-      color: white;
+    .btn-export {
+      display: inline-block;
+      width: 40%;
+      margin: 8px 0;
     }
 
-    /* Botones en la tabla */
-    .editar,
-    .inactivar,
-    .activar {
-      padding: 6px 10px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
+    .search-input {
+      width: 97%;
+      border: 2px solid #ddd;
+    }
+
+    .acciones-superiores {
+      flex-direction: flex;
+      align-items: flex-start;
+      margin-left: 500px;
+    }
+
+  }
+
+  /* Laptops y tablets grandes */
+  @media (max-width: 1200px) {
+    .contenedor {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 20px;
+      margin-left: 50px;
+    }
+
+    .agregar {
+      display: inline-block;
+      width: 80%;
+      margin: 8px 0;
+      margin-right: 20px;
+
+    }
+
+    .btn-export {
+      display: inline-block;
+      width: 80%;
+      margin: 8px 0;
+    }
+
+    .search-input {
+      width: 97%;
+      border: 2px solid #ddd;
+    }
+
+    .acciones-superiores {
+      flex-direction: flex;
+      align-items: flex-start;
+      margin-left: 360px;
+    }
+
+    .tabla-usuarios th,
+    .tabla-usuarios td {
+      font-size: 15px;
+      padding: 8px;
+      margin: 5px;
+    }
+  }
+
+  /* Laptops y tablets grandes */
+  @media (max-width: 1045px) {
+    .contenedor {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 20px;
+      margin-left: 50px;
+    }
+
+    .agregar {
+      display: inline-block;
+      width: 40%;
+      margin: 8px 0;
+      margin-right: 20px;
+
+    }
+
+    .btn-export {
+      display: inline-block;
+      width: 40%;
+      margin: 8px 0;
+    }
+
+    .search-input {
+      width: 97%;
+      border: 2px solid #ddd;
+    }
+
+    .acciones-superiores {
+      flex-direction: flex;
+      align-items: flex-start;
+      margin-left: 360px;
+    }
+
+    .tabla-usuarios th,
+    .tabla-usuarios td {
+      font-size: 15px;
+      padding: 8px;
+      margin: 5px;
+    }
+  }
+
+
+
+  @media (max-width: 992px) {
+    .contenedor {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 20px;
+      margin-left: 90px;
+    }
+
+    .acciones-superiores {
+      flex-direction: flex;
+      align-items: flex-start;
+      margin-left: 36px;
+
+    }
+
+    .agregar {
+      display: inline-block;
+      width: 40%;
+      margin: 8px 0;
+    }
+
+    .btn-export {
+      display: inline-block;
+      width: 35%;
+      margin: 8px 0;
+    }
+
+    .tabla-usuarios th,
+    .tabla-usuarios td {
+      font-size: 15px;
+      padding: 8px;
+      margin: 5px;
+    }
+
+    .search-container {
+      padding: 15px;
+    }
+
+    .tabla-usuarios {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .search-input {
+      width: 95%;
+      border: 2px solid #ddd;
+    }
+
+    .modal {
+      width: 85%;
+    }
+  }
+
+  /* 📱 Tablets verticales y móviles grandes */
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 22px;
+    }
+
+    .contenedor {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 20px;
+      margin-left: 20px;
+    }
+
+    .acciones-superiores {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .agregar,
+    .btn-export {
+      display: inline-block;
+      width: 100%;
+      font-size: 15px;
+    }
+
+    .tabla-usuarios th,
+    .tabla-usuarios td {
+      font-size: 13px;
+      padding: 6px;
+    }
+
+    .tabla-usuarios {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .search-input {
       font-size: 14px;
-      font-weight: bold;
-      margin-right: 6px;
+      padding: 10px;
+      width: 98%;
+      border: 2px solid #ddd;
+
     }
 
-    .editar {
-      background: #E5BE01;
-      color: #fff;
+    .search-container {
+      padding: 15px;
     }
 
-    .inactivar {
-      background: #E5BE01;
-      color: #fff;
+    .modal {
+      width: 95%;
+      padding: 18px;
     }
 
-    .activar {
-      background: #E5BE01;
-      color: #fff;
+    .botones-modal {
+      flex-direction: column;
     }
-  </style>
-</head>
 
-<body>
-  <header>
-    <div class="barra-superior">
-      <a class="btn-volver" href="{% url 'usuarios:dashboard' %}">← Volver al dashboard</a>
+    .botones-modal .guardar,
+    .botones-modal .cancelar {
+      width: 100%;
+    }
+  }
+
+  /* 📲 Móviles pequeños */
+  @media (max-width: 480px) {
+    .contenedor {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 20px;
+      margin-left: 20px;
+    }
+
+    h1 {
+      font-size: 20px;
+    }
+
+    .agregar,
+    .btn-export {
+      font-size: 14px;
+      display: inline-block;
+      padding: 8px 12px;
+    }
+
+    .tabla-usuarios th,
+    .tabla-usuarios td {
+      font-size: 12px;
+      padding: 6px;
+    }
+
+    .search-input {
+      font-size: 13px;
+      padding: 8px 12px;
+      width: 98%;
+      border: 2px solid #ddd;
+
+    }
+
+    .modal {
+      width: 96%;
+      padding: 15px;
+    }
+
+    .botones-modal {
+      flex-direction: column;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Lista de usuarios</h1>
+<div class="contenedor">
+  <div class="search-container">
+    <div class="acciones-superiores">
       <button class="agregar" onclick="abrirModalAgregar()">Agregar Usuario</button>
+      <button class="btn-export" id="btnExportar">
+        Exportar Excel
+      </button>
     </div>
-  </header>
-
-  <section class="contenedor-form-adm">
-    <div class="contenedor-login-adm">
-      <h2 style="text-align: center;">Lista de Usuarios</h2>
-      <table class="tabla-usuarios">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Correo</th>
-            <th>Número de Teléfono</th>
-            <th>Rol</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {% for usuario in usuarios %}
-          <tr {% if not usuario.is_active %}style="background-color:rgb(160, 160, 160);" {% endif %}
-            data-id="{{ usuario.id }}">
-            <td>{{ usuario.nombre }}</td>
-            <td>{{ usuario.email }}</td>
-            <td>{{ usuario.phone_number }}</td>
-            <td>{{ usuario.rol }}</td>
-            <td>
-              {% if usuario.is_active %}
-              <button class="editar" data-nombre="{{ usuario.nombre }}" data-email="{{ usuario.email }}"
-                data-telefono="{{ usuario.phone_number }}" data-rol="{{ usuario.rol }}">
-                Editar
-              </button>
-              {% else %}
-              <button class="editar" disabled data-nombre="{{ usuario.nombre }}" data-email="{{ usuario.email }}"
-                data-telefono="{{ usuario.phone_number }}" data-rol="{{ usuario.rol }}">
-                Editar
-              </button>
-              {% endif %}
-
-              <a href="{% url 'usuarios:cambiar_estado_usuario' usuario.id %}">
-                {% if usuario.is_active %}
-                <button class="inactivar">Inactivar</button>
-                {% else %}
-                <button class="activar">Activar</button>
-                {% endif %}
-              </a>
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="5" style="text-align:center; padding:20px;">No hay usuarios registrados.</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- modal agregar -->
-  <div id="modal-agregar" class="modal" style="display: none">
-    <form method="post" action="{% url 'usuarios:agregar_usuario' %}">
-      {% csrf_token %}
-      <h2 class="Agregar">Agregar Usuario</h2>
-
-      <label>Nombre:</label>
-      <input type="text" name="nombre" required />
-
-      <label>Correo:</label>
-      <input type="email" name="correo" required />
-
-      <label>Teléfono:</label>
-      <input type="text" name="phone_number" required />
-
-      <label>Rol:</label>
-      <select name="rol">
-        <option value="admin">Administrador</option>
-        <option value="cliente">Cliente</option>
-      </select>
-
-      <div class="botones-modal">
-        <button type="submit">Guardar</button>
-        <button type="button" onclick="cerrarModalAgregar()">Cancelar</button>
-      </div>
-    </form>
+    <input type="text" class="search-input" id="searchInput" placeholder="Buscar usuario...">
+    <p id="searchStatsUsuarios" class="search-stats"></p>
   </div>
 
-  <!-- modal editar -->
-  <div id="modal-editar" class="modal" style="display: none">
-    <form id="form-editar">
-      <h2>Editar Usuario</h2>
-      <label>Nombre:</label>
-      <input type="text" id="editar-nombre" required />
-      <label>Email:</label>
-      <input type="email" id="editar-email" required />
-      <label>Teléfono:</label>
-      <input type="text" id="editar-telefono" required />
-      <label>Rol:</label>
-      <select id="editar-rol">
-        <option value="admin">Administrador</option>
-        <option value="cliente">Cliente</option>
-      </select>
-      <div class="botones-modal">
-        <button type="submit">Guardar</button>
-        <button type="button" onclick="cerrarModal()">Cancelar</button>
-      </div>
-    </form>
+  <table class="tabla-usuarios">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Teléfono</th>
+        <th>Rol</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="usuariosTable">
+      {% for usuario in usuarios %}
+      <tr class="{% if not usuario.is_active %}fila-inactiva{% endif %}" data-id="{{ usuario.id }}"
+        data-search-text="{{ usuario.nombre|lower }} {{ usuario.email|lower }} {{ usuario.phone_number }} {{ usuario.rol|lower }}">
+        <td>{{ usuario.id }}</td>
+        <td>{{ usuario.nombre }}</td>
+        <td>{{ usuario.email }}</td>
+        <td>{{ usuario.phone_number }}</td>
+        <td>{{ usuario.rol }}</td>
+        <td class="acciones">
+          {% if usuario.is_active %}
+          <button class="editar" data-id="{{ usuario.id }}" data-nombre="{{ usuario.nombre }}"
+            data-email="{{ usuario.email }}" data-telefono="{{ usuario.phone_number }}" data-rol="{{ usuario.rol }}">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </button>
+          <a href="{% url 'usuarios:cambiar_estado_usuario' usuario.id %}">
+            <button class="inactivar"><i class="fa-solid fa-user-slash"></i></button>
+          </a>
+          {% else %}
+          <button class="editar" disabled>
+            <i class="fa-solid fa-pen-to-square"></i>
+          </button>
+          <a href="{% url 'usuarios:cambiar_estado_usuario' usuario.id %}">
+            <button class="activar"><i class="fa-solid fa-user-check"></i></button>
+          </a>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" style="text-align: center; padding: 20px">No hay usuarios registrados.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?page=1">&laquo; Primero</a>
+    <a href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+    {% endif %}
+
+    <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+    <a href="?page={{ page_obj.paginator.num_pages }}">Último &raquo;</a>
+    {% endif %}
   </div>
+</div>
 
-  <script>
-    let filaSeleccionada = null;
+<div id="modal-overlay" class="modal-overlay" onclick="cerrarTodosLosModales()"></div>
 
-    function abrirModalAgregar() {
-      document.getElementById("modal-agregar").style.display = "block";
-      document.body.classList.add("modal-open");
-    }
+<div id="modal-agregar" class="modal">
+  <form method="post" action="{% url 'usuarios:agregar_usuario' %}">
+    {% csrf_token %}
+    <h3>Agregar Usuario</h3>
+    <label for="agregar-nombre">Nombre</label>
+    <input id="agregar-nombre" name="nombre" type="text" required />
+    <label for="agregar-email">Correo</label>
+    <input id="agregar-email" name="email" type="email" required />
+    <label for="agregar-password">Contraseña</label>
+    <input id="agregar-password" name="password" type="password" required />
+    <label for="agregar-telefono">Teléfono</label>
+    <input id="agregar-telefono" name="phone_number" type="text" required />
+    <label for="agregar-rol">Rol</label>
+    <select id="agregar-rol" name="rol" required>
+      <option value="admin">Administrador</option>
+      <option value="cliente" selected>Cliente</option>
+    </select>
+    <div class="botones-modal">
+      <button type="submit" class="guardar">Guardar</button>
+      <button type="button" class="cancelar" onclick="cerrarModalAgregar()">Cancelar</button>
+    </div>
+  </form>
+</div>
 
-    function cerrarModalAgregar() {
-      document.getElementById("modal-agregar").style.display = "none";
-      document.body.classList.remove("modal-open");
-    }
+<div id="modal-editar" class="modal">
+  <form id="form-editar" method="post">
+    {% csrf_token %}
+    <h3>Editar Usuario</h3>
+    <input type="hidden" name="id" id="editar-id" />
+    <label for="editar-nombre">Nombre</label>
+    <input id="editar-nombre" name="nombre" type="text" required />
+    <label for="editar-email">Correo</label>
+    <input id="editar-email" name="email" type="email" required />
+    <label for="editar-telefono">Teléfono</label>
+    <input id="editar-telefono" name="phone_number" type="text" required />
+    <label for="editar-rol">Rol</label>
+    <select id="editar-rol" name="rol" required>
+      <option value="admin">Administrador</option>
+      <option value="cliente">Cliente</option>
+    </select>
+    <div class="botones-modal">
+      <button type="submit" class="guardar">Guardar</button>
+      <button type="button" class="cancelar" onclick="cerrarModalEditar()">Cancelar</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
 
-    function cerrarModal() {
-      document.getElementById("modal-editar").style.display = "none";
-      document.body.classList.remove("modal-open");
-    }
+{% block scripts %}
+<script>
+  let filaSeleccionada = null;
 
-    document.addEventListener("DOMContentLoaded", function () {
-      document.querySelectorAll(".editar").forEach((boton) => {
-        boton.addEventListener("click", function () {
-          filaSeleccionada = boton.closest("tr");
-          document.getElementById("editar-nombre").value = boton.getAttribute("data-nombre") || "";
-          document.getElementById("editar-email").value = boton.getAttribute("data-email") || "";
-          document.getElementById("editar-telefono").value = boton.getAttribute("data-telefono") || "";
-          document.getElementById("editar-rol").value = boton.getAttribute("data-rol") || "cliente";
-          document.getElementById("modal-editar").style.display = "block";
-          document.body.classList.add("modal-open");
-        });
-      });
+  // ================= MODALES =================
+  function abrirModalAgregar() {
+    document.getElementById("modal-agregar").style.display = "block";
+    document.getElementById("modal-overlay").style.display = "block";
+    document.body.style.overflow = "hidden";
+  }
 
-      document.getElementById("form-editar").addEventListener("submit", function (e) {
+  function cerrarModalAgregar() {
+    document.getElementById("modal-agregar").style.display = "none";
+    document.getElementById("modal-overlay").style.display = "none";
+    document.body.style.overflow = "";
+  }
+
+  function abrirModalEditar() {
+    document.getElementById("modal-editar").style.display = "block";
+    document.getElementById("modal-overlay").style.display = "block";
+    document.body.style.overflow = "hidden";
+  }
+
+  function cerrarModalEditar() {
+    document.getElementById("modal-editar").style.display = "none";
+    document.getElementById("modal-overlay").style.display = "none";
+    document.body.style.overflow = "";
+  }
+
+  function cerrarTodosLosModales() {
+    cerrarModalAgregar();
+    cerrarModalEditar();
+  }
+
+
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".editar:not([disabled])").forEach((boton) => {
+      boton.addEventListener("click", function (e) {
         e.preventDefault();
-        if (filaSeleccionada) {
-          let celdas = filaSeleccionada.querySelectorAll("td");
-          celdas[0].textContent = document.getElementById("editar-nombre").value;
-          celdas[1].textContent = document.getElementById("editar-email").value;
-          celdas[2].textContent = document.getElementById("editar-telefono").value;
-          celdas[3].textContent = document.getElementById("editar-rol").value;
-          cerrarModal();
-        }
+
+        let userId = boton.dataset.id;
+
+        // Rellenar modal
+        document.getElementById("editar-id").value = userId;
+        document.getElementById("editar-nombre").value = boton.dataset.nombre || "";
+        document.getElementById("editar-email").value = boton.dataset.email || "";
+        document.getElementById("editar-telefono").value = boton.dataset.telefono || "";
+        document.getElementById("editar-rol").value = boton.dataset.rol || "cliente";
+
+        // Pone la URL correcta
+        document.getElementById("form-editar").action = `/usuarios/editar/${userId}/`;
+
+        abrirModalEditar();
       });
     });
-  </script>
-</body>
+  });
 
-</html>
+  // ================= BUSCADOR UNIVERSAL =================
+  function configurarBuscador(inputId, tableId, statsId, textoEntidad) {
+    const searchInput = document.getElementById(inputId);
+    const searchStats = statsId ? document.getElementById(statsId) : null;
+    const tbody = document.querySelector(`#${tableId} tbody`);
+    const rows = tbody ? tbody.querySelectorAll('tr[data-search-text]') : document.querySelectorAll(`#${tableId} tr[data-search-text]`);
+    const totalRows = rows.length;
+
+    function actualizarEstadisticas() {
+      if (!searchStats) return;
+      const visibles = Array.from(rows).filter(r => r.style.display !== 'none').length;
+
+      if (searchInput.value.trim() === "") {
+        searchStats.textContent = `Mostrando ${totalRows} ${textoEntidad}${totalRows !== 1 ? 's' : ''}`;
+      } else {
+        searchStats.textContent = `Encontrados ${visibles} de ${totalRows} ${textoEntidad}${totalRows !== 1 ? 's' : ''}`;
+      }
+    }
+
+    if (searchInput) {
+      actualizarEstadisticas();
+      searchInput.addEventListener("input", function () {
+        const searchTerm = this.value.toLowerCase().trim();
+
+        rows.forEach(row => {
+          const searchText = row.dataset.searchText || "";
+          row.style.display = (searchTerm === "" || searchText.includes(searchTerm)) ? "" : "none";
+        });
+
+        actualizarEstadisticas();
+      });
+    }
+  }
+
+  // 🔹 Configurar buscadores
+  configurarBuscador("searchInput", "usuariosTable", "searchStatsUsuarios", "usuario");
+  configurarBuscador("searchInputCalif", "calificacionesTable", "searchStatsCalif", "calificación");
+
+</script>
+
+{% endblock %}

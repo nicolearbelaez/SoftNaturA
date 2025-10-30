@@ -74,7 +74,7 @@ textarea {
 }
 
 .nav-links a {
-    color: #E5BE01;
+    color: #F29727;
     text-decoration: none;
     font-size: 18px;
     font-weight: bold;
@@ -82,7 +82,7 @@ textarea {
 }
 
 .nav-links a:hover {
-    color: #48a04f;
+    color: #f2c641;
 }
 
 /* Dropdown contenedor */
@@ -447,8 +447,13 @@ footer {
 
 #userIcon {
     font-size: 30px;
-    color: #E5BE01;
+    color: #F29727;
     margin-bottom: 12px;
+}
+
+#userIcon:hover {
+    color: #f2c641;
+    transition: all 0.3s ease;
 }
 
 /* --- Carrito en el navbar --- */
@@ -458,7 +463,7 @@ footer {
 }
 
 .carrito-nav a {
-    color: #E5BE01;
+    color: #F29727;
     font-size: 20px;
     text-decoration: none;
     position: relative;
