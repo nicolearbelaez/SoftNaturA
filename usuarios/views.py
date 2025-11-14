@@ -2,6 +2,7 @@
 import calendar
 import json
 import random
+import csv
 
 # Imports de Django core
 from django.contrib import messages
@@ -16,6 +17,9 @@ from django.db.models.functions import TruncMonth
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import urlsafe_base64_decode
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.utils import timezone
 
 # Imports de terceros
 import openpyxl
@@ -28,7 +32,7 @@ from productos.models import Calificacion, CarritoItem, Category, Producto
 # Imports de la aplicación actual (usuarios)
 from .decorators import admin_required
 from .forms import EditarPerfilForm, LoginForm, MensajeForm, UsuarioCreationForm
-from .models import Mensaje, Pedido, Usuario
+from .models import Mensaje, Pedido, Usuario, Devolucion, Direccion
 from .utils import enviar_email_activacion
 from django.core.mail import send_mail
 from django.conf import settings
@@ -42,9 +46,6 @@ def register(request):
 def nosotros(request):
     return render(request, 'usuarios/nosotros.html')
 
-def contacto(request):
-    return render(request,"usuarios/contacto.html")
-
 def index(request):
     return render(request,"usuarios/index.html")
 
@@ -52,55 +53,73 @@ def index(request):
 
 @admin_required
 def dashboard(request):
-    # Métricas principales
-    total_usuarios = Usuario.objects.count()
+    # -----------------------------
+    # PRODUCTOS MÁS VENDIDOS (solo pedidos pagados)
+    # -----------------------------
+    prod_info = (
+        Producto.objects.annotate(
+            total_vendidos=Sum(
+                'pedidoitem__cantidad',
+                filter=Q(pedidoitem__pedido__pago=True)   # Solo pedidos pagados
+            )
+        )
+        .filter(total_vendidos__gt=0)          # Solo productos realmente vendidos
+        .order_by('-total_vendidos')           # Orden descendente
+    )
+
+    # -----------------------------
+    # USUARIOS CON MÁS COMPRAS (solo pedidos pagados)
+    # -----------------------------
+    usuarios_info = (
+        Usuario.objects.annotate(
+            pedidos_pagados=Count(
+                'pedido',
+                filter=Q(pedido__pago=True)    # Solo pedidos pagados
+            )
+        )
+        .filter(pedidos_pagados__gt=0)         # Solo usuarios que sí han comprado
+        .order_by('-pedidos_pagados')          # Más compras primero
+    )
+
+    # -----------------------------
+    # DEMÁS DATOS DEL DASHBOARD
+    # -----------------------------
+    total_ventas = Pedido.objects.filter(pago=True).aggregate(
+        total=Sum('total')
+    )['total'] or 0
+
+    total_pedidos = Pedido.objects.filter(pago=True).count()
     total_productos = Producto.objects.count()
-    total_pedidos = Pedido.objects.count()
-    total_ventas = Pedido.objects.aggregate(Sum("total"))["total__sum"] or 0
+    total_usuarios = Usuario.objects.count()
 
-    # Ventas por mes (para tabla/barras)
-    ventas_por_mes = (
-        Pedido.objects
-        .annotate(month=TruncMonth("fecha_creacion"))
-        .values("month")
-        .annotate(total=Sum("total"))
-        .order_by("month")
+    # Ventas por mes
+    ventas_info = Pedido.objects.filter(pago=True).annotate(
+        mes=TruncMonth('fecha_creacion')
+    ).values('mes').annotate(
+        total=Sum('total')
+    ).order_by('mes')
+
+    ventas_info = [(v['mes'].strftime("%B"), v['total']) for v in ventas_info]
+
+    # Estado de pedidos (solo pagados)
+    estado_info = (
+        Pedido.objects.filter(pago=True)
+        .values('estado')
+        .annotate(total=Count('id'))
+        .order_by('estado')
     )
-    ventas_info = []
-    for v in ventas_por_mes:
-        mes = calendar.month_abbr[v["month"].month]
-        ventas_info.append((mes, float(v["total"])))
+    estado_info = [(e['estado'], e['total']) for e in estado_info]
 
-    # Estado de pedidos
-    pedidos_estado = Pedido.objects.values("estado").annotate(cantidad=Count("id"))
-    estado_info = [(p["estado"], p["cantidad"]) for p in pedidos_estado]
-
-    # Productos más vendidos
-    productos_mas_vendidos = Producto.objects.order_by("-vendidos")[:5]
-    prod_info = [(p.nombProduc, p.vendidos) for p in productos_mas_vendidos]
-
-    # Usuarios más frecuentes
-    usuarios_frecuentes = (
-        Usuario.objects.annotate(num_pedidos=Count("pedido"))
-        .order_by("-num_pedidos")[:5]
-    )
-    usuarios_info = [(u.nombre, u.num_pedidos) for u in usuarios_frecuentes]
-
-    #  Mensajes recientes
-    mensajes = Mensaje.objects.order_by("-fecha_envio")[:5]
-
-    context = {
-        "total_usuarios": total_usuarios,
-        "total_productos": total_productos,
-        "total_pedidos": total_pedidos,
-        "total_ventas": total_ventas,
-        "ventas_info": ventas_info,
-        "estado_info": estado_info,
+    return render(request, "usuarios/dashboard.html", {
         "prod_info": prod_info,
         "usuarios_info": usuarios_info,
-        "mensajes": mensajes,  # 👈 ahora sí estarán disponibles en el template
-    }
-    return render(request, "usuarios/dashboard.html", context)
+        "total_ventas": total_ventas,
+        "total_pedidos": total_pedidos,
+        "total_productos": total_productos,
+        "total_usuarios": total_usuarios,
+        "ventas_info": ventas_info,
+        "estado_info": estado_info,
+    })
 
 
 @admin_required
@@ -117,8 +136,7 @@ def gstUsuarios(request):
         'usuarios': page_obj.object_list  # lista de usuarios de la página actual
     })
 
-def loginAdm(request):
-    return render(request, "usuarios/loginAdm.html")
+
 
 
 def register_view(request):
@@ -184,24 +202,6 @@ def login_view(request):
     return render(request, 'usuarios/login.html', {"form": form, "mensaje": mensaje})
 
 
-def loginAdmin(request):
-    mensaje = ""
-    if request.method == "POST":
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
-            password = form.cleaned_data['password']
-
-            user = authenticate(request, username=email, password=password)
-            if user is not None and user.rol == "admin":
-                login(request, user)
-                return redirect('usuarios:dashboard')
-            else:
-                mensaje = "Credenciales incorrectas o no eres administrador"
-    else:
-        form = LoginForm()
-
-    return render(request, 'usuarios/loginAdm.html', {"form": form, "mensaje": mensaje})
 
 def logout_view(request):
     logout(request)
@@ -227,11 +227,14 @@ def editar_perfil(request):
     return render(request, 'usuarios/editar_perfil.html', {'form': form})
 
 
-
-
 @login_required(login_url='usuarios:login')
 def mis_pedidos(request):
-    pedidos = Pedido.objects.filter(usuario=request.user)
+    pedidos = (
+        Pedido.objects
+        .filter(usuario=request.user, pago=True)  # 👈 Solo los pagados
+        .prefetch_related('items__producto')
+        .order_by('-fecha_creacion')  # 👈 Los más recientes primero
+    )
     return render(request, 'usuarios/mis_pedidos.html', {'pedidos': pedidos})
 
 @admin_required
@@ -273,77 +276,63 @@ def agregar_usuario(request):
 
 @admin_required
 def informe_calificaciones(request):
-    calificaciones = Calificacion.objects.select_related('usuario', 'servicio').all()
+    calificaciones = Calificacion.objects.select_related('usuario', 'producto').all()
 
-    # 🔹 Filtros
-    buscar = request.GET.get('buscar')
-    estado = request.GET.get('estado')
+    tipo = request.GET.get('tipo')
+    desde = request.GET.get('desde')
+    hasta = request.GET.get('hasta')
 
-    if buscar:
-        calificaciones = calificaciones.filter(
-            Q(usuario__nombre__icontains=buscar) |
-            Q(comentario__icontains=buscar)
-        )
+    if tipo:
+        calificaciones = calificaciones.filter(servicio__tipo=tipo)
 
-    if estado == 'aprobado':
-        calificaciones = calificaciones.filter(aprobado=True)
-    elif estado == 'rechazado':
-        calificaciones = calificaciones.filter(aprobado=False)
+    if desde:
+        calificaciones = calificaciones.filter(fecha_creacion__gte=desde)
 
-    # 🔹 Exportar a Excel (todas las calificaciones filtradas)
+    if hasta:
+        calificaciones = calificaciones.filter(fecha_creacion__lte=hasta)
+
+    # Exportar a Excel
     if request.GET.get('exportar') == 'excel':
-        wb = openpyxl.Workbook()
-        ws = wb.active
-        ws.title = "Calificaciones"
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="calificaciones.csv"'
 
-        # Encabezados
-        headers = ["Usuario", "Punt. Servicio", "Punt. Productos", "Comentario", "Servicio", "Fecha"]
-        for col_num, header in enumerate(headers, 1):
-            ws[f"{get_column_letter(col_num)}1"] = header
+        writer = csv.writer(response)
+        writer.writerow(['Usuario', 'Puntuación', 'Comentario', 'Tipo de Servicio', 'Fecha'])
 
-        # Datos
-        for row_num, c in enumerate(calificaciones, 2):
-            ws[f"A{row_num}"] = c.usuario.nombre if c.usuario else "Anónimo"
-            ws[f"B{row_num}"] = c.puntuacion_servicio
-            ws[f"C{row_num}"] = c.puntuacion_productos
-            ws[f"D{row_num}"] = c.comentario
-            ws[f"E{row_num}"] = c.servicio.tipo if c.servicio else "N/A"
-            ws[f"F{row_num}"] = c.fecha_creacion.strftime("%Y-%m-%d %H:%M")
+        for c in calificaciones:
+            writer.writerow([
+                c.usuario.username if c.usuario else 'Anónimo',
+                f"{c.puntuacion_servicio} / {c.puntuacion_productos}",
+                c.comentario,
+                c.fecha_creacion.strftime('%Y-%m-%d %H:%M')
+            ])
 
-        # Respuesta HTTP
-        response = HttpResponse(
-            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
-        response["Content-Disposition"] = 'attachment; filename="calificaciones.xlsx"'
-        wb.save(response)
         return response
 
-    # 🔹 Ordenar por fecha y paginar
-    calificaciones = calificaciones.order_by('-fecha_creacion')
-    paginator = Paginator(calificaciones, 25)  # 25 registros por página
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
     return render(request, 'usuarios/informe_calificaciones.html', {
-        'page_obj': page_obj,
-        'calificaciones': page_obj.object_list
+        'calificaciones': calificaciones
     })
 
 @admin_required
 def pedidos_view(request):
-    pedidos = Pedido.objects.all().order_by('-fecha_creacion')
+    # 🔹 Obtener todos los pedidos pagados (sin filtros excesivos)
+    pedidos = (
+        Pedido.objects
+        .filter(pago=True)  # Solo pedidos pagados
+        .order_by('-fecha_creacion')
+    )
 
     # 🔹 Paginación
     paginator = Paginator(pedidos, 25)  # 25 pedidos por página
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    # 🔹 Conteos por estado
-    pedidos_pendientes = Pedido.objects.filter(estado="pendiente").count()
-    pedidos_enviados = Pedido.objects.filter(estado="enviado").count()
-    pedidos_entregados = Pedido.objects.filter(estado="entregado").count()
+    # 🔹 Conteos por estado (solo pedidos pagados)
+    pedidos_pendientes = Pedido.objects.filter(estado="pendiente", pago=True).count()
+    pedidos_enviados = Pedido.objects.filter(estado="enviado", pago=True).count()
+    pedidos_entregados = Pedido.objects.filter(estado="entregado", pago=True).count()
 
-    # 🔹 Total pedidos
+    # 🔹 Total pedidos pagados
     total_pedidos = pedidos.count()
 
     return render(request, "usuarios/gst_pedidos.html", {
@@ -355,33 +344,49 @@ def pedidos_view(request):
         "total_pedidos": total_pedidos,
     })
 
-def productos_mas_vendidos_view(request):
-    productos = Producto.objects.annotate(num_pedidos=Count('pedido')).order_by('-num_pedidos')
-    return render(request, "usuarios/dashboard.html", {"productos": productos})
-
+def productos_mas_vendidos_view():
+    productos = (
+        Producto.objects.annotate(
+            total_vendidos=Sum(
+                'pedidoitem__cantidad',
+                filter=Q(pedidoitem__pedido__pago=True)   # Solo productos de pedidos pagados
+            )
+        )
+        .filter(total_vendidos__gt=0)  # Solo los que realmente se han vendido
+        .order_by('-total_vendidos')
+    )
+    return productos
 
 def usuarios_frecuentes_view(request):
-    usuarios = Usuario.objects.annotate(num_pedidos=Count('pedido')).order_by('-num_pedidos')
-    return render(request, "usuarios/dashboard.html", {"usuarios": usuarios})
+    usuarios = Usuario.objects.annotate(
+        num_pedidos=Count('pedido', filter=Q(pedido__pago=True))
+    ).order_by('-num_pedidos')
 
+    return render(request, "usuarios/dashboard.html", {
+        "usuarios_info": usuarios
+    })
 
 
 def contacto(request):
-    if request.method == "POST":
-        nombre = request.POST.get("nombre")
-        correo = request.POST.get("correo")
-        asunto = request.POST.get("asunto")
-        mensaje = request.POST.get("mensaje")
+    # Buscar el usuario específico por email
+    try:
+        # Buscar por email único de carmen
+        usuario_carmen = Usuario.objects.get(email='naturistaoftnatur@gmail.com')
+        numero_admin = usuario_carmen.phone_number
+    except Usuario.DoesNotExist:
+        # Fallback: buscar por username
+        try:
+            usuario_carmen = Usuario.objects.get(nombre='carmen')
+            numero_admin = usuario_carmen.phone_number
+        except Usuario.DoesNotExist:
+            # Último fallback: cualquier admin
+            admin = Usuario.objects.filter(rol="admin").first()
+            numero_admin = admin.phone_number if admin else ""
+    
+    return render(request, "usuarios/contacto.html", {
+        "numero_admin": numero_admin
+    })
 
-        Mensaje.objects.create(
-            nombre=nombre,
-            correo=correo,
-            asunto=asunto,
-            mensaje=mensaje
-        )
-        return redirect("usuarios:contacto")
-
-    return render(request, "usuarios/contacto.html")
 
 def aprobar_comentario(request, id):
     calificacion = get_object_or_404(Calificacion, id=id)
@@ -394,22 +399,29 @@ def rechazar_comentario(request,id):
     calificacion.delete()
     return redirect('usuarios:informe_calificaciones')
 
-
 def informe_ventas(request):
-    pedidos_list = Pedido.objects.all().order_by('-fecha_creacion')
+    # 🔹 Tomamos pedidos que ya tengan pago confirmado
+    pedidos_list = Pedido.objects.filter(
+        pago=True,  # ya fue pagado
+        total__gt=0  # que tengan monto
+    ).order_by('-fecha_creacion')
 
-    paginator = Paginator(pedidos_list, 25)  # máximo 25 registros por página
+    # 🔹 Paginación (25 por página)
+    paginator = Paginator(pedidos_list, 25)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    # 🔹 Totales
     total_ventas = pedidos_list.aggregate(Sum('total'))['total__sum'] or 0
     total_pedidos = pedidos_list.count()
 
+    # 🔹 Contexto
     context = {
-        'page_obj': page_obj,   # 👈 pasamos page_obj a la plantilla
+        'page_obj': page_obj,
         'total_ventas': total_ventas,
         'total_pedidos': total_pedidos,
     }
+
     return render(request, 'usuarios/ventas.html', context)
 
 User = get_user_model()
@@ -466,6 +478,12 @@ def editar_usuario(request, pk):
     return redirect("usuarios:gstUsuarios")
 
 
+User = get_user_model()
+
+# ------------------------------
+# 1️⃣ Enviar el código de verificación
+# ------------------------------
+@csrf_exempt
 def enviar_codigo_verificacion(request):
     if request.method == 'POST':
         try:
@@ -489,7 +507,7 @@ def enviar_codigo_verificacion(request):
             cache_key = f'verification_code_{email}'
             cache.set(cache_key, codigo, 600)  # 600 segundos = 10 minutos
             
-            # Enviar email
+            # Enviar email con código
             asunto = 'Código de verificación - Unidos pensando en su salud'
             mensaje = f'''
 Hola {user.nombre or 'Usuario'},
@@ -510,11 +528,25 @@ Equipo de Unidos pensando en su salud
                 settings.DEFAULT_FROM_EMAIL,
                 [email],
                 fail_silently=False,
+                html_message=f'''
+                <html>
+                    <body style="font-family: Arial; color: #333;">
+                        <h2 style="color: #0066ff;">Código de verificación</h2>
+                        <p>Hola <b>{user.nombre or 'Usuario'}</b>,</p>
+                        <p>Tu código de verificación es:</p>
+                        <div style="font-size: 22px; font-weight: bold; color: #d93025;">{codigo}</div>
+                        <p>Este código expirará en 10 minutos.</p>
+                        <p>Si no solicitaste este código, puedes ignorar este correo.</p>
+                        <br>
+                        <p style="font-size: 14px;">Equipo de <b>Unidos pensando en su salud</b></p>
+                    </body>
+                </html>
+                '''
             )
             
             return JsonResponse({
                 'success': True,
-                'mensaje': 'Código enviado exitosamente'
+                'mensaje': 'Código enviado exitosamente al correo.'
             })
             
         except Exception as e:
@@ -526,42 +558,366 @@ Equipo de Unidos pensando en su salud
     
     return JsonResponse({'success': False, 'mensaje': 'Método no permitido'})
 
+# ------------------------------
+# 2️⃣ Verificar el código ingresado por el usuario
+# ------------------------------
 
-# Actualizar la vista de login para verificar el código
-def login_admin(request):
+def verificar_codigo(request):
     if request.method == 'POST':
-        codigo_verificacion = request.POST.get('codigo_verificacion')
-        email = request.POST.get('email_verified')
-        password = request.POST.get('password_verified')
-        
-        if codigo_verificacion and email:
-            # Verificar código
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            password = data.get('password')
+            codigo_ingresado = data.get('codigo_verificacion')
+
+            # Obtener código desde cache
+            cache_key = f'verification_code_{email}'
+            codigo_cache = cache.get(cache_key)
+
+            # Obtener intentos desde cache
+            intentos_key = f'intentos_codigo_{email}'
+            intentos = cache.get(intentos_key, 0)
+
+            # ✅ Verificar primero si es correcto
+            if codigo_ingresado == codigo_cache:
+                user = authenticate(request, username=email, password=password)
+                if user:
+                    login(request, user)
+                    # Limpiar cache
+                    cache.delete(cache_key)
+                    cache.delete(intentos_key)
+                    return JsonResponse({
+                        'success': True,
+                        'mensaje': 'Código correcto. Redirigiendo...',
+                        'redirect_url': '/usuarios/dashboard/'
+                    })
+                else:
+                    return JsonResponse({
+                        'success': False,
+                        'mensaje': 'Usuario o contraseña incorrectos. Vuelve a iniciar sesión.',
+                        'redirect': True
+                    })
+
+            # Código incorrecto → aumentar intentos
+            intentos += 1
+            cache.set(intentos_key, intentos, 600)  # Guardar 10 minutos también
+
+            if intentos >= 3:
+                cache.delete(cache_key)
+                cache.delete(intentos_key)
+                return JsonResponse({
+                    'success': False,
+                    'mensaje': 'Has superado los 3 intentos. Vuelve a iniciar sesión.',
+                    'redirect': True
+                })
+
+            return JsonResponse({
+                'success': False,
+                'mensaje': f'Código incorrecto. Intento {intentos} de 3.'
+            })
+
+        except Exception as e:
+            print(f"Error al verificar código: {str(e)}")
+            return JsonResponse({
+                'success': False,
+                'mensaje': f'Error al verificar el código: {str(e)}'
+            })
+
+    return JsonResponse({'success': False, 'mensaje': 'Método no permitido'})
+
+
+def login_admin(request):
+    """
+    Login de administrador con verificación por código (2 pasos)
+    """
+    if request.method == 'POST':
+        # Si ya tiene el código ingresado
+        if 'codigo_verificacion' in request.POST:
+            codigo = request.POST.get('codigo_verificacion')
+            email = request.POST.get('email_verified')
+            password = request.POST.get('password_verified')
+
             cache_key = f'verification_code_{email}'
             codigo_guardado = cache.get(cache_key)
-            
+
             if codigo_guardado is None:
                 return render(request, 'usuarios/loginAdm.html', {
-                    'mensaje': 'El código ha expirado. Por favor, solicita uno nuevo.'
+                    'mensaje': 'El código ha expirado. Solicita uno nuevo.'
                 })
-            
-            if codigo_verificacion != codigo_guardado:
+
+            if codigo != codigo_guardado:
                 return render(request, 'usuarios/loginAdm.html', {
                     'mensaje': 'Código de verificación incorrecto.'
                 })
-            
-            # Código correcto, autenticar usuario
+
+            # Autenticar usuario
             user = authenticate(request, username=email, password=password)
-            
-            if user is not None:
-                # Eliminar código del cache
+            if user is not None and user.rol == 'admin':
                 cache.delete(cache_key)
-                
-                # Hacer login
                 login(request, user)
-                return redirect('nombre_de_tu_vista_admin')
+                return redirect('usuarios:dashboard')
             else:
                 return render(request, 'usuarios/loginAdm.html', {
-                    'mensaje': 'Error en la autenticación.'
+                    'mensaje': 'Error: usuario no válido o sin permisos.'
                 })
-    
+
+        # Si es el primer paso (ingreso de credenciales)
+        else:
+            email = request.POST.get('email')
+            password = request.POST.get('password')
+
+            user = authenticate(request, username=email, password=password)
+            if user is not None and user.rol == 'admin':
+                # Generar y guardar código temporal
+                codigo = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+                cache_key = f'verification_code_{email}'
+                cache.set(cache_key, codigo, 600)  # 10 minutos
+
+                # Enviar correo
+                asunto = 'Código de verificación - Unidos pensando en su salud'
+                mensaje = f'Tu código de verificación es: {codigo}'
+                send_mail(asunto, mensaje, settings.DEFAULT_FROM_EMAIL, [email])
+
+                return render(request, 'usuarios/loginAdm.html', {
+                    'verificacion': True,
+                    'email_verified': email,
+                    'password_verified': password
+                })
+            else:
+                return render(request, 'usuarios/loginAdm.html', {
+                    'mensaje': 'Credenciales incorrectas o no eres administrador.'
+                })
+
     return render(request, 'usuarios/loginAdm.html')
+
+
+
+def detalle_pedido(request, pedido_id):
+    try:
+        pedido = get_object_or_404(Pedido, id=pedido_id)
+        usuario = getattr(pedido, 'usuario', None)
+
+        # Obtener los items del pedido
+        items = pedido.items.all()
+        productos = []
+
+        for item in items:
+            producto = item.producto
+
+            # Detectar correctamente el campo del nombre
+            nombre_producto = getattr(producto, 'nombProduc', None) or getattr(producto, 'nombre', 'Producto')
+
+            productos.append({
+                'nombre': nombre_producto,
+                'cantidad': item.cantidad,
+                'precio': float(getattr(producto, 'precio', 0)),
+                'subtotal': float(item.cantidad * getattr(producto, 'precio', 0))
+            })
+
+        # Respuesta JSON
+        return JsonResponse({
+            'success': True,
+            'pedido': {
+                'id': pedido.id,
+                'usuario': getattr(usuario, 'nombre', 'N/A') if usuario else 'N/A',
+                'email': getattr(usuario, 'email', 'N/A') if usuario else 'N/A',
+                'telefono': getattr(usuario, 'telefono', 'N/A') if usuario else 'N/A',
+                'direccion': getattr(usuario, 'direccion', 'N/A') if usuario else 'N/A',
+                'estado': getattr(pedido, 'estado', 'Pendiente'),
+                'pago': pedido.pago,
+                'pagado': pedido.pago,  # Por si acaso lo usas en otro lugar
+                'fecha': pedido.fecha_creacion.strftime('%d/%m/%Y') if hasattr(pedido, 'fecha_creacion') else 'N/A',
+                'hora': pedido.fecha_creacion.strftime('%H:%M:%S') if hasattr(pedido, 'fecha_creacion') else '',
+                'metodo_pago': getattr(pedido, 'metodo_pago', 'N/A'),
+                'total': float(getattr(pedido, 'total', 0)),
+                'productos': productos
+            }
+        })
+
+    except Exception as e:
+        import traceback
+        print(f"Error completo: {traceback.format_exc()}")
+        return JsonResponse({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        }, status=500)
+
+
+@admin_required
+@require_http_methods(["POST"])
+def cambiar_estado_pedido(request, pedido_id):
+    try:
+        # Obtener el pedido
+        pedido = get_object_or_404(Pedido, id=pedido_id)
+        
+        # Obtener el nuevo estado del body
+        data = json.loads(request.body)
+        nuevo_estado = data.get('estado')
+        
+        # Validar que el estado sea válido
+        estados_validos = ['pendiente', 'enviado', 'entregado']
+        if nuevo_estado not in estados_validos:
+            return JsonResponse({
+                'success': False,
+                'message': 'Estado no válido'
+            }, status=400)
+        
+        # Actualizar el estado
+        pedido.estado = nuevo_estado
+        pedido.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Estado actualizado a {nuevo_estado}',
+            'nuevo_estado': nuevo_estado
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Error al procesar los datos'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        }, status=500)
+    
+
+
+# ====================== VISTAS DE DEVOLUCIONES (ADMIN) ======================
+@login_required
+def gst_devoluciones(request):
+    """Vista para que el admin gestione todas las devoluciones"""
+    
+    # ✅ SOLO VERIFICAR is_staff o is_superuser
+    if not request.user.is_staff and not request.user.is_superuser:
+        messages.error(request, 'No tienes permisos para acceder aquí')
+        return redirect('usuarios:dashboard')
+    
+    # Obtener todas las devoluciones con relaciones optimizadas
+    devoluciones = Devolucion.objects.select_related(
+        'usuario', 'producto', 'pedido'
+    ).all().order_by('-fecha_solicitud')
+    
+    # Filtros opcionales por estado
+    estado = request.GET.get('estado')
+    if estado:
+        devoluciones = devoluciones.filter(estado=estado)
+    
+    # Preparar datos en JSON para el modal
+    devoluciones_data = []
+    for dev in devoluciones:
+        devoluciones_data.append({
+            'id': dev.id,
+            'usuario_nombre': dev.usuario.nombre,
+            'usuario_email': dev.usuario.email,
+            'producto_nombre': dev.producto.nombProduc,
+            'pedido_id': dev.pedido.id,
+            'fecha': dev.fecha_solicitud.strftime('%d/%m/%Y %H:%M'),
+            'motivo': dev.motivo,
+            'estado': dev.estado,
+            'fotos': dev.get_fotos()
+        })
+    
+    import json
+    devoluciones_json = json.dumps(devoluciones_data)
+    
+    context = {
+        'devoluciones': devoluciones,
+        'devoluciones_json': devoluciones_json
+    }
+    
+    return render(request, 'usuarios/gst_devoluciones.html', context)
+
+@login_required
+def aprobar_devolucion(request, devolucion_id):
+    """Aprobar una devolución"""
+    
+    # Verificar permisos
+    if not request.user.is_staff and not request.user.is_superuser:
+        messages.error(request, 'No tienes permisos para realizar esta acción')
+        return redirect('usuarios:dashboard')
+    
+    try:
+        from django.utils import timezone
+        
+        devolucion = Devolucion.objects.get(id=devolucion_id)
+        devolucion.estado = 'Aprobada'
+        devolucion.fecha_respuesta = timezone.now()
+        devolucion.save()
+        
+        messages.success(request, f'✅ Devolución #{devolucion.id} aprobada exitosamente')
+    except Devolucion.DoesNotExist:
+        messages.error(request, '❌ Devolución no encontrada')
+    except Exception as e:
+        messages.error(request, f'❌ Error al aprobar: {str(e)}')
+    
+    return redirect('usuarios:gst_devoluciones')
+
+
+@login_required
+def rechazar_devolucion(request, devolucion_id):
+    """Rechazar una devolución"""
+    
+    # Verificar permisos
+    if not request.user.is_staff and not request.user.is_superuser:
+        messages.error(request, 'No tienes permisos para realizar esta acción')
+        return redirect('usuarios:dashboard')
+    
+    try:
+        from django.utils import timezone
+        
+        devolucion = Devolucion.objects.get(id=devolucion_id)
+        devolucion.estado = 'Rechazada'
+        devolucion.fecha_respuesta = timezone.now()
+        devolucion.save()
+        
+        messages.warning(request, f'⚠️ Devolución #{devolucion.id} rechazada')
+    except Devolucion.DoesNotExist:
+        messages.error(request, '❌ Devolución no encontrada')
+    except Exception as e:
+        messages.error(request, f'❌ Error al rechazar: {str(e)}')
+    
+    return redirect('usuarios:gst_devoluciones')
+# ====================== FIN VISTAS DEVOLUCIONES ======================
+
+
+# ====================== VISTA GUARDAR DIRECCIÓN - AGREGADA ======================
+@login_required(login_url='usuarios:login')
+def guardar_direccion(request):
+    """Guarda la dirección de envío del usuario en la base de datos"""
+    if request.method == 'POST':
+        try:
+            # Crear o actualizar la dirección principal del usuario
+            direccion, creada = Direccion.objects.update_or_create(
+                usuario=request.user,
+                es_principal=True,
+                defaults={
+                    'nombre_completo': request.POST.get('nombre_completo', ''),
+                    'telefono': request.POST.get('telefono', ''),
+                    'direccion_completa': request.POST.get('direccion_completa', ''),
+                    'ciudad': request.POST.get('ciudad', ''),
+                    'codigo_postal': request.POST.get('codigo_postal', ''),
+                    'notas_entrega': request.POST.get('notas_entrega', ''),
+                }
+            )
+            
+            if creada:
+                messages.success(request, 'Dirección guardada correctamente.')
+            else:
+                messages.success(request, 'Dirección actualizada correctamente.')
+                
+        except Exception as e:
+            messages.error(request, f'Error al guardar la dirección: {str(e)}')
+    
+    return redirect('pagos:checkout')
+
+
+@login_required(login_url='usuarios:login')
+def editar_direccion(request):
+    """Permite al usuario editar su dirección guardada"""
+    # 🔥 CORRECCIÓN: Usar reverse con parámetros GET
+    from django.urls import reverse
+    url = reverse('pagos:checkout')
+    return redirect(f"{url}?editar=true")

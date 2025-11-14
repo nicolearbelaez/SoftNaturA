@@ -1,10 +1,10 @@
+# pagos/urls.py
 from django.urls import path
 from . import views
 
+app_name = 'pagos'
+
 urlpatterns = [
-    path("checkout/", views.checkout, name="checkout"),
-    path("procesar/", views.procesar_pago, name="procesar_pago"),
-    path("pagos/success/", views.pago_exitoso, name="pago_exitoso"),
-    path("pagos/failure/", views.pago_fallido, name="pago_fallido"),
-    path('webhook/', views.webhook_mercadopago, name='webhook'),
+    path('checkout/', views.checkout, name='checkout'),
+    path('respuesta/', views.payment_response, name='payment_response'),
 ]

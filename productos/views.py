@@ -4,11 +4,15 @@ from django.http import HttpResponse
 from django.db.models import Q
 from django.contrib import messages
 import openpyxl
+from django.utils import timezone
+from datetime import timedelta
 
 from .forms import registerProduc, Carrito, ProductoForm, CategoriaForm
 from .models import Producto, Category, Servicio, Calificacion, CarritoItem
 from usuarios.models import Usuario, Pedido, PedidoItem
 from usuarios.decorators import admin_required
+from usuarios.models import Devolucion, Pedido  # Importar de usuarios
+from usuarios.decorators import login_required
 
 
 # ---------------------- VISTAS DE PRODUCTOS ----------------------
@@ -45,9 +49,6 @@ def list_product(request):
     productos = Producto.objects.all()
     return render(request, 'productos/list_produc.html', {'productos': productos})
 
-
-def producto(request):
-    return render(request, "todo/producto.html", {"usuario_id": request.user})
 
 
 def productos_view(request, categoria_id=None):
@@ -207,42 +208,6 @@ def limpiar(request):
     return redirect("productos:producto")
 
 
-def checkout(request):
-    carrito = request.session.get("carrito", {})
-    productos = []
-    total = 0
-
-    for producto_id_str, item in carrito.items():
-        imagen = item.get('imgProduc', '')
-        nombre = item.get('nombProduc', 'Sin nombre')
-        cantidad = int(item.get('cantidad', 0))
-        precio = float(item.get('precio', 0))
-        subtotal = precio * cantidad
-        total += subtotal
-
-        productos.append({
-            'imagen': imagen,
-            'nombre': nombre,
-            'cantidad': cantidad,
-            'precio': precio,
-            'subtotal': subtotal
-        })
-
-    iva = total * 0.19
-    total_con_iva = total + iva
-
-    # No vaciar el carrito aún
-    # if request.user.is_authenticated:
-    #     ...
-
-    return render(request, 'productos/checkout.html', {
-        'productos': productos,
-        'total': total,
-        'iva': iva,
-        'total_con_iva': total_con_iva
-    })
-
-
 # ---------------------- CRUD PRODUCTOS ----------------------
 
 @admin_required
@@ -360,36 +325,40 @@ def inactivar_producto(request, id):
 
 
 # ---------------------- CALIFICACIONES ----------------------
-
 def guardar_calificacion(request):
     if request.method == 'POST':
-        servicio_id = request.POST.get('servicio_id')
+        producto_id = request.POST.get('producto_id')   # ✅ viene del formulario
         puntuacion_servicio = request.POST.get('puntuacion_servicio')
         puntuacion_productos = request.POST.get('puntuacion_productos')
         comentario = request.POST.get('comentario')
 
+        print("Datos recibidos:")
+        print("producto_id:", producto_id)
+        print("puntuacion_servicio:", puntuacion_servicio)
+        print("puntuacion_productos:", puntuacion_productos)
+        print("comentario:", comentario)
+
         try:
-            servicio = Servicio.objects.get(id=servicio_id)
-        except Servicio.DoesNotExist:
-            return HttpResponse("❌ Servicio no encontrado", status=404)
+            producto = Producto.objects.get(id=producto_id)  # ✅ ya no busca Servicio
+        except Producto.DoesNotExist:
+            return HttpResponse("❌ Producto no encontrado", status=404)
 
         usuario_obj = request.user
 
-        calificacion = Calificacion.objects.create(
-            servicio=servicio,
+        Calificacion.objects.create(
+            producto=producto,                 # ✅ guarda asociado al producto
             usuario=usuario_obj,
             puntuacion_servicio=int(puntuacion_servicio),
             puntuacion_productos=int(puntuacion_productos),
             comentario=comentario
         )
 
-        return render(request, 'productos/correctamente.html')
+        print("✅ Calificación guardada correctamente")
+
+        return render(request, 'productos/homeSoft.html')
 
     return HttpResponse("❌ Método no permitido", status=405)
 
-
-def correctamente(request):
-    return render(request, 'productos/correctamente.html')
 
 
 # ---------------------- CARGAR CARRITO USUARIO ----------------------
@@ -466,3 +435,111 @@ def homeSoft(request):
         "mas_vendidos": mas_vendidos,
         "comentarios": comentarios
     })
+
+# ========== IMPORTS PARA VISTA DE DEVOLUCIONES ==========                                                                                                                                     
+@login_required
+def devoluciones(request):
+    """Vista para que el cliente solicite devoluciones"""
+    
+    # ✅ CORREGIDO: Solo pedidos ENTREGADOS de los últimos 30 días
+    hace_30_dias = timezone.now() - timedelta(days=30)
+    
+    pedidos = Pedido.objects.filter(
+        usuario=request.user,
+        estado='entregado',  # ✅ SOLO ENTREGADOS
+        fecha_creacion__gte=hace_30_dias  # ✅ ÚLTIMOS 30 DÍAS
+    ).prefetch_related('items__producto').order_by('-fecha_creacion')
+    
+    # Preparar lista de productos devolubles Y pedidos agrupados
+    productos_devolubles = []
+    pedidos_agrupados = {}
+    
+    for pedido in pedidos:
+        items = pedido.items.all()
+        
+        # Guardar info del pedido
+        if items.exists() and pedido.id not in pedidos_agrupados:
+            pedidos_agrupados[pedido.id] = {
+                'pedido_id': pedido.id,
+                'fecha_pedido': pedido.fecha_creacion.strftime('%d/%m/%Y'),
+                'cantidad_productos': items.count()
+            }
+        
+        for item in items:
+            productos_devolubles.append({
+                'pedido_id': pedido.id,
+                'producto_id': item.producto.id,
+                'producto_nombre': item.producto.nombProduc,
+                'cantidad': item.cantidad,
+                'precio': float(item.precio_unitario),
+                'fecha_pedido': pedido.fecha_creacion.strftime('%d/%m/%Y')
+            })
+    
+    # Procesar formulario POST
+    if request.method == 'POST':
+        producto_id = request.POST.get('producto_id')
+        pedido_id = request.POST.get('pedido_id')
+        motivo = request.POST.get('motivo')
+        foto1 = request.POST.get('foto1', '')
+        foto2 = request.POST.get('foto2', '')
+        foto3 = request.POST.get('foto3', '')
+        
+        if not producto_id or not pedido_id or not motivo:
+            messages.error(request, 'Por favor completa todos los campos obligatorios')
+            return redirect('productos:devoluciones')
+        
+        try:
+            producto = Producto.objects.get(id=producto_id)
+            pedido = Pedido.objects.get(id=pedido_id, usuario=request.user, estado='entregado')  # ✅ VERIFICAR ENTREGADO
+            
+            # ✅ NUEVO: Verificar que no exista devolución previa para este producto en este pedido
+            devolucion_existente = Devolucion.objects.filter(
+                usuario=request.user,
+                producto=producto,
+                pedido=pedido
+            ).exists()
+            
+            if devolucion_existente:
+                messages.warning(request, 'Ya existe una solicitud de devolución para este producto.')
+                return redirect('productos:devoluciones')
+            
+            # Crear devolución
+            devolucion = Devolucion.objects.create(
+                usuario=request.user,
+                producto=producto,
+                pedido=pedido,
+                motivo=motivo,
+                estado='Pendiente',
+                foto1=foto1 if foto1 else None,
+                foto2=foto2 if foto2 else None,
+                foto3=foto3 if foto3 else None
+            )
+            
+            messages.success(request, f'✅ Solicitud de devolución #{devolucion.id} enviada exitosamente!')
+            return redirect('productos:devoluciones')
+            
+        except Exception as e:
+            messages.error(request, f'Error al crear la devolución: {str(e)}')
+            return redirect('productos:devoluciones')
+    
+    # Convertir a JSON para JavaScript
+    import json
+    productos_json = json.dumps(productos_devolubles)
+    
+    # Obtener devoluciones del usuario
+    mis_devoluciones = Devolucion.objects.filter(
+        usuario=request.user
+    ).select_related('producto', 'pedido').order_by('-fecha_solicitud')
+    
+    context = {
+        'productos_devolubles': productos_json,
+        'pedidos_agrupados': pedidos_agrupados.values(),
+        'devoluciones': mis_devoluciones
+    }
+    
+    return render(request, 'productos/devoluciones.html', context)
+
+
+def detalle_producto(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+    return render(request, "productos/detalle.html", {"producto": producto})

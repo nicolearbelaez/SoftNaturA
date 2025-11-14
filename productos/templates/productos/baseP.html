@@ -59,6 +59,7 @@
                     <div class="menu-desplegable" id="menuUsuario">
                         <a href="{% url 'usuarios:editar_perfil' %}">Editar perfil</a>
                         <a href="{% url 'usuarios:mis_pedidos' %}">Mis pedidos</a>
+                        <a href="{% url 'productos:devoluciones' %}">Devoluciones</a>
                         <a href="{% url 'usuarios:logout' %}">Cerrar sesión</a>
                     </div>
                 </div>
@@ -116,7 +117,7 @@
                         <p>Subtotal: ${{ carrito_subtotal |floatformat:0|intcomma }}</p>
                         <p>IVA (19%): ${{ carrito_iva |floatformat:0|intcomma }}</p>
                         <h4>Total: ${{ carrito_total |floatformat:0|intcomma }}</h4>
-                        <a href="{% url 'productos:checkout' %}" class="btn-finalizar">Finalizar compra</a>
+                        <a href="{% url 'pagos:checkout' %}" class="btn-finalizar">Finalizar compra</a>
                         <a href="{% url 'productos:limpiar' %}" class="btn btn-danger">Limpiar carrito</a>
                     </div>
                 </div>
@@ -166,7 +167,7 @@
 
             <div class="footer-menu">
                 <div class="footer-cont">
-                    <p>Home</p>
+                    <a class="links-uno" href="{% url 'productos:homesoft' %}">Inicio</a>
                     <a class="links-uno" href="{% url 'usuarios:nosotros' %}">Nosotros</a>
                     <a class="links-uno" href="{% url 'productos:producto' %}">Productos</a>
                     <a class="links-uno" href="{% url 'usuarios:contacto' %}">Contacto</a>

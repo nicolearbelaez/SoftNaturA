@@ -155,7 +155,7 @@
       font-size: 29px;
     }
 
-    .section ul li{
+    .section ul li {
       font-size: 28px;
     }
 
@@ -170,6 +170,7 @@
     .card h2 {
       font-size: 30px;
     }
+
     .user-dropdown {
       margin-bottom: 510px;
     }
@@ -236,8 +237,8 @@
     <div class="section">
       <h3>Productos Más Vendidos</h3>
       <ul>
-        {% for nombre, vendidos in prod_info %}
-        <li>{{ nombre }} — {{ vendidos }} vendidos</li>
+        {% for prod in prod_info %}
+        <li>{{ prod.nombProduc }} — {{ prod.total_vendidos }} vendidos</li>
         {% empty %}
         <li>No hay productos vendidos.</li>
         {% endfor %}
@@ -247,24 +248,13 @@
     <div class="section">
       <h3>Usuarios con Más Compras</h3>
       <ul>
-        {% for nombre, pedidos in usuarios_info %}
-        <li>{{ nombre }} — {{ pedidos }} pedidos</li>
+        {% for user in usuarios_info %}
+        <li>{{ user.nombre }} — {{ user.pedidos_pagados }} pedidos</li>
         {% empty %}
         <li>No hay usuarios con compras registradas.</li>
         {% endfor %}
       </ul>
     </div>
-  </div>
-
-  <div class="section">
-    <h3>Mensajes Recientes</h3>
-    <ul>
-      {% for m in mensajes %}
-      <li>{{ m.nombre }} — {{ m.asunto }}</li>
-      {% empty %}
-      <li>No hay mensajes disponibles.</li>
-      {% endfor %}
-    </ul>
   </div>
 </div>
 {% endblock %}

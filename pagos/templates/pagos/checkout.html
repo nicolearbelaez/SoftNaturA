@@ -1,0 +1,193 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Bold</title>
+    <link rel="stylesheet" href="{% static 'static/css/checkout.css' %}?v={{ timestamp }}" />
+    <!-- Script de Bold -->
+    <script src="https://checkout.bold.co/library/boldPaymentButton.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <a href="{% url 'productos:producto' %}" class="btn-volver">← Volver a la tienda</a>
+    </div>
+
+    <!-- Contenedor principal - 🆕 CAMBIO: Agregar modo_edicion -->
+    <div class="checkout-container {% if direccion_guardada and not modo_edicion %}solo-resumen{% endif %}">
+
+        <!-- Columna izquierda: Formulario -->
+        <div class="form-section">
+            <h2>Información de envío</h2>
+            <form method="POST" action="{% url 'usuarios:guardar_direccion' %}">
+                {% csrf_token %}
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nombre">Nombre completo *</label>
+                        <!-- ✅ VALOR PRE-CARGADO -->
+                        <input type="text" id="nombre" name="nombre_completo" 
+                               value="{% if direccion_guardada %}{{ direccion_guardada.nombre_completo }}{% endif %}" 
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefono">Teléfono *</label>
+                        <!-- ✅ VALOR PRE-CARGADO -->
+                        <input type="tel" id="telefono" name="telefono" 
+                               value="{% if direccion_guardada %}{{ direccion_guardada.telefono }}{% endif %}" 
+                               required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="direccion">Dirección completa *</label>
+                    <!-- ✅ VALOR PRE-CARGADO -->
+                    <textarea id="direccion" name="direccion_completa" required
+                        placeholder="Calle, número, apartamento, etc.">{% if direccion_guardada %}{{ direccion_guardada.direccion_completa }}{% endif %}</textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ciudad">Ciudad *</label>
+                        <!-- ✅ VALOR PRE-CARGADO -->
+                        <input type="text" id="ciudad" name="ciudad" 
+                               value="{% if direccion_guardada %}{{ direccion_guardada.ciudad }}{% endif %}" 
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="codigo_postal">Código postal</label>
+                        <!-- ✅ VALOR PRE-CARGADO -->
+                        <input type="text" id="codigo_postal" name="codigo_postal" 
+                               value="{% if direccion_guardada %}{{ direccion_guardada.codigo_postal|default:'' }}{% endif %}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="notas">Referencias</label>
+                    <!-- ✅ VALOR PRE-CARGADO -->
+                    <textarea id="notas" name="notas_entrega"
+                        placeholder="Instrucciones especiales para la entrega">{% if direccion_guardada %}{{ direccion_guardada.notas_entrega|default:'' }}{% endif %}</textarea>
+                </div>
+
+                <button type="submit" class="btn-guardar">Guardar información</button>
+            </form>
+        </div>
+
+        <!-- Columna derecha: Resumen del pedido -->
+        <div class="summary-section">
+
+            <!-- Mostrar datos guardados si existe direccion_guardada -->
+            {% if direccion_guardada %}
+            <div class="datos-envio-card">
+                <h2>Información de envío</h2>
+                <div class="dato-envio">
+                    <strong>Nombre:</strong> {{ direccion_guardada.nombre_completo }}
+                </div>
+                <div class="dato-envio">
+                    <strong>Teléfono:</strong> {{ direccion_guardada.telefono }}
+                </div>
+                <div class="dato-envio">
+                    <strong>Dirección:</strong> {{ direccion_guardada.direccion_completa }}
+                </div>
+                <div class="dato-envio">
+                    <strong>Ciudad:</strong> {{ direccion_guardada.ciudad }}
+                </div>
+                {% if direccion_guardada.codigo_postal %}
+                <div class="dato-envio">
+                    <strong>Código postal:</strong> {{ direccion_guardada.codigo_postal }}
+                </div>
+                {% endif %}
+                {% if direccion_guardada.notas_entrega %}
+                <div class="dato-envio">
+                    <strong>Referencias:</strong> {{ direccion_guardada.notas_entrega }}
+                </div>
+                {% endif %}
+                <form method="POST" action="{% url 'usuarios:editar_direccion' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-editar">✏️ Editar información</button>
+                </form>
+            </div>
+            {% endif %}
+
+            <!-- Productos -->
+            <div class="productos-card">
+                <h2>Tu pedido</h2>
+                {% for producto in productos %}
+                <div class="producto-item">
+                    <h3>{{ producto.nombre }}</h3>
+                    <div class="producto-info">
+                        <span>Cantidad: {{ producto.cantidad }}</span>
+                        <span>Precio: ${{ producto.precio }}</span>
+                    </div>
+                    <div class="producto-info">
+                        <span><strong>Subtotal: ${{ producto.subtotal }}</strong></span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Totales -->
+            <div class="totales-card">
+                <div class="total-row">
+                    <span><strong>Subtotal:</strong></span>
+                    <span>${{ subtotal|floatformat:0 }}</span>
+                </div>
+                <div class="total-row">
+                    <span><strong>IVA (19%):</strong></span>
+                    <span>${{ iva|floatformat:0 }}</span>
+                </div>
+
+                <!-- COSTO DE ENVÍO -->
+                {% if costo_envio > 0 %}
+                <div class="total-row envio-row">
+                    <span><strong>Costo de envío:</strong></span>
+                    <span class="costo-envio">${{ costo_envio|floatformat:0 }}</span>
+                </div>
+                <div class="zona-envio">
+                    <small>📍 {{ direccion_guardada.ciudad }}</small>
+                </div>
+                {% elif direccion_guardada %}
+                <div class="total-row sin-envio">
+                    <span><strong>⚠️ Envío no disponible</strong></span>
+                </div>
+                <div class="zona-envio-error">
+                    <small>No realizamos envíos a {{ direccion_guardada.ciudad }}</small>
+                </div>
+                {% endif %}
+
+                <div class="total-final">
+                    <h3>Total: ${{ total_final|floatformat:0 }}</h3>
+                </div>
+                <p class="order-id">Order ID: {{ order_id }}</p>
+            </div>
+
+            <!-- Botón de pago -->
+            <div class="pago-card">
+                <h2>Método de pago</h2>
+                <form>
+                    <script data-bold-button="dark-L" data-order-id="{{ order_id }}" data-currency="{{ currency }}"
+                        data-amount="{{ amount }}" data-api-key="hCMpzInCapXX8geXNKAJfqXkYWdzT_b9ocLB_pNihTo"
+                        data-integrity-signature="{{ integrity_hash }}" data-redirection-url="{{ redirection_url }}"
+                        data-description="Compra tienda naturista" data-tax="vat-19"></script>
+                </form>
+
+                <!-- DEBUG -->
+                <div class="debug-section">
+                    <p><strong>DEBUG:</strong></p>
+                    <p>API Key: {{ bold_api_key }}</p>
+                    <p>Order ID: {{ order_id }}</p>
+                    <p>Amount: {{ amount }}</p>
+                    <p>Hash: {{ integrity_hash }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

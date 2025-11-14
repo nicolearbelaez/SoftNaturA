@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 import os 
 from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -13,7 +14,7 @@ SECRET_KEY = 'django-insecure-8m$=11%5!af2-ya((l_d)k$i=#07evr*vdkhh207sj#crui+la
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -136,8 +137,13 @@ EMAIL_HOST_PASSWORD = 'jsaovucsgwdhtdro'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
-MERCADOPAGO_PUBLIC_KEY = "TEST-ef5caefe-1424-481c-a06d-507ac8dd86bf"
-MERCADOPAGO_ACCESS_TOKEN = "TEST-796579486982996-082814-5e17885f87fcc7fe389889c4b9425629-2600547800"
+load_dotenv()
 
+BOLD_API_KEY = os.getenv("BOLD_API_KEY")
+BOLD_SECRET_KEY = os.getenv("BOLD_SECRET_KEY")
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://princeliest-paleozoulogic-hettie.ngrok-free.dev'
+]
 
 

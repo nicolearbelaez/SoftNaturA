@@ -42,7 +42,8 @@ class Servicio(models.Model):
         return self.nombre
 
 class Calificacion(models.Model):
-    servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, related_name='calificaciones')
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='calificaciones', null=True, blank=True)
+    servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, related_name='calificaciones', null=True, blank=True)
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     puntuacion_servicio = models.IntegerField(default=3, validators=[MinValueValidator(1), MaxValueValidator(5)])
     puntuacion_productos = models.IntegerField(default=3, validators=[MinValueValidator(1), MaxValueValidator(5)])
