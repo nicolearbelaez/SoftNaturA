@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from productos.models import Producto
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 class UsuarioManager(BaseUserManager):
@@ -59,27 +60,10 @@ class PedidoItem(models.Model):
     """
     Representa cada producto dentro de un pedido.
     """
-    pedido = models.ForeignKey(
-        Pedido,
-        related_name="items",  # Permite acceder con pedido.items.all()
-        on_delete=models.CASCADE,
-        verbose_name='Pedido'
-    )
-    producto = models.ForeignKey(
-        'productos.Producto',
-        on_delete=models.CASCADE,
-        verbose_name='Producto'
-    )
-    cantidad = models.PositiveIntegerField(
-        default=1,
-        verbose_name='Cantidad'
-    )
-    precio_unitario = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        default=0,
-        verbose_name='Precio unitario'
-    )
+    pedido = models.ForeignKey(Pedido, related_name="items", on_delete=models.CASCADE, verbose_name='Pedido')
+    producto = models.ForeignKey('productos.Producto', on_delete=models.CASCADE, verbose_name='Producto')
+    cantidad = models.PositiveIntegerField(default=1, verbose_name='Cantidad')
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Precio unitario')
 
     class Meta:
         verbose_name = 'Item de Pedido'
@@ -118,40 +102,14 @@ class Devolucion(models.Model):
         ('Rechazada', 'Rechazada'),
     ]
     
-    usuario = models.ForeignKey(
-        settings.AUTH_USER_MODEL, 
-        on_delete=models.CASCADE,
-        related_name='devoluciones',
-        verbose_name='Usuario'
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,related_name='devoluciones',verbose_name='Usuario'
     )
-    producto = models.ForeignKey(
-        'productos.Producto', 
-        on_delete=models.CASCADE,
-        verbose_name='Producto'
-    )
-    pedido = models.ForeignKey(
-        Pedido, 
-        on_delete=models.CASCADE,
-        related_name='devoluciones',
-        verbose_name='Pedido'
-    )
+    producto = models.ForeignKey('productos.Producto', on_delete=models.CASCADE,verbose_name='Producto')
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE,related_name='devoluciones',verbose_name='Pedido')
     motivo = models.TextField(verbose_name='Motivo de devolución')
-    estado = models.CharField(
-        max_length=20, 
-        choices=ESTADOS, 
-        default='Pendiente',
-        verbose_name='Estado'
-    )
-    fecha_solicitud = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Fecha de solicitud'
-    )
-    fecha_respuesta = models.DateTimeField(
-        null=True, 
-        blank=True,
-        verbose_name='Fecha de respuesta'
-    )
-    
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='Pendiente',verbose_name='Estado')
+    fecha_solicitud = models.DateTimeField(auto_now_add=True,verbose_name='Fecha de solicitud')
+    fecha_respuesta = models.DateTimeField(null=True, blank=True,verbose_name='Fecha de respuesta')
     # Fotos del producto (guardadas como Base64 o URLs)
     foto1 = models.TextField(blank=True, null=True, verbose_name='Foto 1')
     foto2 = models.TextField(blank=True, null=True, verbose_name='Foto 2')
@@ -162,7 +120,7 @@ class Devolucion(models.Model):
         verbose_name_plural = 'Devoluciones'
         ordering = ['-fecha_solicitud']
     
-    def _str_(self):
+    def __str__(self):
         return f"Devolución #{self.id} - {self.usuario.nombre} - {self.estado}"
     
     def get_fotos(self):
@@ -184,12 +142,7 @@ class Direccion(models.Model):
     Modelo para almacenar las direcciones de envío de los usuarios.
     Un usuario puede tener múltiples direcciones guardadas.
     """
-    usuario = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='direcciones',
-        verbose_name='Usuario'
-    )
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='direcciones', verbose_name='Usuario')
     nombre_completo = models.CharField(max_length=200, verbose_name='Nombre completo')
     telefono = models.CharField(max_length=20, verbose_name='Teléfono')
     direccion_completa = models.TextField(verbose_name='Dirección completa')
@@ -214,3 +167,18 @@ class Direccion(models.Model):
             Direccion.objects.filter(usuario=self.usuario, es_principal=True).exclude(pk=self.pk).update(es_principal=False)
         super().save(*args, **kwargs)
 # ====================== FIN MODELO DE DIRECCIÓN ======================
+
+# ====================== INICIO DE REEMPLAZO ======================
+class Reemplazo(models.Model):
+    """Registra los productos enviados como reemplazo tras una devolución aprobada"""
+    devolucion = models.OneToOneField(Devolucion,on_delete=models.CASCADE, related_name='reemplazo')
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField(default=1)
+    fecha_envio = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Reemplazo'
+        verbose_name_plural = 'Reemplazos'
+
+    def __str__(self):
+        return f"Reemplazo Devolución #{self.devolucion.id} - {self.producto.nombProduc}"

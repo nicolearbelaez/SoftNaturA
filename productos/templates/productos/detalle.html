@@ -1,157 +1,27 @@
 {% extends "productos/baseP.html" %}
+{% load static %}
 {% load humanize %}
-  {% block content %}
-  <style>
-  /* Contenedor principal del detalle */
-  .detalle-producto {
-    max-width: 900px;
-    margin: 50px auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    display: flex;
-    gap: 30px;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    align-items: center;
-    position: relative;
-  }
 
-  /* Imagen del producto */
-  .detalle-producto img {
-    width: 45%;
-    border-radius: 12px;
-    transition: transform 0.3s ease;
-  }
+{% block styles %}
+<link rel="stylesheet" href="{% static 'productos/css/estilos.css' %}" />
+{% endblock %}
 
-  .detalle-producto img:hover {
-    transform: scale(1.05);
-  }
+{% block content %}
 
-  /* Contenedor de texto */
-  .detalle-texto {
-    width: 55%;
-    text-align: left;
-  }
+<link rel="stylesheet" href="{% static 'productos/css/estilos.css' %}" />
 
-  /* Título del producto */
-  .detalle-texto h2 {
-    font-size: 36px;
-    color: #333;
-    margin-bottom: 20px;
-  }
-
-  
-
-
-  .detalle-texto p strong {
-    color: #f27405;
-    font-weight: bold;
-  }
-  .btn-comprar {
-    width: 160px;
-    height: 42px;
-    background-color: #f2c641;
-    color: black;
-    border: none;
-    border-radius: 5px;
-    font-weight: bold;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    margin-top: 20px;;
-}
-
-.btn-comprar:hover {
-    background-color: #F27405;
-    transform: scale(1.05);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
-}
-
-
-  /* Media query para todos los dispositivos móviles (hasta 768px) */
-  @media (max-width: 768px) {
-    .detalle-producto {
-      flex-direction: column; /* Imagen arriba, texto abajo */
-      text-align: center;
-    }
-
-    .detalle-producto img,
-    .detalle-texto {
-      width: 100%; /* Ocupa todo el ancho */
-    }
-
-    .detalle-texto h2 {
-      font-size: 28px;
-    }
-
-    .detalle-texto p {
-      font-size: 16px;
-    }
-
-    .detalle-texto a {
-      width: 100%;
-      padding: 12px 0;
-      font-size: 16px;
-      text-align: center;
-    }
-  }
-  /* Media query para dispositivos móviles */
-@media (max-width: 768px) {
-  .detalle-producto {
-    flex-direction: column;
-    text-align: center;
-    padding: 25px 10px;
-  }
-
-  .detalle-producto img,
-  .detalle-texto {
-    width: 100%;
-  }
-
-  .detalle-texto h2 {
-    font-size: 28px;
-  }
-
-  .detalle-texto p {
-    font-size: 16px;
-  }
-
-  .boton-volver {
-    position: static;
-    margin-bottom: 15px;
-    display: block;
-    width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .boton-comprar {
-    width: 100%;
-    font-size: 16px;
-  }
-}
-  
-  </style>
-
-  <div class="detalle-producto">
-    
-      <img src="{{ producto.imgProduc.url }}" alt="{{ producto.nombProduc }}">
-      <div class="detalle-texto">
-          <h2>{{ producto.nombProduc }}</h2>
-          <p>{{ producto.descripcion }}</p>
-          <p class="precio"><strong>${{ producto.precio |floatformat:0|intcomma }}</strong> </p>
-          {% if user.is_authenticated %}
-          <a href="{% url 'productos:agregar' producto.id %}" class="btn-comprar">Agregar al carrito</a>
-          {% else %}
-          <a href="{% url 'usuarios:login' %}?next={% url 'productos:agregar' producto.id %}" class="btn-comprar">Agregar</a>
-          {% endif %}
-          <br>
-      </div>
+<div class="detalle-producto">
+  <img src="{{ producto.imgProduc.url }}" alt="{{ producto.nombProduc }}">
+  <div class="detalle-texto">
+    <h2>{{ producto.nombProduc }}</h2>
+    <p>{{ producto.descripcion }}</p>
+    <p class="precio-detalle" ><strong>${{ producto.precio |floatformat:0|intcomma }}</strong> </p>
+    {% if user.is_authenticated %}
+    <a href="{% url 'productos:agregar' producto.id %}" class="btn-comprar">Agregar al carrito</a>
+    {% else %}
+    <a href="{% url 'usuarios:login' %}?next={% url 'productos:agregar' producto.id %}" class="btn-comprar">Agregar</a>
+    {% endif %}
+    <br>
   </div>
-  {% endblock %}
+</div>
+{% endblock %}

@@ -2,374 +2,9 @@
 {% load static %}
 
 {% block styles %}
-<style>
-    .contenedor-devoluciones {
-        max-width: 1200px;
-        margin: 2rem auto;
-        padding: 2rem;
-        background-color: #f9f9f9;
-        border-radius: 15px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    h2 {
-        text-align: center;
-        color: #2c3e50;
-        margin-bottom: 1.5rem;
-        font-size: 2rem;
-    }
-
-    .tabs {
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    .tab-btn {
-        padding: 12px 30px;
-        background-color: #fff;
-        border: 2px solid #E5BE01;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: bold;
-        color: #2c3e50;
-        transition: all 0.3s ease;
-    }
-
-    .tab-btn.active {
-        background-color: #E5BE01;
-        color: white;
-    }
-
-    .tab-btn:hover {
-        transform: translateY(-2px);
-    }
-
-    .tab-content {
-        display: none;
-    }
-
-    .tab-content.active {
-        display: block;
-    }
-
-    /* ===== LISTA DE DEVOLUCIONES ===== */
-    .lista-devoluciones {
-        list-style-type: none;
-        padding: 0;
-    }
-
-    .devolucion-item {
-        background-color: #ffffff;
-        margin-bottom: 15px;
-        padding: 1.5rem;
-        border-left: 5px solid #E5BE01;
-        border-radius: 8px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        transition: transform 0.2s;
-    }
-
-    .devolucion-item:hover {
-        transform: translateX(5px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .devolucion-info {
-        flex: 1;
-    }
-
-    .devolucion-info strong {
-        color: #E5BE01;
-        font-size: 1.1rem;
-    }
-
-    .estado {
-        display: inline-block;
-        padding: 5px 15px;
-        border-radius: 20px;
-        font-weight: bold;
-        font-size: 0.9rem;
-    }
-
-    .estado.pendiente {
-        background-color: #FFA500;
-        color: white;
-    }
-
-    .estado.aprobada {
-        background-color: #4CAF50;
-        color: white;
-    }
-
-    .estado.rechazada {
-        background-color: #f44336;
-        color: white;
-    }
-
-    .no-devoluciones {
-        text-align: center;
-        color: #888;
-        padding: 2rem;
-        background-color: #fff;
-        border-radius: 8px;
-    }
-
-    /* ===== FORMULARIO ===== */
-    .form-devolucion {
-        background-color: #ffffff;
-        padding: 2rem;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        color: #2c3e50;
-        font-weight: bold;
-    }
-
-    .form-group select,
-    .form-group textarea {
-        width: 100%;
-        padding: 12px;
-        border: 2px solid #ddd;
-        border-radius: 8px;
-        font-size: 1rem;
-        transition: border-color 0.3s;
-    }
-
-    .form-group select:focus,
-    .form-group textarea:focus {
-        outline: none;
-        border-color: #E5BE01;
-    }
-
-    .form-group textarea {
-        resize: vertical;
-        min-height: 100px;
-    }
-
-    /* ===== CÁMARA Y FOTOS ===== */
-    .fotos-container {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .foto-preview-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        margin-top: 1rem;
-    }
-
-    .foto-item {
-        position: relative;
-        aspect-ratio: 1;
-        border: 2px dashed #E5BE01;
-        border-radius: 8px;
-        overflow: hidden;
-        background-color: #f5f5f5;
-    }
-
-    .foto-item img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .foto-item.empty {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #999;
-        font-size: 2rem;
-    }
-
-    .btn-eliminar-foto {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        background-color: #f44336;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        transition: transform 0.2s;
-    }
-
-    .btn-eliminar-foto:hover {
-        transform: scale(1.1);
-    }
-
-    .botones-camara {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .btn-camara,
-    .btn-archivo {
-        padding: 12px 24px;
-        background-color: #E5BE01;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.3s ease;
-    }
-
-    .btn-camara:hover,
-    .btn-archivo:hover {
-        background-color: #d4ad00;
-        transform: translateY(-2px);
-    }
-
-    .btn-camara:disabled,
-    .btn-archivo:disabled {
-        background-color: #ccc;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-    .btn-submit {
-        width: 100%;
-        padding: 15px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 1.1rem;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-top: 1rem;
-    }
-
-    .btn-submit:hover {
-        background-color: #45a049;
-        transform: translateY(-2px);
-    }
-
-    /* ===== MODAL CÁMARA ===== */
-    .modal-camara {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.9);
-        align-items: center;
-        justify-content: center;
-    }
-
-    .modal-camara.active {
-        display: flex;
-    }
-
-    .modal-content-camara {
-        background-color: white;
-        padding: 2rem;
-        border-radius: 15px;
-        max-width: 600px;
-        width: 90%;
-        text-align: center;
-    }
-
-    .video-container {
-        position: relative;
-        margin: 1rem 0;
-        background-color: #000;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-
-    #videoElement {
-        width: 100%;
-        border-radius: 8px;
-    }
-
-    .canvas-hidden {
-        display: none;
-    }
-
-    .botones-modal {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        margin-top: 1rem;
-    }
-
-    .btn-capturar,
-    .btn-cerrar-modal {
-        padding: 12px 24px;
-        border: none;
-        border-radius: 8px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .btn-capturar {
-        background-color: #4CAF50;
-        color: white;
-    }
-
-    .btn-capturar:hover {
-        background-color: #45a049;
-    }
-
-    .btn-cerrar-modal {
-        background-color: #f44336;
-        color: white;
-    }
-
-    .btn-cerrar-modal:hover {
-        background-color: #da190b;
-    }
-
-    .contador-fotos {
-        color: #666;
-        font-size: 0.9rem;
-        margin-top: 0.5rem;
-    }
-
-    @media (max-width: 768px) {
-        .foto-preview-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .tabs {
-            flex-direction: column;
-        }
-
-        .botones-camara {
-            flex-direction: column;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{% static 'productos/css/estilos.css' %}" />
 {% endblock %}
+
 {% block content %}
 <div class="contenedor-devoluciones">
     <h2>Mis Devoluciones</h2>
@@ -383,7 +18,6 @@
             <i class="fa fa-plus-circle"></i> Solicitar Devolución
         </button>
     </div>
-
     <!-- TAB 1: LISTA DE DEVOLUCIONES -->
     <div id="lista" class="tab-content active">
         {% if devoluciones %}
@@ -391,8 +25,7 @@
             {% for devolucion in devoluciones %}
             <li class="devolucion-item">
                 <div class="devolucion-info">
-                    <strong>Devolución #{{ devolucion.id }}</strong><br>
-                    Producto: {{ devolucion.producto.nombProduc }}<br>
+                    <strong>Devolución #{{ devolucion.id }}</strong><br>Producto: {{ devolucion.producto.nombProduc }}<br>
                     Fecha: {{ devolucion.fecha_solicitud|date:"d M Y" }}<br>
                     Motivo: {{ devolucion.motivo|truncatewords:10 }}
                 </div>
@@ -416,11 +49,8 @@
     <div id="nueva" class="tab-content">
         <form class="form-devolucion" method="POST" enctype="multipart/form-data" id="formDevolucion">
             {% csrf_token %}
-
             <div class="form-group">
-                <label for="pedido">
-                    <i class="fa fa-shopping-bag"></i> Selecciona el pedido:
-                </label>
+                <label for="pedido"><i class="fa fa-shopping-bag"></i> Selecciona el pedido:</label>
                 <select name="pedido_id" id="selectPedido" required onchange="cargarProductos()">
                     <option value="">-- Selecciona un pedido --</option>
                     {% for pedido in pedidos_agrupados %}
@@ -433,18 +63,14 @@
             </div>
 
             <div class="form-group" id="grupoProducto" style="display: none;">
-                <label for="producto">
-                    <i class="fa fa-box"></i> Selecciona el producto a devolver:
-                </label>
+                <label for="producto"><i class="fa fa-box"></i> Selecciona el producto a devolver:</label>
                 <select name="producto_id" id="selectProducto" required>
                     <option value="">-- Primero selecciona un pedido --</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="motivo">
-                    <i class="fa fa-comment-dots"></i> Motivo de la devolución:
-                </label>
+                <label for="motivo"><i class="fa fa-comment-dots"></i> Motivo de la devolución:</label>
                 <select name="motivo" id="motivo" required>
                     <option value="">-- Selecciona un motivo --</option>
                     <option value="Fecha de vencimiento expirado">Fecha de vencimiento expirado</option>
@@ -454,9 +80,7 @@
             </div>
 
             <div class="form-group">
-                <label>
-                    <i class="fa fa-camera"></i> Fotos del producto (máximo 3):
-                </label>
+                <label><i class="fa fa-camera"></i> Fotos del producto (máximo 3):</label>
 
                 <div class="fotos-container">
                     <div class="botones-camara">
@@ -487,14 +111,13 @@
                     </div>
                 </div>
 
-                <input type="hidden" name="foto1" id="foto1">
-                <input type="hidden" name="foto2" id="foto2">
-                <input type="hidden" name="foto3" id="foto3">
+                <input type="file" name="foto1" id="foto1" accept="image/*" style="display:none;">
+                <input type="file" name="foto2" id="foto2" accept="image/*" style="display:none;">
+                <input type="file" name="foto3" id="foto3" accept="image/*" style="display:none;">
+
             </div>
 
-            <button type="submit" class="btn-submit">
-                <i class="fa fa-paper-plane"></i> Enviar Solicitud de Devolución
-            </button>
+            <button type="submit" class="btn-submit"><i class="fa fa-paper-plane"></i> Enviar Solicitud de Devolución</button>
         </form>
     </div>
 </div>
@@ -522,200 +145,8 @@
 <script id="productosData" type="application/json">
     {{ productos_devolubles|safe }}
 </script>
-
 {% endblock %}
 
 {% block scripts %}
-<script>
-    // ===== DATOS DE PRODUCTOS =====
-    const todosLosProductos = JSON.parse(document.getElementById('productosData').textContent);
-
-    // ===== CAMBIAR TABS =====
-    function cambiarTab(tab) {
-        document.querySelectorAll('.tab-content').forEach(content => {
-            content.classList.remove('active');
-        });
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-
-        document.getElementById(tab).classList.add('active');
-        event.target.classList.add('active');
-    }
-
-    // ===== CARGAR PRODUCTOS SEGÚN PEDIDO SELECCIONADO =====
-    function cargarProductos() {
-        const selectPedido = document.getElementById('selectPedido');
-        const selectProducto = document.getElementById('selectProducto');
-        const grupoProducto = document.getElementById('grupoProducto');
-
-        const pedidoSeleccionado = selectPedido.value;
-
-        if (!pedidoSeleccionado) {
-            grupoProducto.style.display = 'none';
-            selectProducto.innerHTML = '<option value="">-- Primero selecciona un pedido --</option>';
-            return;
-        }
-
-        // Filtrar productos del pedido seleccionado
-        const pedidoId = parseInt(pedidoSeleccionado);
-        const productos = todosLosProductos.filter(p => p.pedido_id === pedidoId);
-
-        // Limpiar select de productos
-        selectProducto.innerHTML = '<option value="">-- Selecciona el producto --</option>';
-
-        // Agregar productos al select
-        productos.forEach(producto => {
-            const option = document.createElement('option');
-            option.value = producto.producto_id;
-            option.textContent = `${producto.producto_nombre} - Cantidad: ${producto.cantidad} - $${producto.precio}`;
-            selectProducto.appendChild(option);
-        });
-
-        // Mostrar el grupo de productos
-        grupoProducto.style.display = 'block';
-    }
-
-    // ===== SISTEMA DE FOTOS =====
-    let fotosCapturadas = [];
-    let stream = null;
-
-    const btnAbrirCamara = document.getElementById('btnAbrirCamara');
-    const btnCerrarModal = document.getElementById('btnCerrarModal');
-    const btnCapturar = document.getElementById('btnCapturar');
-    const modalCamara = document.getElementById('modalCamara');
-    const videoElement = document.getElementById('videoElement');
-    const canvasElement = document.getElementById('canvasElement');
-    const previewGrid = document.getElementById('previewGrid');
-    const contadorFotos = document.getElementById('contadorFotos');
-    const inputArchivo = document.getElementById('inputArchivo');
-
-    // Abrir cámara
-    btnAbrirCamara.addEventListener('click', async function () {
-        if (fotosCapturadas.length >= 3) {
-            alert('Ya has agregado 3 fotos (máximo permitido)');
-            return;
-        }
-
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment' }
-            });
-            videoElement.srcObject = stream;
-            modalCamara.classList.add('active');
-        } catch (error) {
-            alert('Error al acceder a la cámara: ' + error.message);
-        }
-    });
-
-    // Cerrar modal
-    btnCerrarModal.addEventListener('click', function () {
-        cerrarCamara();
-    });
-
-    // Capturar foto
-    btnCapturar.addEventListener('click', function () {
-        if (fotosCapturadas.length >= 3) {
-            alert('Ya has agregado 3 fotos');
-            cerrarCamara();
-            return;
-        }
-
-        const canvas = canvasElement;
-        const video = videoElement;
-
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-
-        const imagenBase64 = canvas.toDataURL('image/jpeg');
-        agregarFoto(imagenBase64);
-        cerrarCamara();
-    });
-
-    // Subir desde archivo
-    inputArchivo.addEventListener('change', function (e) {
-        const archivos = Array.from(e.target.files);
-
-        archivos.forEach(archivo => {
-            if (fotosCapturadas.length >= 3) {
-                alert('Máximo 3 fotos permitidas');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function (event) {
-                agregarFoto(event.target.result);
-            };
-            reader.readAsDataURL(archivo);
-        });
-
-        inputArchivo.value = '';
-    });
-
-    function agregarFoto(imagenBase64) {
-        if (fotosCapturadas.length >= 3) return;
-
-        fotosCapturadas.push(imagenBase64);
-        actualizarPreview();
-    }
-
-    function eliminarFoto(index) {
-        fotosCapturadas.splice(index, 1);
-        actualizarPreview();
-    }
-
-    function actualizarPreview() {
-        previewGrid.innerHTML = '';
-
-        // Mostrar fotos capturadas
-        fotosCapturadas.forEach((foto, index) => {
-            const div = document.createElement('div');
-            div.className = 'foto-item';
-            div.innerHTML = `
-                <img src="${foto}" alt="Foto ${index + 1}">
-                <button type="button" class="btn-eliminar-foto" onclick="eliminarFoto(${index})">
-                    <i class="fa fa-times"></i>
-                </button>
-            `;
-            previewGrid.appendChild(div);
-        });
-
-        // Agregar espacios vacíos
-        for (let i = fotosCapturadas.length; i < 3; i++) {
-            const div = document.createElement('div');
-            div.className = 'foto-item empty';
-            div.innerHTML = '<i class="fa fa-image"></i>';
-            previewGrid.appendChild(div);
-        }
-
-        // Actualizar contador
-        contadorFotos.textContent = fotosCapturadas.length;
-
-        // Actualizar inputs hidden
-        document.getElementById('foto1').value = fotosCapturadas[0] || '';
-        document.getElementById('foto2').value = fotosCapturadas[1] || '';
-        document.getElementById('foto3').value = fotosCapturadas[2] || '';
-
-        // Deshabilitar botones si ya hay 3 fotos
-        if (fotosCapturadas.length >= 3) {
-            btnAbrirCamara.disabled = true;
-            document.querySelector('.btn-archivo').disabled = true;
-        } else {
-            btnAbrirCamara.disabled = false;
-            document.querySelector('.btn-archivo').disabled = false;
-        }
-    }
-
-    function cerrarCamara() {
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-            stream = null;
-        }
-        modalCamara.classList.remove('active');
-    }
-
-    // Hacer eliminarFoto global
-    window.eliminarFoto = eliminarFoto;
-</script>
+<script src="{% static '/productos/js/devoluciones.js' %}"></script>
 {% endblock %}

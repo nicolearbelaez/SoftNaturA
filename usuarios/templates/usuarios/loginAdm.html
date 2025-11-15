@@ -1,306 +1,19 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login Admin - Verificación</title>
-  <link rel="stylesheet" href="{% static 'usuarios/css/loginAdm.css' %}?v={{ timestamp }}">
+  <link rel="stylesheet" href="{% static 'usuarios/css/loginAdm-login-register.css' %}" />
 </head>
 
-<style>
-  * {
-    box-sizing: border-box;
-  }
 
-  body {
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(135deg, #f4f4f4 0%, #e8e8e8 100%);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    padding: 20px;
-  }
-
-  .contenedor-form-adm {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-width: 450px;
-    justify-content: center;
-    padding: 40px 35px;
-    border-radius: 20px;
-    background-color: white;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
-    border: 3px solid #f9d71c;
-    text-align: center;
-    animation: fadeIn 0.5s ease;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .contenedor-form-adm img {
-    width: 100%;
-    max-width: 250px;
-    height: auto;
-    margin-bottom: 25px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .subtitulo-admin {
-    font-size: 18px;
-    color: #3f3f3f;
-    margin: 0 0 25px 0;
-    font-weight: 600;
-    line-height: 1.4;
-    text-align: center;
-  }
-
-  .form-step {
-    display: none;
-  }
-
-  .form-step.active {
-    display: flex;
-    flex-direction: column;
-  }
-
-
-
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateX(20px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  .contenedor-login,
-  .contenedor-login-adm {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    width: 100%;
-    gap: 12px;
-  }
-
-  .btn-txt {
-    font-weight: bold;
-    color: rgb(63, 63, 63);
-    text-align: center;
-    font-size: 16px;
-    margin-bottom: 8px;
-  }
-
-  input,
-  select,
-  textarea {
-    padding: 12px 15px;
-    border: 2px solid #e1e5e9;
-    border-radius: 8px;
-    width: 100%;
-    margin-bottom: 10px;
-    font-size: 16px;
-    background-color: #f8fafc;
-    transition: all 0.3s ease;
-  }
-
-  input:focus,
-  select:focus,
-  textarea:focus {
-    border-color: #f9d71c;
-    background-color: white;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(249, 215, 28, 0.1);
-  }
-
-  .btn-ingresar {
-    padding: 14px 20px;
-    background: #E5BE01;
-    color: white;
-    border: none;
-    font-weight: bold;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 17px;
-    margin-top: 13px;
-    width: 100%;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(249, 215, 28, 0.3);
-  }
-
-  .btn-ingresar:hover {
-    background: #F27405;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(249, 215, 28, 0.4);
-  }
-
-  .btn-ingresar:active {
-    transform: translateY(0);
-  }
-
-  .btn-ingresar:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .code-input-container {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin: 20px 0;
-  }
-
-  .code-digit {
-    width: 50px;
-    height: 60px;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-    border: 2px solid #e1e5e9;
-    border-radius: 8px;
-    background-color: #f8fafc;
-    transition: all 0.3s ease;
-  }
-
-  .code-digit:focus {
-    border-color: #f9d71c;
-    background-color: white;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(249, 215, 28, 0.1);
-  }
-
-  .step-indicator {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 25px;
-  }
-
-  .step-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background-color: #e1e5e9;
-    transition: all 0.3s ease;
-  }
-
-  .step-dot.active {
-    background-color: #E5BE01;
-    transform: scale(1.2);
-  }
-
-  /* ALERTAS PERSONALIZADAS */
-  .alert-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-  }
-
-  .alert-box {
-    background: #fff;
-    padding: 25px 30px;
-    border-radius: 14px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    max-width: 340px;
-    width: 90%;
-    font-family: 'Poppins', sans-serif;
-  }
-
-  .alert-box h2 {
-    color: #E5BE01;
-    margin-bottom: 10px;
-    font-size: 20px;
-  }
-
-  .alert-box p {
-    color: #333;
-    margin-bottom: 15px;
-    font-size: 15px;
-  }
-
-  .alert-box button {
-    background: #E5BE01;
-    color: white;
-    border: none;
-    padding: 8px 18px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: 0.3s;
-  }
-
-  .alert-box button:hover {
-    background: #F27405;
-  }
-
-  .txt-reset {
-    text-align: center;
-    margin-top: 15px;
-    font-size: 16px;
-  }
-
-  .txt-reset a {
-    color: #E5BE01;
-    text-decoration: none;
-    font-weight: bold;
-    transition: all 0.3s ease;
-  }
-
-  .txt-reset a:hover {
-    color: #F27405;
-    text-decoration: none;
-  }
-
-  .txt-register a {
-    text-decoration: none;
-    color: #E5BE01;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    font-size: 16px;
-  }
-
-  .txt-register a:hover {
-    color: #F27405;
-    text-decoration: none;
-  }
-</style>
 
 <body>
   <div class="contenedor-form-adm">
     <img src="/media/uploads/products/Gemini_Generated_Image_givzp3givzp3givz__1_-removebg-preview.png"
       alt="Logo Unidos pensando en su salud">
-
     <div class="step-indicator">
       <div class="step-dot active" id="dot1"></div>
       <div class="step-dot" id="dot2"></div>
@@ -318,13 +31,13 @@
         <label for="password" class="btn-txt">Contraseña:</label>
         <input type="password" id="password" name="password" required>
 
-        <button type="button" class="btn-ingresar" id="btnStep1">Continuar</button>
+        <button type="button" class="btn-ingresar-adm" id="btnStep1">Continuar</button>
 
-        <div class="txt-reset">
+        <div class="txt-reset-adm">
           <a href="{% url 'usuarios:password_reset' %}">¿Olvidaste tu contraseña?</a>
         </div>
 
-        <div class="txt-register">
+        <div class="txt-register-adm">
           <p>¿Aún no tienes cuenta? <a href="{% url 'usuarios:register' %}">Regístrate</a></p>
         </div>
       </div>
@@ -334,7 +47,7 @@
           Hemos enviado un código de 6 dígitos a tu correo electrónico
         </div>
 
-        <label class="btn-txt">Ingresa el código de verificación:</label>
+        <label class="btn-txt-adm">Ingresa el código de verificación:</label>
 
         <div class="code-input-container">
           <input type="text" class="code-digit" maxlength="1" id="digit1" name="digit1">
@@ -344,29 +57,23 @@
           <input type="text" class="code-digit" maxlength="1" id="digit5" name="digit5">
           <input type="text" class="code-digit" maxlength="1" id="digit6" name="digit6">
         </div>
-
         <input type="hidden" name="codigo_verificacion" id="codigoCompleto">
         <input type="hidden" name="email_verified" id="emailVerified">
         <input type="hidden" name="password_verified" id="passwordVerified">
-
-        <button type="submit" class="btn-ingresar" id="btnVerificar">Verificar y Entrar</button>
-
-        <button type="button" class="btn-reenviar" id="btnReenviar">
+        <button type="submit" class="btn-ingresar-adm" id="btnVerificar">Verificar y Entrar</button>
+        <button type="button" class="btn-reenviar-adm" id="btnReenviar">
           Reenviar código
         </button>
         <div class="temporizador" id="temporizador"></div>
-
         <button type="button" class="btn-volver-paso" id="btnVolver">
           ← Volver
         </button>
       </div>
-
       {% if mensaje %}
       <p class="mensaje-error">{{ mensaje }}</p>
       {% endif %}
     </form>
   </div>
-
   <!-- ALERTA PERSONALIZADA -->
   <div id="custom-alert" class="alert-overlay" style="display:none;">
     <div class="alert-box">
@@ -376,258 +83,8 @@
     </div>
   </div>
 
-  <script>
-    function mostrarAlerta(titulo, mensaje, redirigir = false, url = '/usuarios/loginAdm/') {
-      document.getElementById('alert-title').innerText = titulo;
-      document.getElementById('alert-message').innerText = mensaje;
-      const alertBox = document.getElementById('custom-alert');
-      alertBox.style.display = 'flex';
-      alertBox.dataset.redirigir = redirigir;
-      alertBox.dataset.url = url;
-    }
 
-    function cerrarAlerta() {
-      const alertBox = document.getElementById('custom-alert');
-      const redirigir = alertBox.dataset.redirigir === 'true';
-      const url = alertBox.dataset.url;
-
-      document.getElementById('custom-alert').style.display = 'none';
-
-      if (redirigir) {
-        window.location.href = url;
-      }
-    }
-
-    function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === (name + '=')) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
-        }
-      }
-      return cookieValue;
-    }
-
-    const csrftoken = getCookie('csrftoken');
-    let intentosCodigo = 0;
-
-    document.getElementById('btnStep1').addEventListener('click', async function () {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const btnStep1 = this;
-
-      if (!email || !password) {
-        mostrarAlerta('Campos incompletos', 'Por favor, completa todos los campos.');
-        return;
-      }
-
-      btnStep1.disabled = true;
-      btnStep1.textContent = 'Enviando código...';
-
-      try {
-        const response = await fetch('/usuarios/enviar-codigo-verificacion/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken
-          },
-          body: JSON.stringify({ email: email, password: password }),
-          credentials: 'same-origin' // muy importante
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          document.getElementById('emailVerified').value = email;
-          document.getElementById('passwordVerified').value = password;
-
-          document.getElementById('step1').classList.remove('active');
-          document.getElementById('step2').classList.add('active');
-          document.getElementById('dot1').classList.remove('active');
-          document.getElementById('dot2').classList.add('active');
-          document.getElementById('subtitulo').textContent = 'Verificación de seguridad';
-          document.getElementById('digit1').focus();
-          iniciarTemporizador();
-          intentosCodigo = 0; // reiniciamos contador
-        } else {
-          mostrarAlerta('Error', data.mensaje || 'Error al enviar el código. Verifica tus credenciales.');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        mostrarAlerta('Error de conexión', 'Por favor, intenta nuevamente.');
-      } finally {
-        btnStep1.disabled = false;
-        btnStep1.textContent = 'Continuar';
-      }
-    });
-
-    // Manejo de inputs del código
-    const codeDigits = document.querySelectorAll('.code-digit');
-
-    codeDigits.forEach((digit, index) => {
-      digit.addEventListener('input', function (e) {
-        if (e.target.value.length === 1 && index < codeDigits.length - 1) {
-          codeDigits[index + 1].focus();
-        }
-        actualizarCodigoCompleto();
-      });
-
-      digit.addEventListener('keydown', function (e) {
-        if (e.key === 'Backspace' && !e.target.value && index > 0) {
-          codeDigits[index - 1].focus();
-        }
-      });
-
-      digit.addEventListener('keypress', function (e) {
-        if (!/[0-9]/.test(e.key)) e.preventDefault();
-      });
-
-      digit.addEventListener('paste', function (e) {
-        e.preventDefault();
-        const pastedData = e.clipboardData.getData('text').slice(0, 6);
-        pastedData.split('').forEach((char, i) => {
-          if (codeDigits[i] && /[0-9]/.test(char)) codeDigits[i].value = char;
-        });
-        actualizarCodigoCompleto();
-      });
-    });
-
-    function actualizarCodigoCompleto() {
-      const codigo = Array.from(codeDigits).map(d => d.value).join('');
-      document.getElementById('codigoCompleto').value = codigo;
-    }
-
-    document.getElementById('btnVolver').addEventListener('click', function () {
-      document.getElementById('step2').classList.remove('active');
-      document.getElementById('step1').classList.add('active');
-      document.getElementById('dot2').classList.remove('active');
-      document.getElementById('dot1').classList.add('active');
-      document.getElementById('subtitulo').textContent = 'Acceso al sistema de administración';
-      codeDigits.forEach(d => d.value = '');
-    });
-
-    let tiempoRestante = 60;
-    let intervalo;
-
-    function iniciarTemporizador() {
-      tiempoRestante = 60;
-      document.getElementById('btnReenviar').disabled = true;
-
-      intervalo = setInterval(() => {
-        tiempoRestante--;
-        document.getElementById('temporizador').textContent =
-          `Puedes reenviar el código en ${tiempoRestante}s`;
-
-        if (tiempoRestante <= 0) {
-          clearInterval(intervalo);
-          document.getElementById('btnReenviar').disabled = false;
-          document.getElementById('temporizador').textContent = '';
-        }
-      }, 1000);
-    }
-
-    document.getElementById('btnReenviar').addEventListener('click', async function () {
-      const email = document.getElementById('emailVerified').value;
-      const password = document.getElementById('passwordVerified').value;
-      const btnReenviar = this;
-
-      btnReenviar.disabled = true;
-      btnReenviar.textContent = 'Reenviando...';
-
-      try {
-        const response = await fetch('/usuarios/enviar-codigo-verificacion/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken
-          },
-          body: JSON.stringify({ email: email, password: password }),
-          credentials: 'same-origin'
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          codeDigits.forEach(d => d.value = '');
-          document.getElementById('digit1').focus();
-          iniciarTemporizador();
-          mostrarAlerta('Código reenviado', 'Se ha enviado un nuevo código a tu correo.');
-          intentosCodigo = 0; // reiniciamos contador al reenviar
-        } else {
-          mostrarAlerta('Error', data.mensaje || 'Error al reenviar el código.');
-          btnReenviar.disabled = false;
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        mostrarAlerta('Error de conexión', 'Por favor, intenta nuevamente.');
-        btnReenviar.disabled = false;
-      } finally {
-        btnReenviar.textContent = 'Reenviar código';
-      }
-    });
-
-    // Validación y envío del código
-    document.getElementById('loginForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
-
-      const codigo = document.getElementById('codigoCompleto').value;
-      const email = document.getElementById('emailVerified').value;
-      const password = document.getElementById('passwordVerified').value;
-      const btnVerificar = document.getElementById('btnVerificar');
-
-      if (codigo.length !== 6) {
-        mostrarAlerta('Código incompleto', 'Por favor, ingresa los 6 dígitos del código de verificación.');
-        return;
-      }
-
-      btnVerificar.disabled = true;
-      btnVerificar.textContent = 'Verificando...';
-
-      try {
-        const response = await fetch('/usuarios/verificar-codigo/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken
-          },
-          body: JSON.stringify({
-            email: email,
-            password: password,
-            codigo_verificacion: codigo
-          }),
-          credentials: 'same-origin'  // ✅ MUY IMPORTANTE
-        });
-
-
-        const data = await response.json();
-
-        if (data.success) {
-          mostrarAlerta('Acceso concedido', data.mensaje, true, data.redirect_url);
-        } else {
-          if (data.redirect) {
-            mostrarAlerta('Error', data.mensaje, true, '/usuarios/loginAdm/');
-          } else {
-            intentosCodigo++;
-            mostrarAlerta('Error de verificación', data.mensaje);
-            btnVerificar.disabled = false;
-          }
-        }
-
-      } catch (error) {
-        console.error('Error:', error);
-        mostrarAlerta('Error de conexión', 'No se pudo verificar el código. Intenta nuevamente.');
-        btnVerificar.disabled = false;
-      } finally {
-        btnVerificar.textContent = 'Verificar y Entrar';
-      }
-    });
-  </script>
+<script src="{% static '/usuarios/js/loginAdm.js' %}"></script>
 
 </body>
-
 </html>

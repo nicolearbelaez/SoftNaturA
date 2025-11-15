@@ -1,347 +1,28 @@
 {% extends 'usuarios/baseU.html' %}
+{% load static %}
 {% load humanize %}
+
 
 {% block title %}Ventas{% endblock %}
 
 {% block styles %}
-<style>
-    body {
-        background-color: #f5f5f5;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        color: #495057;
-        margin: 0;
-        padding: 0;
-    }
-
-    .container {
-        max-width: 1700px;
-        margin: 0 auto;
-        padding: 20px;
-        margin-left: 20px;
-    }
-
-    h1 {
-        text-align: center;
-        color: #292929;
-        margin: 20px 0 40px 0;
-    }
-
-    /* ====== CARDS DE RESUMEN ====== */
-    .resumen-cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 20px;
-        margin-bottom: 40px;
-    }
-
-    .card {
-        background: white;
-        border-radius: 8px;
-        padding: 25px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        border: 1px solid #e0e0e0;
-        text-align: center;
-        transition: transform 0.2s ease;
-    }
-
-    .card:hover {
-        transform: translateY(-3px);
-    }
-
-    .card-title {
-        font-size: 14px;
-        color: #6c757d;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 10px;
-        font-weight: 600;
-    }
-
-    .card-value {
-        font-size: 32px;
-        font-weight: bold;
-        margin: 0;
-    }
-
-    .card-value.ventas {
-        color: #005E27;
-    }
-
-    /* ====== FILTROS ====== */
-    .filtros-container {
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        border: 1px solid #e0e0e0;
-        margin-bottom: 20px;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-        align-items: end;
-    }
-
-    .filtro-label {
-        font-size: 13px;
-        font-weight: 600;
-        color: #495057;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .select-filter {
-        width: 100%;
-        padding: 12px 15px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        font-size: 14px;
-        background-color: #f8f9fa;
-        transition: all 0.2s ease;
-        cursor: pointer;
-    }
-
-    .select-filter:focus {
-        outline: none;
-        border-color: #F2C641;
-        box-shadow: 0 0 0 3px rgba(242, 198, 65, 0.1);
-        background-color: white;
-    }
-
-    /* ====== BUSCADOR ====== */
-    .busqueda {
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        border: 1px solid #e0e0e0;
-        margin-bottom: 20px;
-    }
-
-    .search-input {
-        width: 97%;
-        padding: 12px 15px;
-        border: 1px solid #ddd;
-        border-radius: 25px;
-        font-size: 14px;
-        background-color: #f8f9fa;
-        transition: all 0.2s ease;
-    }
-
-    .search-input:focus {
-        outline: none;
-        border-color: #F2C641;
-        box-shadow: 0 0 0 3px rgba(242, 198, 65, 0.1);
-        background-color: white;
-    }
-
-    /* ====== TABLA ====== */
-    .table-container {
-        background: white;
-        border-radius: 8px;
-        overflow-x: auto;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        border: 1px solid #e0e0e0;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        background: white;
-        min-width: 600px;
-    }
-
-    th,
-    td {
-        padding: 15px 12px;
-        border-bottom: 1px solid #f0f0f0;
-        color: #555;
-        font-size: 15px;
-        text-align: center;
-    }
-
-    th {
-        font-weight: bold;
-        color: #333;
-        font-size: 16px;
-        text-transform: uppercase;
-        background-color: #fafafa;
-    }
-
-    tbody tr:nth-child(even) {
-        background-color: #fafafa;
-    }
-
-    tbody tr:hover {
-        background-color: #f8f9fa;
-    }
-
-    .no-data {
-        text-align: center;
-        padding: 60px 20px;
-        font-style: italic;
-        color: #999;
-        font-size: 16px;
-    }
-
-    /* ====== BOTÓN EXPORTAR ====== */
-    .export-container {
-        display: flex;
-        justify-content: flex-end;
-        margin-bottom: 20px;
-    }
-
-    .btn-export {
-        background: #E5BE01;
-        color: #292929;
-        border: none;
-        padding: 12px 25px;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .btn-export:hover {
-        background: #F29727;
-        transform: translateY(-2px);
-    }
-
-    /* ====== PAGINACIÓN ====== */
-    .pagination {
-        display: flex;
-        justify-content: center;
-        margin: 20px 0;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    /* ===========================
-       RESPONSIVE DESIGN
-       =========================== */
-
-
-
-    /* Laptops */
-    @media (max-width: 1399px) {
-        .container {
-            padding: 15px;
-            margin-left: 30px;
-        }
-
-        h1 {
-            font-size: 28px;
-        }
-
-        .card-value {
-            font-size: 28px;
-        }
-
-        th,
-        td {
-            font-size: 14px;
-        }
-    }
-
-    /* Tablets */
-    @media (max-width: 1024px) {
-        .container {
-            padding: 15px;
-            margin-left: 60px;
-        }
-
-        .filtros-container {
-            grid-template-columns: 1fr;
-        }
-
-        .btn-export {
-            font-size: 14px;
-            padding: 10px 20px;
-        }
-    }
-
-    @media (max-width: 992px) {
-        .container {
-            padding: 15px;
-            margin-left: 100px;
-        }
-    }
-
-    /* Celulares medianos */
-    @media (max-width: 768px) {
-        .container {
-            padding: 15px;
-            margin-left: 140px;
-        }
-
-        h1 {
-            font-size: 22px;
-        }
-
-        .card-value {
-            font-size: 26px;
-        }
-
-        .search-input {
-            width: 90%;
-        }
-
-
-        table {
-            font-size: 13px;
-        }
-    }
-
-    /* Celulares pequeños */
-    @media (max-width: 480px) {
-        body {
-            font-size: 14px;
-        }
-
-        .container {
-            padding: 10px;
-            margin-left: 90px;
-        }
-
-        .card {
-            padding: 15px;
-        }
-
-        .card-value {
-            font-size: 22px;
-        }
-
-        .btn-export {
-            width: 100%;
-            justify-content: center;
-        }
-
-        th,
-        td {
-            padding: 8px 6px;
-            font-size: 12px;
-        }
-
-        .filtros-container {
-            padding: 15px;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{% static 'usuarios/css/mis_pedidos-gst_pedidos-ventas.css' %}" />
 {% endblock %}
+
+{% block page_id %}ventas{% endblock %}
+
 
 {% block content %}
 
-<body>
 
-    <div class="container">
+<body class="body-ventas">
+    <div class="container-ventas">
 
         <!-- Título -->
         <h1>Lista de Ventas</h1>
 
         <!-- Cards de resumen -->
-        <div class="resumen-cards">
+        <div class="resumen-cards-ventas">
             <div class="card">
                 <div class="card-title">Total Ventas</div>
                 <p class="card-value ventas" id="totalVentas">${{ total_ventas|intcomma|default:"0" }}</p>
@@ -351,26 +32,26 @@
 
 
         <!-- Búsqueda -->
-        <div class="busqueda">
-            <div class="export-container">
-                <button class="btn-export" id="btnExportar">
+        <div class="busqueda-ventas">
+            <div class="export-container-ventas">
+                <button class="btn-export-ventas" id="btnExportar">
                     <i class="fa fa-file-excel"></i>
                     Exportar a Excel
                 </button>
             </div>
-            <input type="text" class="search-input" id="searchInput" placeholder="Buscar por ID, cliente o monto...">
+            <input type="text" class="search-input-ventas" id="searchInput" placeholder="Buscar por ID, cliente o monto...">
         </div>
 
 
 
         <!-- Tabla de ventas -->
-        <div class="table-container">
+        <div class="table-container-ventas">
             <table>
                 <!-- Filtros por mes y año -->
-                <div class="filtros-container">
+                <div class="filtros-container-ventas">
                     <div class="filtro-group">
-                        <label class="filtro-label" for="mesFilter">Mes</label>
-                        <select id="mesFilter" class="select-filter">
+                        <label class="filtro-label-ventas" for="mesFilter">Mes</label>
+                        <select id="mesFilter" class="select-filter-ventas">
                             <option value="">Todos los meses</option>
                             <option value="01">Enero</option>
                             <option value="02">Febrero</option>
@@ -388,8 +69,8 @@
                     </div>
 
                     <div class="filtro-group">
-                        <label class="filtro-label" for="anioFilter">Año</label>
-                        <select id="anioFilter" class="select-filter">
+                        <label class="filtro-label-ventas" for="anioFilter">Año</label>
+                        <select id="anioFilter" class="select-filter-ventas">
                             <option value="">Todos los años</option>
                         </select>
                     </div>
@@ -412,7 +93,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="4" class="no-data">No hay ventas registradas</td>
+                            <td colspan="4" class="no-data-ventas">No hay ventas registradas</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -443,179 +124,5 @@
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchInput = document.getElementById('searchInput');
-        const mesFilter = document.getElementById('mesFilter');
-        const anioFilter = document.getElementById('anioFilter');
-        const ventasTable = document.getElementById('ventasTable');
-        const totalVentasElement = document.getElementById('totalVentas');
-        const btnExportar = document.getElementById('btnExportar');
-
-        // Llenar el selector de años dinámicamente
-        function populateYears() {
-            const rows = ventasTable.querySelectorAll('tr[data-fecha]');
-            const years = new Set();
-
-            rows.forEach(row => {
-                const fecha = row.getAttribute('data-fecha');
-                if (fecha) {
-                    const year = fecha.split('-')[0];
-                    years.add(year);
-                }
-            });
-
-            const sortedYears = Array.from(years).sort((a, b) => b - a);
-            sortedYears.forEach(year => {
-                const option = document.createElement('option');
-                option.value = year;
-                option.textContent = year;
-                anioFilter.appendChild(option);
-            });
-        }
-
-        populateYears();
-
-        // Función para actualizar el total de ventas
-        function updateTotalVentas() {
-            const visibleRows = ventasTable.querySelectorAll('tr[data-monto]:not([style*="display: none"])');
-            let total = 0;
-
-            visibleRows.forEach(row => {
-                const monto = parseFloat(row.getAttribute('data-monto')) || 0;
-                total += monto;
-            });
-
-            // Formatear el total con separadores de miles
-            totalVentasElement.textContent = '$' + total.toLocaleString('es-CO');
-        }
-
-        // Función para aplicar todos los filtros
-        function applyFilters() {
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            const selectedMes = mesFilter.value;
-            const selectedAnio = anioFilter.value;
-            const rows = ventasTable.querySelectorAll('tr[data-search]');
-
-            rows.forEach(row => {
-                const searchText = row.getAttribute('data-search') || '';
-                const fecha = row.getAttribute('data-fecha') || '';
-
-                let showRow = true;
-
-                // Filtro de búsqueda
-                if (searchTerm !== '' && !searchText.includes(searchTerm)) {
-                    showRow = false;
-                }
-
-                // Filtro de mes
-                if (selectedMes !== '' && fecha) {
-                    const mesRow = fecha.split('-')[1];
-                    if (mesRow !== selectedMes) {
-                        showRow = false;
-                    }
-                }
-
-                // Filtro de año
-                if (selectedAnio !== '' && fecha) {
-                    const anioRow = fecha.split('-')[0];
-                    if (anioRow !== selectedAnio) {
-                        showRow = false;
-                    }
-                }
-
-                row.style.display = showRow ? '' : 'none';
-            });
-
-            updateTotalVentas();
-        }
-
-        // Función para exportar a Excel
-        function exportarExcel() {
-            // Obtener solo las filas visibles
-            const visibleRows = ventasTable.querySelectorAll('tr[data-search]:not([style*="display: none"])');
-
-            if (visibleRows.length === 0) {
-                alert('No hay datos para exportar');
-                return;
-            }
-
-            // Crear array de datos
-            const data = [];
-
-            // Agregar encabezados
-            data.push(['ID', 'Cliente', 'Fecha', 'Monto']);
-
-            // Agregar filas visibles
-            visibleRows.forEach(row => {
-                const cells = row.querySelectorAll('td');
-                if (cells.length > 0) {
-                    const rowData = [
-                        cells[0].textContent.trim(),
-                        cells[1].textContent.trim(),
-                        cells[2].textContent.trim(),
-                        cells[3].textContent.trim()
-                    ];
-                    data.push(rowData);
-                }
-            });
-
-            // Agregar fila de total
-            const totalText = totalVentasElement.textContent;
-            data.push(['', '', 'TOTAL:', totalText]);
-
-            // Crear libro de trabajo
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.aoa_to_sheet(data);
-
-            // Ajustar ancho de columnas
-            ws['!cols'] = [
-                { wch: 10 },  // ID
-                { wch: 30 },  // Cliente
-                { wch: 15 },  // Fecha
-                { wch: 20 }   // Monto
-            ];
-
-            // Agregar hoja al libro
-            XLSX.utils.book_append_sheet(wb, ws, 'Ventas');
-
-            // Generar nombre del archivo con fecha
-            const fecha = new Date();
-            const nombreMes = mesFilter.options[mesFilter.selectedIndex].text;
-            const anio = anioFilter.value || 'Todos';
-            let nombreArchivo = 'Informe_Ventas';
-
-            if (mesFilter.value) {
-                nombreArchivo += `_${nombreMes}`;
-            }
-            if (anioFilter.value) {
-                nombreArchivo += `_${anio}`;
-            }
-            nombreArchivo += `_${fecha.getDate()}-${fecha.getMonth() + 1}-${fecha.getFullYear()}.xlsx`;
-
-            // Descargar archivo
-            XLSX.writeFile(wb, nombreArchivo);
-        }
-
-        // Event listeners
-        if (searchInput) {
-            searchInput.addEventListener('input', applyFilters);
-        }
-
-        if (mesFilter) {
-            mesFilter.addEventListener('change', applyFilters);
-        }
-
-        if (anioFilter) {
-            anioFilter.addEventListener('change', applyFilters);
-        }
-
-        if (btnExportar) {
-            btnExportar.addEventListener('click', exportarExcel);
-        }
-
-        // Calcular el total inicial
-        updateTotalVentas();
-    });
-</script>
+<script src="{% static 'usuarios/js/gst_pedidos-ventas-calificaciones.js' %}"></script>
 {% endblock %}

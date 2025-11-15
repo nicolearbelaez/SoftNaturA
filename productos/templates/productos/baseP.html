@@ -1,3 +1,4 @@
+{% load static %}
 {% load humanize %}
 <!DOCTYPE html>
 <html lang="es">
@@ -7,17 +8,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mi sitio web</title>
-    {% load static %}
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
-    <link rel="stylesheet" href="{% static 'productos/css/estilos.css' %}?v={{ timestamp }}" />
-    {% block styles %}{% endblock %}
+
+    {% block styles %}
+    <link rel="stylesheet" href="{% static 'productos/css/estilos.css' %}">
+    {% endblock %}
 </head>
 
 <body>
     <div class="wrapper">
 
-        <!-- NAV GLOBAL: aparece en todas las páginas -->
+        <!-- NAV GLOBAL -->
         <nav class="navbar">
+
             <!-- Logo -->
             <a href="{% url 'productos:producto' %}">
                 <img class="logo" src="/media/uploads/products/LOGOREAL.png" alt="Logo Los Girasoles">
@@ -56,6 +60,7 @@
                 <div class="user-menu">
                     <span class="user-nombre">{{ user.nombre }}</span>
                     <i class="fa fa-user" id="userIcon"></i>
+
                     <div class="menu-desplegable" id="menuUsuario">
                         <a href="{% url 'usuarios:editar_perfil' %}">Editar perfil</a>
                         <a href="{% url 'usuarios:mis_pedidos' %}">Mis pedidos</a>
@@ -63,6 +68,7 @@
                         <a href="{% url 'usuarios:logout' %}">Cerrar sesión</a>
                     </div>
                 </div>
+
                 {% else %}
                 <a href="{% url 'usuarios:login' %}">Iniciar sesión</a>
                 {% endif %}
@@ -73,8 +79,10 @@
                         <i class="fas fa-shopping-cart"></i>
                         <span class="contador-carrito">{{ carrito_cantidad }}</span>
                     </a>
+
                     <div class="carrito-dropdown" id="carritoDropdown">
                         <h4>Tu carrito</h4>
+
                         <table>
                             <thead>
                                 <tr>
@@ -83,6 +91,7 @@
                                     <th>Cant.</th>
                                 </tr>
                             </thead>
+
                             <tbody>
                                 {% if request.session.carrito %}
                                 {% for key, value in request.session.carrito.items %}
@@ -91,6 +100,7 @@
                                     <td>${{ value.precio|floatformat:0|intcomma }}</td>
                                     <td>
                                         <div class="carrito-cantidad">
+
                                             <form action="{% url 'productos:restar' key %}" method="post">
                                                 {% csrf_token %}
                                                 <button type="submit" class="btn-cantidad">-</button>
@@ -102,6 +112,7 @@
                                                 {% csrf_token %}
                                                 <button type="submit" class="btn-cantidad">+</button>
                                             </form>
+
                                         </div>
                                     </td>
                                 </tr>
@@ -113,16 +124,21 @@
                                 {% endif %}
                             </tbody>
                         </table>
+
                         <hr>
-                        <p>Subtotal: ${{ carrito_subtotal |floatformat:0|intcomma }}</p>
-                        <p>IVA (19%): ${{ carrito_iva |floatformat:0|intcomma }}</p>
-                        <h4>Total: ${{ carrito_total |floatformat:0|intcomma }}</h4>
+
+                        <p>Subtotal: ${{ carrito_subtotal|floatformat:0|intcomma }}</p>
+                        <p>IVA (19%): ${{ carrito_iva|floatformat:0|intcomma }}</p>
+                        <h4>Total: ${{ carrito_total|floatformat:0|intcomma }}</h4>
+
                         <a href="{% url 'pagos:checkout' %}" class="btn-finalizar">Finalizar compra</a>
                         <a href="{% url 'productos:limpiar' %}" class="btn btn-danger">Limpiar carrito</a>
                     </div>
                 </div>
+
             </div>
         </nav>
+
         {% block content %}
         {% endblock %}
 
@@ -140,93 +156,43 @@
                 <p>Contáctenos: 3212334148</p>
             </div>
 
-            <!-- Solo agrega esta sección del logo -->
             <div class="footer-logo">
                 <img class="logo" src="/media/uploads/products/LOGOREAL.png" alt="Logo Los Girasoles">
             </div>
 
             <div class="footer-social">
                 <div class="redes-sociales">
-                    <a href="https://web.facebook.com/profile.php?id=100057407501877" target="_blank"
-                        aria-label="Facebook">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="https://www.tiktok.com/@tnlosgirasoles" target="_blank" aria-label="TikTok">
-                        <i class="fab fa-tiktok"></i>
-                    </a>
-                    <a href="https://www.instagram.com/tienda_naturista_los_girasoles" target="_blank"
-                        aria-label="Instagram">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="https://wa.me/573106194290" class="btn-whatsapp" target="_blank"
-                        title="¡Chatea con nosotros en WhatsApp!">
-                        <i class="fab fa-whatsapp"></i>
-                    </a>
+                    <a href="https://web.facebook.com/profile.php?id=100057407501877" target="_blank"><i
+                            class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.tiktok.com/@tnlosgirasoles" target="_blank"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://www.instagram.com/tienda_naturista_los_girasoles" target="_blank"><i
+                            class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/573106194290" class="btn-whatsapp" target="_blank"><i
+                            class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
 
             <div class="footer-menu">
                 <div class="footer-cont">
-                    <a class="links-uno" href="{% url 'productos:homesoft' %}">Inicio</a>
-                    <a class="links-uno" href="{% url 'usuarios:nosotros' %}">Nosotros</a>
-                    <a class="links-uno" href="{% url 'productos:producto' %}">Productos</a>
-                    <a class="links-uno" href="{% url 'usuarios:contacto' %}">Contacto</a>
+                    <a href="{% url 'productos:homesoft' %}" class="links-uno">Inicio</a>
+                    <a href="{% url 'usuarios:nosotros' %}" class="links-uno">Nosotros</a>
+                    <a href="{% url 'productos:producto' %}" class="links-uno">Productos</a>
+                    <a href="{% url 'usuarios:contacto' %}" class="links-uno">Contacto</a>
                 </div>
             </div>
 
             <div class="footer-copyright">
                 <h3>&copy; Página Tienda Naturista Los Girasoles 2025</h3>
             </div>
+
         </div>
     </footer>
+    {% endblock %}
 
+    {% block scripts %}
+    <script src="{% static 'productos/js/baseP.js' %}"></script>
+    {% endblock %}
 
 </body>
-
-{% endblock %}
-
-{% block scripts %} {% endblock %}
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Carrito
-        const iconoCarrito = document.getElementById("iconoCarrito");
-        const carritoDropdown = document.getElementById("carritoDropdown");
-
-        if (iconoCarrito && carritoDropdown) {
-            // Toggle manual
-            iconoCarrito.onclick = function (e) {
-                e.stopPropagation();
-                carritoDropdown.style.display = carritoDropdown.style.display === "block" ? "none" : "block";
-            };
-
-            // Cerrar al hacer click fuera
-            document.addEventListener("click", function (e) {
-                if (!iconoCarrito.contains(e.target) && !carritoDropdown.contains(e.target)) {
-                    carritoDropdown.style.display = "none";
-                }
-            });
-
-            // 👇 Mantenerlo abierto si viene de ?carrito=1
-            if (window.location.search.includes("carrito=1")) {
-                carritoDropdown.style.display = "block";
-            }
-        }
-
-        // MENÚ USUARIO
-        const userIcon = document.getElementById('userIcon');
-        const menuUsuario = document.getElementById('menuUsuario');
-        if (userIcon && menuUsuario) {
-            userIcon.onclick = function (e) {
-                e.stopPropagation();
-                menuUsuario.style.display = menuUsuario.style.display === 'block' ? 'none' : 'block';
-            };
-            document.addEventListener("click", function (e) {
-                if (!userIcon.contains(e.target) && !menuUsuario.contains(e.target)) {
-                    menuUsuario.style.display = 'none';
-                }
-            });
-        }
-    });
-</script>
 
 </html>

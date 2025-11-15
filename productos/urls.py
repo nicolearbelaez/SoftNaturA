@@ -26,6 +26,7 @@ urlpatterns = [
     path('homesoft/', views.homeSoft, name="homesoft"),
     path('devoluciones/', views.devoluciones, name='devoluciones'),
     path("producto/<int:pk>/", views.detalle_producto, name="detalle"),
+    path("chatbot/ask/", views.chatbot_ajax, name="chatbot_ajax"),
 
 
 

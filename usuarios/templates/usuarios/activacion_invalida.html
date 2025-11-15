@@ -1,12 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Enlace Inválido</title>
+    <link rel="stylesheet" href="{% static 'usuarios/css/verificacion_cuenta.css' %}" />
+
 </head>
 <body>
-    <h2>Enlace inválido</h2>
-    <p>El enlace no es válido o ya fue usado.</p>
+    <div class="container">
+        <div class="icon"></div>
+        
+        <h2>Enlace Inválido</h2>
+        
+        <div class="error-message">
+            <p>El enlace de activación no es válido o ya ha sido utilizado.</p>
+        </div>
+        
+        <div class="info-list">
+            <ul>
+                <li>El enlace puede haber expirado</li>
+                <li>Ya activaste tu cuenta anteriormente</li>
+                <li>El enlace fue modificado o está incompleto</li>
+            </ul>
+        </div>
+        
+        <p>Si necesitas ayuda, contáctanos o solicita un nuevo enlace de activación.</p>
+        
+        <div class="buttons">
+            <a href="{% url 'usuarios:login' %}" class="btn">Iniciar Sesión</a>
+        </div>
+    </div>
 </body>
 </html>

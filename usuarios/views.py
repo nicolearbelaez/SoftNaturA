@@ -3,8 +3,7 @@ import calendar
 import json
 import random
 import csv
-
-# Imports de Django core
+from openpyxl import Workbook
 from django.contrib import messages
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -46,16 +45,8 @@ def register(request):
 def nosotros(request):
     return render(request, 'usuarios/nosotros.html')
 
-def index(request):
-    return render(request,"usuarios/index.html")
-
-
-
 @admin_required
 def dashboard(request):
-    # -----------------------------
-    # PRODUCTOS MÁS VENDIDOS (solo pedidos pagados)
-    # -----------------------------
     prod_info = (
         Producto.objects.annotate(
             total_vendidos=Sum(
@@ -67,9 +58,6 @@ def dashboard(request):
         .order_by('-total_vendidos')           # Orden descendente
     )
 
-    # -----------------------------
-    # USUARIOS CON MÁS COMPRAS (solo pedidos pagados)
-    # -----------------------------
     usuarios_info = (
         Usuario.objects.annotate(
             pedidos_pagados=Count(
@@ -80,10 +68,7 @@ def dashboard(request):
         .filter(pedidos_pagados__gt=0)         # Solo usuarios que sí han comprado
         .order_by('-pedidos_pagados')          # Más compras primero
     )
-
-    # -----------------------------
-    # DEMÁS DATOS DEL DASHBOARD
-    # -----------------------------
+    
     total_ventas = Pedido.objects.filter(pago=True).aggregate(
         total=Sum('total')
     )['total'] or 0
@@ -121,7 +106,6 @@ def dashboard(request):
         "estado_info": estado_info,
     })
 
-
 @admin_required
 def gstUsuarios(request):
     usuarios = Usuario.objects.all().order_by('id')  # opcional: ordenados por id
@@ -135,6 +119,29 @@ def gstUsuarios(request):
         'page_obj': page_obj,
         'usuarios': page_obj.object_list  # lista de usuarios de la página actual
     })
+
+
+
+def exportar_usuarios_excel(request):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Usuarios"
+
+    # Encabezados
+    ws.append(["ID", "Nombre", "Email", "Rol", "Teléfono"])
+
+    # Datos
+    for u in Usuario.objects.all():
+        ws.append([u.id, u.nombre, u.email, u.rol, u.phone_number])
+
+    # Respuesta Http
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response['Content-Disposition'] = 'attachment; filename="usuarios.xlsx"'
+    wb.save(response)
+
+    return response
 
 
 
@@ -201,8 +208,6 @@ def login_view(request):
 
     return render(request, 'usuarios/login.html', {"form": form, "mensaje": mensaje})
 
-
-
 def logout_view(request):
     logout(request)
     if "carrito" in request.session:
@@ -225,7 +230,6 @@ def editar_perfil(request):
         form = EditarPerfilForm(instance=user)
 
     return render(request, 'usuarios/editar_perfil.html', {'form': form})
-
 
 @login_required(login_url='usuarios:login')
 def mis_pedidos(request):
@@ -252,12 +256,10 @@ def agregar_usuario(request):
         telefono = request.POST.get('phone_number')
         rol = request.POST.get('rol')
         password = request.POST.get('password')  # Asegúrate de tener un input para la contraseña
-
         # Validar si el email ya existe
         if Usuario.objects.filter(email=correo).exists():
             messages.error(request, 'Ya existe un usuario con ese correo.')
             return render(request, 'usuarios/gstUsuarios.html')
-
         # Crear usuario usando create_user para manejar contraseña
         Usuario.objects.create_user(
             email=correo,
@@ -272,7 +274,6 @@ def agregar_usuario(request):
         return redirect('usuarios:gstUsuarios')
 
     return render(request, 'usuarios/agregar.html')
-
 
 @admin_required
 def informe_calificaciones(request):
@@ -291,18 +292,25 @@ def informe_calificaciones(request):
     if hasta:
         calificaciones = calificaciones.filter(fecha_creacion__lte=hasta)
 
-    # Exportar a Excel
+    # Exportar a Excel (CSV)
     if request.GET.get('exportar') == 'excel':
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="calificaciones.csv"'
 
         writer = csv.writer(response)
-        writer.writerow(['Usuario', 'Puntuación', 'Comentario', 'Tipo de Servicio', 'Fecha'])
+        writer.writerow([
+            'Usuario',
+            'Puntuación Servicio',
+            'Puntuación Producto',
+            'Comentario',
+            'Fecha'
+        ])
 
         for c in calificaciones:
             writer.writerow([
-                c.usuario.username if c.usuario else 'Anónimo',
-                f"{c.puntuacion_servicio} / {c.puntuacion_productos}",
+                c.usuario.nombre if c.usuario else 'Anónimo',
+                c.puntuacion_servicio,
+                c.puntuacion_productos,
                 c.comentario,
                 c.fecha_creacion.strftime('%Y-%m-%d %H:%M')
             ])
@@ -480,9 +488,6 @@ def editar_usuario(request, pk):
 
 User = get_user_model()
 
-# ------------------------------
-# 1️⃣ Enviar el código de verificación
-# ------------------------------
 @csrf_exempt
 def enviar_codigo_verificacion(request):
     if request.method == 'POST':
@@ -558,10 +563,6 @@ Equipo de Unidos pensando en su salud
     
     return JsonResponse({'success': False, 'mensaje': 'Método no permitido'})
 
-# ------------------------------
-# 2️⃣ Verificar el código ingresado por el usuario
-# ------------------------------
-
 def verificar_codigo(request):
     if request.method == 'POST':
         try:
@@ -624,7 +625,6 @@ def verificar_codigo(request):
             })
 
     return JsonResponse({'success': False, 'mensaje': 'Método no permitido'})
-
 
 def login_admin(request):
     """
@@ -690,8 +690,6 @@ def login_admin(request):
 
     return render(request, 'usuarios/loginAdm.html')
 
-
-
 def detalle_pedido(request, pedido_id):
     try:
         pedido = get_object_or_404(Pedido, id=pedido_id)
@@ -742,7 +740,6 @@ def detalle_pedido(request, pedido_id):
             'message': f'Error: {str(e)}'
         }, status=500)
 
-
 @admin_required
 @require_http_methods(["POST"])
 def cambiar_estado_pedido(request, pedido_id):
@@ -783,8 +780,6 @@ def cambiar_estado_pedido(request, pedido_id):
             'message': f'Error: {str(e)}'
         }, status=500)
     
-
-
 # ====================== VISTAS DE DEVOLUCIONES (ADMIN) ======================
 @login_required
 def gst_devoluciones(request):
@@ -832,29 +827,61 @@ def gst_devoluciones(request):
 
 @login_required
 def aprobar_devolucion(request, devolucion_id):
-    """Aprobar una devolución"""
-    
-    # Verificar permisos
-    if not request.user.is_staff and not request.user.is_superuser:
-        messages.error(request, 'No tienes permisos para realizar esta acción')
-        return redirect('usuarios:dashboard')
-    
+    """Aprobación de devolución con comportamiento según el motivo."""
+
+    if not request.user.is_staff:
+        messages.error(request, "No tienes permisos.")
+        return redirect("usuarios:dashboard")
+
     try:
-        from django.utils import timezone
-        
         devolucion = Devolucion.objects.get(id=devolucion_id)
-        devolucion.estado = 'Aprobada'
+        producto = devolucion.producto
+        item = devolucion.pedido.items.get(producto=producto)
+
+        devolucion.estado = "Aprobada"
         devolucion.fecha_respuesta = timezone.now()
         devolucion.save()
-        
-        messages.success(request, f'✅ Devolución #{devolucion.id} aprobada exitosamente')
-    except Devolucion.DoesNotExist:
-        messages.error(request, '❌ Devolución no encontrada')
-    except Exception as e:
-        messages.error(request, f'❌ Error al aprobar: {str(e)}')
-    
-    return redirect('usuarios:gst_devoluciones')
 
+        # 1️⃣ PRODUCTO VENCIDO
+        if devolucion.motivo == "Fecha de vencimiento expirado":
+            if producto.stock >= 1:
+                producto.stock -= 1
+                producto.save()
+
+            nuevo_pedido = Pedido.objects.create(usuario=devolucion.usuario)
+            nuevo_pedido.items.create(
+                producto=producto,
+                cantidad=1,
+                precio_unitario=producto.precio
+            )
+
+        elif devolucion.motivo == "Producto dañado":
+            if producto.stock >= 1:
+                producto.stock -= 1
+                producto.save()
+
+            nuevo_pedido = Pedido.objects.create(usuario=devolucion.usuario)
+            nuevo_pedido.items.create(
+                producto=producto,
+                cantidad=1,
+                precio_unitario=producto.precio
+            )
+
+        elif devolucion.motivo == "Producto equivocado":
+            producto_correcto = item.producto_original  
+            nuevo_pedido = Pedido.objects.create(usuario=devolucion.usuario)
+            nuevo_pedido.items.create(
+                producto=producto_correcto,
+                cantidad=1,
+                precio_unitario=producto_correcto.precio
+            )
+
+        messages.success(request, f"Devolución #{devolucion_id} aprobada correctamente.")
+        return redirect("usuarios:gst_devoluciones")
+
+    except Exception as e:
+        messages.error(request, f"Error: {str(e)}")
+        return redirect("usuarios:gst_devoluciones")
 
 @login_required
 def rechazar_devolucion(request, devolucion_id):
@@ -880,10 +907,7 @@ def rechazar_devolucion(request, devolucion_id):
         messages.error(request, f'❌ Error al rechazar: {str(e)}')
     
     return redirect('usuarios:gst_devoluciones')
-# ====================== FIN VISTAS DEVOLUCIONES ======================
 
-
-# ====================== VISTA GUARDAR DIRECCIÓN - AGREGADA ======================
 @login_required(login_url='usuarios:login')
 def guardar_direccion(request):
     """Guarda la dirección de envío del usuario en la base de datos"""

@@ -1,12 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Cuenta Activada</title>
+    <link rel="stylesheet" href="{% static 'usuarios/css/verificacion_cuenta.css' %}" />
 </head>
 <body>
-    <h2>Cuenta activada correctamente ✅</h2>
-    <p>Ya puedes iniciar sesión: <a href="{% url 'usuarios:login' %}">Iniciar sesión</a></p>
+    <div class="container">
+        <div class="icon"></div>
+        
+        <h2>¡Cuenta Activada Correctamente!</h2>
+        
+        <div class="success-message">
+            <p>Tu cuenta ha sido verificada exitosamente. Ahora puedes disfrutar de todos los beneficios de nuestra plataforma.</p>
+        </div>
+        
+        <p>Inicia sesión para comenzar</p>
+        
+        <a href="{% url 'usuarios:login' %}" class="btn">Iniciar Sesión</a>
+    </div>
 </body>
 </html>

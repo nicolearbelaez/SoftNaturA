@@ -1,52 +1,11 @@
-{% extends 'productos/baseP.html' %} {% load static %} {% block content %}
-<style>
-    /* Banner superior */
-    .banner-nosotros {
-        height: 600px;
-        background-size: cover;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        text-align: center;
-        position: relative;
-        margin: 40px 0;
-        /* espacio entre banners */
-    }
+{% extends 'productos/baseP.html' %} 
+{% load static %} 
 
-    .banner-nosotros::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+{% block styles %}
+<link rel="stylesheet" href="{% static 'usuarios/css/panel-contacto-dashboard.css' %}">
+{% endblock %}
 
-    }
-
-    .banner-nosotros h1 {
-        font-size: 42px;
-        font-weight: bold;
-        z-index: 1;
-        color: #f1c84b;
-    }
-
-    /* Contenedor más estrecho */
-    .contenedor-nosotros {
-        max-width: 800px;
-        /* más angosto */
-        margin: 50px auto;
-        padding: 0 20px;
-        line-height: 1.9;
-        color: #444;
-        text-align: justify;
-    }
-
-    .contenedor-nosotros p {
-        font-size: 18px;
-        margin-bottom: 40px;
-    }
-</style>
+{% block content %}
 
 <!-- Banner principal -->
 <div class="banner-nosotros" style="

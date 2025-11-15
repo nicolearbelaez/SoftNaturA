@@ -1,4 +1,5 @@
 {% extends 'usuarios/baseU.html' %}
+{% load static %}
 {% block title %}Gestión de calificaciones{% endblock %}
 
 {% load humanize %}
@@ -417,7 +418,11 @@
 </style>
 {% endblock %}
 
+{% block page_id %}calificaciones{% endblock %}
+
 {% block content %}
+
+
 <h1>Lista de calificaciones</h1>
 
 <div class="container">
@@ -488,48 +493,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const searchInput = document.getElementById('searchInput');
-    const searchStats = document.getElementById('searchStats');
-    const tbody = document.querySelector('#calificacionesTable tbody');
-    const rows = tbody.querySelectorAll('tr[data-search-text]');
-    const totalRows = rows.length;
-
-    function actualizarEstadisticas() {
-      const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none').length;
-
-      if (searchInput.value.trim() === '') {
-        searchStats.textContent = `Mostrando ${totalRows} calificación${totalRows !== 1 ? 'es' : ''}`;
-      } else {
-        searchStats.textContent = `Encontradas ${visibleRows} de ${totalRows} calificación${totalRows !== 1 ? 'es' : ''}`;
-      }
-    }
-
-    if (searchInput) {
-      // Mostrar estadísticas iniciales
-      actualizarEstadisticas();
-
-      searchInput.addEventListener('input', function () {
-        const searchTerm = this.value.toLowerCase().trim();
-
-        rows.forEach(row => {
-          const searchText = row.dataset.searchText || '';
-
-          if (searchTerm === '' || searchText.includes(searchTerm)) {
-            row.style.display = '';
-          } else {
-            row.style.display = 'none';
-          }
-        });
-
-        actualizarEstadisticas();
-      });
-    }
-  });
-  document.getElementById("btnExportar").addEventListener("click", function () {
-    window.location.href = window.location.pathname + "?exportar=excel";
-  });
-
-</script>
+<script src="{% static 'usuarios/js/gst_pedidos-ventas-calificaciones.js' %}"></script>
 {% endblock %}

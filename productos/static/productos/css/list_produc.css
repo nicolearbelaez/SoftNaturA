@@ -1,0 +1,764 @@
+/* === Variables de Colores === */
+:root {
+    --primary-color: #f2c641;
+    --secondary-color: #f2c641;
+    --danger-color: #e74c3c;
+    --warning-color: #f29727;
+    --dark-color: #2c3e50;
+    --light-gray: #ecf0f1;
+    --border-color: #bdc3c7;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* === Estilos Generales === */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    color: var(--dark-color);
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+}
+
+/* === Buscador y Acciones Superiores === */
+.search-container {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    margin-bottom: 30px;
+}
+
+.acciones-superior {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    margin-left: 765px;
+}
+
+.btn-agregar,
+.btn-categorias,
+.btn-exportar {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-agregar {
+    background: var(--secondary-color);
+    color: #292929;
+}
+
+.btn-agregar:hover {
+    background: var(--warning-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.btn-categorias {
+    background: var(--primary-color);
+    color: #292929;
+}
+
+.btn-categorias:hover {
+    background: var(--warning-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.btn-exportar {
+    background: #f2c641;
+    color: #292929;
+}
+
+.btn-exportar:hover {
+    background: var(--warning-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.search-input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.search-stats {
+    margin-top: 10px;
+    color: #7f8c8d;
+    font-size: 14px;
+}
+
+/* === Lista de Categorías === */
+.category-list {
+    display: none;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    margin-bottom: 30px;
+}
+
+.category-list.active {
+    display: block;
+}
+
+.category-list h2 {
+    color: var(--dark-color);
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+.category-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: var(--light-gray);
+    border-radius: 6px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+.category-item:hover {
+    background: #dfe6e9;
+    transform: translateX(5px);
+}
+
+.category-item span {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.category-item .acciones {
+    display: flex;
+    gap: 10px;
+}
+
+.category-item .edit,
+.category-item .delete {
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+    text-decoration: none;
+}
+
+.category-item .edit {
+    background: var(--primary-color);
+}
+
+.category-item .edit:hover {
+    background: #2980b9;
+}
+
+.category-item .delete {
+    background: var(--danger-color);
+}
+
+.category-item .delete:hover {
+    background: #c0392b;
+}
+
+.btn-agregar-category {
+    padding: 12px 30px;
+    background: var(--warning-color);
+    color: #292929;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-agregar-category:hover {
+    background: #27ae60;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+/* === Modales === */
+.modal,
+.modalProduc {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    animation: fadeIn 0.3s ease;
+    overflow-y: auto;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-content,
+.modal-content-produc {
+    background-color: white;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+    animation: slideDown 0.3s ease;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-content-produc {
+    max-width: 600px;
+}
+
+/* Botón X para cerrar modal */
+.modal-content::before,
+.modal-content-produc::before {
+    content: "✕";
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    color: #95a5a6;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 300;
+    line-height: 1;
+    z-index: 10;
+}
+
+.modal-content::before:hover,
+.modal-content-produc::before:hover {
+    color: var(--danger-color);
+    transform: rotate(90deg);
+}
+
+.modal h2 {
+    color: var(--dark-color);
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    padding-right: 30px;
+}
+
+.modal form,
+.modalProduc form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.modal label,
+.modalProduc label {
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 5px;
+}
+
+.modal input,
+.modal select,
+.modalProduc input,
+.modalProduc select,
+.modalProduc textarea {
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.modal input:focus,
+.modal select:focus,
+.modalProduc input:focus,
+.modalProduc select:focus,
+.modalProduc textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.modalProduc textarea {
+    min-height: 80px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.modal .acciones,
+.modalProduc .acciones {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.btn-guardar,
+.btn-guardar-produc {
+    flex: 1;
+    padding: 12px;
+    background: var(--secondary-color);
+    color: #292929;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-guardar:hover,
+.btn-guardar-produc:hover {
+    background: var(--warning-color);
+    transform: translateY(-2px);
+}
+
+.btn-cancelar,
+.btn-cancelar-produc {
+    flex: 1;
+    padding: 12px;
+    background: #95a5a6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-cancelar:hover,
+.btn-cancelar-produc:hover {
+    background: #7f8c8d;
+    transform: translateY(-2px);
+}
+
+/* === Grid de Productos === */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.product-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+
+.card-header {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.card-header img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .card-header img {
+    transform: scale(1.1);
+}
+
+.estado {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #00000083;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.card-body {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-body h3 {
+    color: var(--dark-color);
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+}
+
+.card-body p {
+    color: #7f8c8d;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.fecha {
+    font-size: 13px;
+    color: #95a5a6;
+}
+
+.precio {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+    margin-top: auto;
+}
+
+.stock {
+    font-size: 14px;
+    font-weight: 600;
+    color: #292929;
+}
+
+.card-body .acciones {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-edit,
+.btn-more,
+.btn-more2 {
+    flex: 1;
+    padding: 6px 10px;
+    text-align: center;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.btn-edit {
+    background: var(--primary-color);
+    color: #292929;
+}
+
+.btn-edit:hover {
+    background: var(--warning-color);
+    transform: scale(1.05);
+}
+
+.btn-more {
+    background: var(--danger-color);
+}
+
+.btn-more:hover {
+    background: #c0392b;
+    transform: scale(1.05);
+}
+
+.btn-more2 {
+    background: gray;
+}
+
+.btn-more2:hover {
+    background: #27ae60;
+    transform: scale(1.05);
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    .acciones-superior {
+        flex-direction: column;
+    }
+
+    .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .modal-content,
+    .modal-content-produc {
+        width: 95%;
+        margin: 5% auto;
+        padding: 20px;
+        max-height: 85vh;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card-body .acciones {
+        flex-direction: column;
+    }
+
+    .btn-edit,
+    .btn-more,
+    .btn-more2 {
+        width: 100%;
+    }
+}
+
+/* === Utilidades === */
+.hidden {
+    display: none !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* === Animaciones adicionales === */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.loading {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+
+/* EDITAR PRODUCTO */
+.containerEditar {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 30px;
+    border-radius: 12px;
+    background-color: #ffffff;
+    box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+h2 {
+    text-align: center;
+    color: #28a745;
+    margin-bottom: 25px;
+    font-size: 26px;
+    font-weight: bold;
+}
+
+.form-groupEditar {
+    margin-bottom: 18px;
+}
+
+.form-groupEditar label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 6px;
+    color: #333;
+}
+
+.form-groupEditar input,
+.form-groupEditar select,
+.form-groupEditar textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.8px solid #28a745;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    background-color: #fdfdfd;
+}
+
+.form-groupEditar input:focus,
+.form-groupEditar select:focus,
+.form-groupEditar textarea:focus {
+    border-color: #218838;
+    box-shadow: 0px 0px 6px rgba(40, 167, 69, 0.3);
+    outline: none;
+    background-color: #fff;
+}
+
+.form-groupEditar .errorlist {
+    color: #dc3545;
+    font-size: 13px;
+    margin-top: 5px;
+    list-style: none;
+    padding: 0;
+}
+
+.btn-container-Editar {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Botón Guardar */
+.btn-guardar-Editar {
+    flex: 1;
+    height: 45px;
+    display: flex;
+    /* Flexbox para centrar texto */
+    align-items: center;
+    /* Centrado vertical */
+    justify-content: center;
+    /* Centrado horizontal */
+    padding: 0 12px;
+    /* Padding solo lateral */
+    font-size: 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    background-color: #f2c641;
+    color: #292929;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-guardar-Editar:hover {
+    background-color: #f29727;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Botón Volver */
+.btn-guardar-volver-Editar {
+    flex: 1;
+    height: 45px;
+    display: flex;
+    /* Flexbox para centrar texto */
+    align-items: center;
+    /* Centrado vertical */
+    justify-content: center;
+    /* Centrado horizontal */
+    padding: 0 12px;
+    /* Padding solo lateral */
+    font-size: 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    background-color: #d32f2f;
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-guardar-volver-Editar:hover {
+    background-color: #d32f2f;
+    transform: scale(1.05);
+}
+
+/* Animación al cargar */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive para celular */
+@media (max-width: 600px) {
+    .containerEditar {
+        max-width: 95%;
+        padding: 20px;
+    }
+
+    .btn-container-Editar {
+        flex-direction: column;
+    }
+
+    .btn-guardar-Editar,
+    .btn-volver-Editar {
+        width: 100%;
+    }
+}
+
+.btn-volver-Editar {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 10px 20px;
+    background-color: #F27405;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.btn-volver-Editar:hover {
+    background-color: #f2c641;
+}

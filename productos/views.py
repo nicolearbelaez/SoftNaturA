@@ -6,6 +6,10 @@ from django.contrib import messages
 import openpyxl
 from django.utils import timezone
 from datetime import timedelta
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import os
+import google.generativeai as genai
 
 from .forms import registerProduc, Carrito, ProductoForm, CategoriaForm
 from .models import Producto, Category, Servicio, Calificacion, CarritoItem
@@ -480,9 +484,9 @@ def devoluciones(request):
         producto_id = request.POST.get('producto_id')
         pedido_id = request.POST.get('pedido_id')
         motivo = request.POST.get('motivo')
-        foto1 = request.POST.get('foto1', '')
-        foto2 = request.POST.get('foto2', '')
-        foto3 = request.POST.get('foto3', '')
+        foto1 = request.FILES.get('foto1')
+        foto2 = request.FILES.get('foto2')
+        foto3 = request.FILES.get('foto3')
         
         if not producto_id or not pedido_id or not motivo:
             messages.error(request, 'Por favor completa todos los campos obligatorios')
@@ -538,6 +542,47 @@ def devoluciones(request):
     }
     
     return render(request, 'productos/devoluciones.html', context)
+
+# Configurar la API Key de Gemini
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+@csrf_exempt
+def chatbot_ajax(request):
+    if request.method == "POST":
+        pregunta = request.POST.get("pregunta", "").strip()
+        if not pregunta:
+            return JsonResponse({"respuesta": "No se recibió ninguna pregunta."})
+
+        # Prompt restrictivo para Gemini
+        prompt = (
+            "Eres un chatbot experto únicamente en productos naturistas, suplementos y hierbas. "
+            "Si la pregunta del usuario NO está relacionada con productos naturistas, responde: "
+            "'Lo siento, solo puedo responder preguntas sobre productos naturistas.' "
+            f"Usuario pregunta: {pregunta}. Responde de forma amigable y clara."
+        )
+
+        try:
+            # Llamada a Gemini
+            model = genai.GenerativeModel("models/gemini-pro-latest")
+            respuesta = model.generate_content(prompt).text.strip()
+
+            # Fallback si Gemini no devuelve nada
+            if not respuesta:
+                respuesta = (
+                    "Lo siento, solo puedo responder preguntas sobre productos naturistas. "
+                    "Por ejemplo, puedes preguntarme sobre hierbas, vitaminas o suplementos naturales."
+                )
+
+        except Exception:
+            respuesta = (
+                "Ocurrió un error al procesar tu pregunta. "
+                "Recuerda que solo puedo responder sobre productos naturistas, como hierbas, vitaminas o suplementos."
+            )
+
+        return JsonResponse({"respuesta": respuesta})
+
+    return JsonResponse({"error": "Método no permitido"}, status=405)
+
 
 
 def detalle_producto(request, pk):

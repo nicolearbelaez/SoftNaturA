@@ -1,212 +1,30 @@
 {% extends 'usuarios/baseU.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'productos/css/list_produc.css' %}" />
+{% endblock %}
+
 {% block content %}
-<style>
-    .container {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 30px;
-    border-radius: 12px;
-    background-color: #ffffff;
-    box-shadow: 0px 6px 20px rgba(0,0,0,0.1);
-    animation: fadeIn 0.5s ease-in-out;
-}
-
-h2 {
-    text-align: center;
-    color: #28a745;
-    margin-bottom: 25px;
-    font-size: 26px;
-    font-weight: bold;
-}
-
-.form-group {
-    margin-bottom: 18px;
-}
-
-.form-group label {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 6px;
-    color: #333;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1.8px solid #28a745;
-    border-radius: 8px;
-    font-size: 15px;
-    transition: all 0.3s ease;
-    box-sizing: border-box;
-    background-color: #fdfdfd;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    border-color: #218838;
-    box-shadow: 0px 0px 6px rgba(40,167,69,0.3);
-    outline: none;
-    background-color: #fff;
-}
-
-.form-group .errorlist {
-    color: #dc3545;
-    font-size: 13px;
-    margin-top: 5px;
-    list-style: none;
-    padding: 0;
-}
-
-.btn-container {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-/* Botón Guardar */
-.btn-guardar {
-    flex: 1;
-    height: 45px;
-    display: flex;               /* Flexbox para centrar texto */
-    align-items: center;         /* Centrado vertical */
-    justify-content: center;     /* Centrado horizontal */
-    padding: 0 12px;             /* Padding solo lateral */
-    font-size: 15px;
-    border-radius: 8px;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-    background-color: #8aa64e;   
-    color: white;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.btn-guardar:hover {
-    background-color: #f2c641;   
-    transform: scale(1.05);
-}
-
-/* Botón Volver */
-.btn-volver {
-    flex: 1;
-    height: 45px;
-    display: flex;              
-    align-items: center;         
-    justify-content: center;     
-    padding: 0 12px;             
-    font-size: 15px;
-    border-radius: 8px;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-    background-color: #f44336;   
-    color: white;
-    text-decoration: none;       
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    margin-top: 10px;
-}
-
-.btn-volver:hover {
-    background-color: #d32f2f;   
-    transform: scale(1.05);
-}
-
-/* Animación al cargar */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Responsive para celular */
-@media (max-width: 600px) {
-    .container {
-        max-width: 95%;
-        padding: 20px;
-    }
-
-    .btn-container {
-        flex-direction: column;
-    }
-
-    .btn-guardar,
-    .btn-volver {
-        width: 100%;
-    }
-}
-.btn-volverp {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      padding: 10px 20px;
-      background-color: #F27405;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: bold;
-      transition: background-color 0.3s ease;
-    }
-
-    .btn-volverp:hover {
-      background-color: #f2c641;
-    }
-</style>
-
-<div class="container">
+<div class="containerEditar">
     <h2>Editar Producto</h2>
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-
-        <div class="form-group">
-            {{ form.nombProduc.label_tag }}
-            {{ form.nombProduc }}
-            {{ form.nombProduc.errors }}
-        </div>
-
-        <div class="form-group">
-            {{ form.descripcion.label_tag }}
-            {{ form.descripcion }}
-            {{ form.descripcion.errors }}
-        </div>
-
-        <div class="form-group">
-            {{ form.precio.label_tag }}
-            {{ form.precio }}
-            {{ form.precio.errors }}
-        </div>
-
-        <div class="form-group">
-            {{ form.Categoria.label_tag }}
-            {{ form.Categoria }}
-            {{ form.Categoria.errors }}
-        </div>
-
-        <div class="form-group">
-            {{ form.stock.label_tag }}
-            {{ form.stock }}
-            {{ form.stock.errors }}
-        </div>
-
-        <div class="form-group">
-            {{ form.fecha_caducidad.label_tag }}
-            {{ form.fecha_caducidad }}
-            {{ form.fecha_caducidad.errors }}
-        </div>
-
-        <div class="form-group">
-            {{ form.imgProduc.label_tag }}
-            {{ form.imgProduc }}
-            {{ form.imgProduc.errors }}
-        </div>
-
-        <div class="btn-container">
-            <button type="submit" class="btn-guardar">Guardar Cambios</button>
-            <a href="{% url 'productos:list_product' %}" class="btn-volver"> Cancelar</a>
+        <div class="form-groupEditar">{{ form.nombProduc.label_tag }}{{ form.nombProduc }}{{ form.nombProduc.errors }}</div>
+        <div class="form-groupEditar">{{ form.descripcion.label_tag }}{{ form.descripcion }}{{ form.descripcion.errors }}</div>
+        <div class="form-groupEditar">{{ form.precio.label_tag }}{{ form.precio }}{{ form.precio.errors }}</div>
+        <div class="form-groupEditar">{{ form.Categoria.label_tag }}{{ form.Categoria }}{{ form.Categoria.errors }}</div>
+        <div class="form-groupEditar">{{ form.stock.label_tag }}{{ form.stock }}{{ form.stock.errors }}</div>
+        <div class="form-groupEditar">{{ form.fecha_caducidad.label_tag }}{{ form.fecha_caducidad }}{{ form.fecha_caducidad.errors }}</div>
+        <div class="form-groupEditar">{{ form.imgProduc.label_tag }}{{ form.imgProduc }}{{ form.imgProduc.errors }}</div>
+        <div class="btn-container-Editar">
+            <button type="submit" class="btn-guardar-Editar">Guardar Cambios</button>
+            <a href="{% url 'productos:list_product' %}" class="btn-guardar-volver-Editar"> Cancelar</a>
         </div>
     </form>
 </div>
-
 {% endblock %}
+
+
+
+

@@ -18,12 +18,12 @@ urlpatterns = [
 
     # Páginas informativas
     path('contacto/', views.contacto, name="contacto"),
-    path('index/', views.index, name="index"),
     path('nosotros/', views.nosotros, name="nosotros"),
 
     # Panel y gestión
     path('dashboard/', views.dashboard, name="dashboard"),
     path('gstUsuarios/', views.gstUsuarios, name="gstUsuarios"),
+    path('exportar_usuarios_excel/', views.exportar_usuarios_excel, name="exportar_usuarios_excel"),
     path('', views.gstUsuarios, name='gstUsuarios'),
 
     # Usuarios
