@@ -24,7 +24,7 @@
 
             <!-- Logo -->
             <a href="{% url 'productos:producto' %}">
-                <img class="logo" src="/media/uploads/products/LOGOREAL.png" alt="Logo Los Girasoles">
+                <img class="logo" src="{% static 'productos/img/LOGOREAL.png' %}">
             </a>
 
             <!-- Buscador -->
@@ -96,7 +96,7 @@
                                 {% if request.session.carrito %}
                                 {% for key, value in request.session.carrito.items %}
                                 <tr>
-                                    <td><img src="{{ value.imgProduc }}" width="50"></td>
+                                    <td><img src="{{ value.imgProduc }}" width="50" alt="{{ value.nombProduc }}"></td>
                                     <td>${{ value.precio|floatformat:0|intcomma }}</td>
                                     <td>
                                         <div class="carrito-cantidad">
@@ -157,7 +157,7 @@
             </div>
 
             <div class="footer-logo">
-                <img class="logo" src="/media/uploads/products/LOGOREAL.png" alt="Logo Los Girasoles">
+                <img class="logo" src="{% static 'productos/img/LOGOREAL.png' %}">
             </div>
 
             <div class="footer-social">
@@ -191,6 +191,7 @@
 
     {% block scripts %}
     <script src="{% static 'productos/js/baseP.js' %}"></script>
+    <script src="{% static 'usuarios/js/auto_logout.js' %}"></script>
     {% endblock %}
 
 </body>

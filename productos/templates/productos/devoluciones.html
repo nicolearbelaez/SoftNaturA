@@ -11,10 +11,10 @@
 
     <!-- TABS -->
     <div class="tabs">
-        <button class="tab-btn active" onclick="cambiarTab('lista')">
+        <button class="tab-btn active" onclick="cambiarTab('lista', event)">
             <i class="fa fa-list"></i> Mis Devoluciones
         </button>
-        <button class="tab-btn" onclick="cambiarTab('nueva')">
+        <button class="tab-btn" onclick="cambiarTab('nueva', event)">
             <i class="fa fa-plus-circle"></i> Solicitar Devolución
         </button>
     </div>
@@ -148,5 +148,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{% static '/productos/js/devoluciones.js' %}"></script>
+<script src="{% static 'productos/js/devoluciones.js' %}"></script>
 {% endblock %}

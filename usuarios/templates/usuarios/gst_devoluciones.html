@@ -8,7 +8,6 @@
 
 {% block content %}
 
-
 <div class="contenedor-admin-devoluciones">
     <h2>
         Gestión de Devoluciones
@@ -55,7 +54,8 @@
             </thead>
             <tbody>
                 {% for devolucion in devoluciones %}
-                <tr>
+                <!-- 🟢 ID agregado para eliminar la fila con AJAX -->
+                <tr id="devolucion-{{ devolucion.id }}">
                     <td><strong>#{{ devolucion.id }}</strong></td>
                     <td>{{ devolucion.usuario.nombre }}</td>
                     <td>{{ devolucion.producto.nombProduc }}</td>
@@ -67,26 +67,22 @@
                     </td>
                     <td>
                         <div class="botones-accion">
-                            <!-- ✅ Corrección: comillas alrededor del ID -->
+
+                            <!-- Ver detalles -->
                             <button class="btn-ver" type="button" onclick="verDetalles('{{ devolucion.id }}')">
                                 <i class="fa fa-eye"></i> Ver
                             </button>
 
                             {% if devolucion.estado == 'Pendiente' %}
-                            <form method="POST" action="{% url 'usuarios:aprobar_devolucion' devolucion.id %}"
-                                style="display: inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn-aprobar">
-                                    <i class="fa fa-check"></i> Aprobar
-                                </button>
-                            </form>
-                            <form method="POST" action="{% url 'usuarios:rechazar_devolucion' devolucion.id %}"
-                                style="display: inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn-rechazar">
-                                    <i class="fa fa-times"></i> Rechazar
-                                </button>
-                            </form>
+                            <!-- 🟢 Botón AJAX de APROBAR -->
+                            <button type="button" class="btn-aprobar" data-action="aprobar" data-id="{{ devolucion.id }}">
+                                <i class="fa fa-check"></i> Aprobar
+                            </button>
+
+                            <!-- 🟢 Botón AJAX de RECHAZAR -->
+                            <button type="button" class="btn-rechazar" data-action="rechazar" data-id="{{ devolucion.id }}">
+                                <i class="fa fa-times"></i> Rechazar
+                            </button>
                             {% endif %}
                         </div>
                     </td>
@@ -126,8 +122,9 @@
 <script id="datosJson" type="application/json">
     {{ devoluciones_json|safe }}
 </script>
+
 {% endblock %}
 
 {% block scripts %}
-<script src="{% static '/usuarios/js/devoluciones-usuarios.js' %}"></script>
+<script src="{% static 'usuarios/js/devoluciones-usuarios.js' %}"></script>
 {% endblock %}

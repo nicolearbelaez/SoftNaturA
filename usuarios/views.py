@@ -19,25 +19,19 @@ from django.utils.http import urlsafe_base64_decode
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
-
 # Imports de terceros
 import openpyxl
 from openpyxl.utils import get_column_letter
-
 # Imports de la aplicación productos
 from productos.forms import CategoriaForm
 from productos.models import Calificacion, CarritoItem, Category, Producto
-
 # Imports de la aplicación actual (usuarios)
 from .decorators import admin_required
 from .forms import EditarPerfilForm, LoginForm, MensajeForm, UsuarioCreationForm
-from .models import Mensaje, Pedido, Usuario, Devolucion, Direccion
+from .models import Mensaje, Pedido, Usuario, Devolucion, Direccion, HistorialDevolucion
 from .utils import enviar_email_activacion
 from django.core.mail import send_mail
 from django.conf import settings
-
-
-# Create your views here.
 
 def register(request):
     return render(request, 'usuarios/register.html')
@@ -76,7 +70,6 @@ def dashboard(request):
     total_pedidos = Pedido.objects.filter(pago=True).count()
     total_productos = Producto.objects.count()
     total_usuarios = Usuario.objects.count()
-
     # Ventas por mes
     ventas_info = Pedido.objects.filter(pago=True).annotate(
         mes=TruncMonth('fecha_creacion')
@@ -162,6 +155,10 @@ def register_view(request):
 
 def login_view(request):
     mensaje = ""
+
+    if request.GET.get("inactividad") == "1":
+        messages.error(request, "Tu sesión fue cerrada por inactividad.")
+
     if request.method == "POST":
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -210,9 +207,13 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    if "carrito" in request.session:
-        del request.session["carrito"]
+    request.session.pop("carrito", None)
+
+    if request.GET.get("inactividad") == "1":
+        return redirect("/usuarios/login/?inactividad=1")
+
     return redirect("usuarios:login")
+
 
 @login_required(login_url='usuarios:login')
 def editar_perfil(request):
@@ -809,6 +810,8 @@ def gst_devoluciones(request):
             'usuario_email': dev.usuario.email,
             'producto_nombre': dev.producto.nombProduc,
             'pedido_id': dev.pedido.id,
+            'item_id': dev.item.id if dev.item else None,
+            'unidad': dev.unidad,
             'fecha': dev.fecha_solicitud.strftime('%d/%m/%Y %H:%M'),
             'motivo': dev.motivo,
             'estado': dev.estado,
@@ -827,86 +830,109 @@ def gst_devoluciones(request):
 
 @login_required
 def aprobar_devolucion(request, devolucion_id):
-    """Aprobación de devolución con comportamiento según el motivo."""
-
     if not request.user.is_staff:
-        messages.error(request, "No tienes permisos.")
-        return redirect("usuarios:dashboard")
+        return JsonResponse({'success': False, 'error': "No tienes permisos."}, status=403)
 
     try:
-        devolucion = Devolucion.objects.get(id=devolucion_id)
+        devolucion = Devolucion.objects.select_related('pedido', 'producto', 'item').get(id=devolucion_id)
         producto = devolucion.producto
-        item = devolucion.pedido.items.get(producto=producto)
+        item = devolucion.item  # Obtenemos el PedidoItem asociado
 
+        if not item:
+            return JsonResponse({'success': False, 'error': "No se encontró el item asociado a la devolución"}, status=400)
+
+        # Marcar la devolución como aprobada
         devolucion.estado = "Aprobada"
         devolucion.fecha_respuesta = timezone.now()
         devolucion.save()
 
-        # 1️⃣ PRODUCTO VENCIDO
-        if devolucion.motivo == "Fecha de vencimiento expirado":
-            if producto.stock >= 1:
-                producto.stock -= 1
-                producto.save()
+        # Registrar historial
+        HistorialDevolucion.objects.create(
+            devolucion=devolucion,
+            estado='Aprobada',
+            usuario_admin=request.user,
+            comentario=f"Aprobada. Motivo: {devolucion.motivo}"
+        )
 
-            nuevo_pedido = Pedido.objects.create(usuario=devolucion.usuario)
+        # Reducir stock solo si hay disponible
+        if producto.stock >= 1:
+            producto.stock -= 1
+            producto.save()
+
+        # Crear un nuevo pedido/reemplazo solo con la unidad específica
+        nuevo_pedido = Pedido.objects.create(usuario=devolucion.usuario)
+
+        # Determinar qué producto se debe enviar según el motivo
+        if devolucion.motivo in ["Fecha de vencimiento expirado", "Producto dañado"]:
+            # Se reemplaza por el mismo producto
             nuevo_pedido.items.create(
                 producto=producto,
                 cantidad=1,
-                precio_unitario=producto.precio
-            )
-
-        elif devolucion.motivo == "Producto dañado":
-            if producto.stock >= 1:
-                producto.stock -= 1
-                producto.save()
-
-            nuevo_pedido = Pedido.objects.create(usuario=devolucion.usuario)
-            nuevo_pedido.items.create(
-                producto=producto,
-                cantidad=1,
-                precio_unitario=producto.precio
+                precio_unitario=item.precio_unitario
             )
 
         elif devolucion.motivo == "Producto equivocado":
-            producto_correcto = item.producto_original  
-            nuevo_pedido = Pedido.objects.create(usuario=devolucion.usuario)
+            # En caso de producto equivocado, enviamos el producto correcto
+            producto_correcto = item.producto  # esto asume que item.producto es el correcto
             nuevo_pedido.items.create(
                 producto=producto_correcto,
                 cantidad=1,
                 precio_unitario=producto_correcto.precio
             )
 
-        messages.success(request, f"Devolución #{devolucion_id} aprobada correctamente.")
-        return redirect("usuarios:gst_devoluciones")
+        # Respuesta AJAX final
+        return JsonResponse({
+            'success': True,
+            'id': devolucion_id,
+            'message': f"Devolución #{devolucion_id} aprobada correctamente."
+        })
 
+    except Devolucion.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Devolución no encontrada'}, status=404)
     except Exception as e:
-        messages.error(request, f"Error: {str(e)}")
-        return redirect("usuarios:gst_devoluciones")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 @login_required
 def rechazar_devolucion(request, devolucion_id):
-    """Rechazar una devolución"""
-    
-    # Verificar permisos
     if not request.user.is_staff and not request.user.is_superuser:
-        messages.error(request, 'No tienes permisos para realizar esta acción')
-        return redirect('usuarios:dashboard')
-    
+        return JsonResponse({'success': False, 'error': "No tienes permisos."}, status=403)
+
     try:
-        from django.utils import timezone
-        
         devolucion = Devolucion.objects.get(id=devolucion_id)
         devolucion.estado = 'Rechazada'
         devolucion.fecha_respuesta = timezone.now()
         devolucion.save()
-        
-        messages.warning(request, f'⚠️ Devolución #{devolucion.id} rechazada')
+
+        HistorialDevolucion.objects.create(
+            devolucion=devolucion,
+            estado='Rechazada',
+            usuario_admin=request.user,
+            comentario='Rechazada por admin'
+        )
+
+        return JsonResponse({
+            'success': True,
+            'id': devolucion_id,
+            'message': f"Devolución #{devolucion_id} rechazada"
+        })
+
     except Devolucion.DoesNotExist:
-        messages.error(request, '❌ Devolución no encontrada')
+        return JsonResponse({'success': False, 'error': 'Devolución no encontrada'}, status=404)
     except Exception as e:
-        messages.error(request, f'❌ Error al rechazar: {str(e)}')
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
     
-    return redirect('usuarios:gst_devoluciones')
+def historial_devoluciones(request):
+    """Vista para mostrar el historial de devoluciones (solo Aprobadas o Rechazadas)."""
+    if not request.user.is_staff and not request.user.is_superuser:
+        messages.error(request, "No tienes permisos para acceder aquí")
+        return redirect("usuarios:dashboard")
+    
+    devoluciones = Devolucion.objects.filter(estado__in=['Aprobada', 'Rechazada']).prefetch_related('historial').order_by('-fecha_solicitud')
+    
+    context = {
+        'devoluciones': devoluciones
+    }
+    return render(request, 'usuarios/historial_devoluciones.html', context)
 
 @login_required(login_url='usuarios:login')
 def guardar_direccion(request):

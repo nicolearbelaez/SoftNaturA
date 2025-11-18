@@ -54,6 +54,7 @@ urlpatterns = [
 
     # ====================== URLS DE DEVOLUCIONES (ADMIN) - AGREGADAS ======================
     path('gst-devoluciones/', views.gst_devoluciones, name='gst_devoluciones'),
+    path('historial-devoluciones/', views.historial_devoluciones, name='historial_devoluciones'),
     path('aprobar-devolucion/<int:devolucion_id>/', views.aprobar_devolucion, name='aprobar_devolucion'),
     path('rechazar-devolucion/<int:devolucion_id>/', views.rechazar_devolucion, name='rechazar_devolucion'),
     # ====================== FIN URLS DEVOLUCIONES ======================
@@ -93,7 +94,3 @@ urlpatterns = [
         name='password_reset_complete'
     ),
 ]
-
-if settings.DEBUG:
-    from django.conf.urls.static import static
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

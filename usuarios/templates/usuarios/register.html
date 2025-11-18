@@ -7,12 +7,11 @@
     <title>Registro</title>
     <link rel="stylesheet" href="{% static 'usuarios/css/loginAdm-login-register.css' %}" />
 </head>
-</head>
-<body data-page="register"></body>
-<body>
+<body data-page="register">
     <a href="{% url 'productos:producto' %}" class="btn-volver">← Volver</a>
     <div class="contenedor-pagina">
         <header class="header-registro"></header>
+        <img src="{% static 'usuarios/img/registrarse.jpeg' %}">
         <div class="form-contenedor">
             <form method="post" onsubmit="return validarRegistro()">
                 <h2 class="txt-form">Formulario Registro</h2>
@@ -46,7 +45,7 @@
         </div>
     </div>
 
-<script src="{% static '/usuarios/js/main.js' %}"></script>
+<script src="{% static 'usuarios/js/main.js' %}"></script>
 </body>
 
 </html>

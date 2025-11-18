@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import date
+from cloudinary.models import CloudinaryField
 
 # Create your models here.
 class Category(models.Model):
@@ -16,7 +17,7 @@ class Producto(models.Model):
     descripcion = models.CharField(max_length=300)
     Categoria = models.ForeignKey(Category, on_delete=models.CASCADE, default=1)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
-    imgProduc = models.ImageField(upload_to='uploads/products/')
+    imgProduc = CloudinaryField('image')
     stock = models.IntegerField(default=0)  # ✅ Nuevo campo
     estado = models.BooleanField(default=True)  # True = Activo, False = Inactivo
     fecha_caducidad = models.DateField(null=True, blank=True)  # ⬅️ Campo de fecha de vencimiento

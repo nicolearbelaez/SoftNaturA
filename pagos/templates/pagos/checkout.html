@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - Bold</title>
-    <link rel="stylesheet" href="{% static 'static/css/checkout.css' %}?v={{ timestamp }}" />
+    <link rel="stylesheet" href="{% static 'pagos/css/checkout.css' %}" />
     <!-- Script de Bold -->
     <script src="https://checkout.bold.co/library/boldPaymentButton.js"></script>
 </head>
@@ -176,15 +176,6 @@
                         data-integrity-signature="{{ integrity_hash }}" data-redirection-url="{{ redirection_url }}"
                         data-description="Compra tienda naturista" data-tax="vat-19"></script>
                 </form>
-
-                <!-- DEBUG -->
-                <div class="debug-section">
-                    <p><strong>DEBUG:</strong></p>
-                    <p>API Key: {{ bold_api_key }}</p>
-                    <p>Order ID: {{ order_id }}</p>
-                    <p>Amount: {{ amount }}</p>
-                    <p>Hash: {{ integrity_hash }}</p>
-                </div>
             </div>
         </div>
     </div>

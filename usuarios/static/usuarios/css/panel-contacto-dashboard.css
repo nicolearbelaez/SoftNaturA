@@ -1024,3 +1024,29 @@ h1 {
     left: 10px;
   }
 }
+
+/* ----------------------- Dropdown sidebar  -------------- */
+.sidebar-item-dropdown .dropdown-btn {
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    width: 100%;
+    text-align: left;
+    padding: 10px 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-item-dropdown .dropdown-container {
+    display: none;
+    flex-direction: column;
+    padding-left: 20px;
+}
+
+.sidebar-item-dropdown .dropdown-container a {
+    padding: 5px 0;
+    font-size: 0.9rem;
+}

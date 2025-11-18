@@ -1,152 +1,205 @@
+/*******************************************
+ *  GESTIÓN DE DEVOLUCIONES (ADMIN + AJAX)
+ *******************************************/
 const page = document.querySelector("[data-page='devoluciones']");
 
-if (page) {
-    console.log("JS cargado para gestión de devoluciones");
-    var devolucionesData = [];
+// CSRF desde <meta>
+const CSRF_TOKEN = document.querySelector("meta[name='csrf-token']")?.content || "";
 
+if (page) {
+    console.log("JS cargado para gestión de devoluciones (AJAX)");
+
+    let devolucionesData = [];
+
+    // Cargar JSON
     try {
-        devolucionesData = JSON.parse(document.getElementById('datosJson').textContent || '[]');
+        devolucionesData = JSON.parse(document.getElementById("datosJson")?.textContent || "[]");
     } catch (e) {
-        console.error("Error al parsear devoluciones_json:", e);
+        console.error("Error al procesar datos JSON:", e);
     }
 
-    function verDetalles(id) {
-        id = parseInt(id); // ✅ asegura que sea número
-        var devolucion = devolucionesData.find(function (d) { return d.id === id; });
-        if (!devolucion) return;
+    /*****************************
+     *  MOSTRAR DETALLES EN MODAL
+     *****************************/
+    window.verDetalles = function (id) {
+        id = parseInt(id);
+        const d = devolucionesData.find(x => x.id === id);
+        if (!d) return;
 
-        var fotosHTML = '';
-        if (devolucion.fotos && devolucion.fotos.length > 0) {
-            fotosHTML = '<div class="galeria-fotos">';
-            for (var i = 0; i < devolucion.fotos.length; i++) {
-                var foto = devolucion.fotos[i];
-                fotosHTML += '<div class="foto-item-modal" onclick="verImagenGrande(\'' + foto + '\')">';
-                fotosHTML += '<img src="' + foto + '" alt="Foto del producto">';
-                fotosHTML += '</div>';
-            }
-            fotosHTML += '</div>';
+        // ---------------- FOTOS ----------------
+        let fotosHTML = "";
+        if (d.fotos?.length > 0) {
+            fotosHTML = `<div class="galeria-fotos">`;
+            d.fotos.forEach(foto => {
+                fotosHTML += `
+                    <div class="foto-item-modal" data-img="${foto}">
+                        <img src="${foto}">
+                    </div>`;
+            });
+            fotosHTML += `</div>`;
         } else {
-            fotosHTML = '<div class="sin-fotos"><i class="fa fa-image"></i><p>No se adjuntaron fotos</p></div>';
+            fotosHTML = `
+                <div class="sin-fotos">
+                    <i class="fa fa-image"></i>
+                    <p>No se adjuntaron fotos</p>
+                </div>`;
         }
 
-        var accionesHTML = '';
-        if (devolucion.estado === 'Pendiente') {
-            accionesHTML = '<div class="acciones-modal">';
-            accionesHTML += '<form method="POST" action="/usuarios/aprobar-devolucion/' + devolucion.id + '/" style="display: inline;">';
-            accionesHTML += '<input type="hidden" name="csrfmiddlewaretoken" value="' + getCookie('csrftoken') + '">';
-            accionesHTML += '<button type="submit" class="btn-aprobar" style="padding: 12px 24px; font-size: 1rem;">';
-            accionesHTML += '<i class="fa fa-check"></i> Aprobar Devolución</button></form>';
-            accionesHTML += '<form method="POST" action="/usuarios/rechazar-devolucion/' + devolucion.id + '/" style="display: inline;">';
-            accionesHTML += '<input type="hidden" name="csrfmiddlewaretoken" value="' + getCookie('csrftoken') + '">';
-            accionesHTML += '<button type="submit" class="btn-rechazar" style="padding: 12px 24px; font-size: 1rem;">';
-            accionesHTML += '<i class="fa fa-times"></i> Rechazar Devolución</button></form>';
-            accionesHTML += '</div>';
+        // ---------------- ACCIONES ----------------
+        let accionesHTML = "";
+        if (d.estado === "Pendiente") {
+            accionesHTML = `
+                <div class="acciones-modal">
+                    <button class="btn-aprobar" data-action="aprobar" data-id="${d.id}">
+                        <i class="fa fa-check"></i> Aprobar Devolución
+                    </button>
+
+                    <button class="btn-rechazar" data-action="rechazar" data-id="${d.id}">
+                        <i class="fa fa-times"></i> Rechazar Devolución
+                    </button>
+                </div>`;
         }
 
-        var contenido = `
+        // ---------------- CONTENIDO ----------------
+        document.getElementById("contenidoModal").innerHTML = `
             <div class="detalle-seccion">
                 <h4><i class="fa fa-user"></i> Información del Cliente</h4>
                 <div class="detalle-info">
-                    <p><strong>Nombre:</strong> ${devolucion.usuario_nombre}</p>
-                    <p><strong>Email:</strong> ${devolucion.usuario_email}</p>
+                    <p><strong>Nombre:</strong> ${d.usuario_nombre}</p>
+                    <p><strong>Email:</strong> ${d.usuario_email}</p>
                 </div>
             </div>
 
             <div class="detalle-seccion">
                 <h4><i class="fa fa-box"></i> Información del Producto</h4>
                 <div class="detalle-info">
-                    <p><strong>Producto:</strong> ${devolucion.producto_nombre}</p>
-                    <p><strong>Pedido:</strong> #${devolucion.pedido_id}</p>
-                    <p><strong>Fecha de solicitud:</strong> ${devolucion.fecha}</p>
+                    <p><strong>Producto:</strong> ${d.producto_nombre}</p>
+                    <p><strong>Pedido:</strong> #${d.pedido_id}</p>
+                    <p><strong>Fecha de solicitud:</strong> ${d.fecha}</p>
                 </div>
             </div>
 
             <div class="detalle-seccion">
-                <h4><i class="fa fa-comment-dots"></i> Motivo de la Devolución</h4>
+                <h4><i class="fa fa-comment-dots"></i> Motivo</h4>
                 <div class="detalle-info">
-                    <p>${devolucion.motivo}</p>
+                    <p>${d.motivo}</p>
                 </div>
             </div>
 
             <div class="detalle-seccion">
-                <h4><i class="fa fa-camera"></i> Fotos del Producto</h4>
+                <h4><i class="fa fa-camera"></i> Fotos</h4>
                 ${fotosHTML}
             </div>
 
             ${accionesHTML}
         `;
 
-        document.getElementById('contenidoModal').innerHTML = contenido;
-        document.getElementById('modalDetalles').classList.add('active');
-    }
+        document.getElementById("modalDetalles").classList.add("active");
+    };
 
-    function cerrarModal() {
-        document.getElementById('modalDetalles').classList.remove('active');
-    }
+    window.cerrarModal = () => {
+        document.getElementById("modalDetalles").classList.remove("active");
+    };
 
-    function verImagenGrande(src) {
-        document.getElementById('imagenGrande').src = src;
-        document.getElementById('modalImagen').classList.add('active');
-    }
-
-    function cerrarImagen() {
-        document.getElementById('modalImagen').classList.remove('active');
-    }
-
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
+    /*****************************
+     *  VER FOTO GRANDE (delegado)
+     *****************************/
+    document.addEventListener("click", e => {
+        if (e.target.closest(".foto-item-modal")) {
+            const src = e.target.closest(".foto-item-modal").dataset.img;
+            document.getElementById("imagenGrande").src = src;
+            document.getElementById("modalImagen").classList.add("active");
         }
-        return cookieValue;
+    });
+
+    window.cerrarImagen = () => {
+        document.getElementById("modalImagen").classList.remove("active");
+    };
+
+    /****************************************
+     *   DELEGACIÓN PARA APROBAR / RECHAZAR
+     ****************************************/
+    document.addEventListener("click", e => {
+        const btn = e.target.closest("[data-action]");
+        if (!btn) return;
+
+        const accion = btn.dataset.action;
+        const id = parseInt(btn.dataset.id);
+
+        enviarAccionAjax(id, accion);
+    });
+
+    /****************************************
+     *   FUNCIÓN AJAX
+     ****************************************/
+    function enviarAccionAjax(id, tipo) {
+        const url =
+            tipo === "aprobar"
+                ? `/usuarios/aprobar-devolucion/${id}/`
+                : `/usuarios/rechazar-devolucion/${id}/`;
+
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": CSRF_TOKEN,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ accion: tipo }),
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const fila = document.getElementById(`devolucion-${id}`);
+                    if (fila) fila.remove();
+
+                    cerrarModal();
+                } else {
+                    alert("Error: " + data.error);
+                }
+            })
+            .catch(err => console.error("Error en AJAX:", err));
     }
-}
+} // Fin devoluciones
 
 
+
+
+
+
+/*********************************************
+ *  GESTIÓN DE USUARIOS (Código original)
+ *********************************************/
 const page1 = document.querySelector("[data-page='gst-usuarios']");
 
 if (page1) {
     console.log("JS cargado para gestión de usuarios");
-    let filaSeleccionada = null;
 
     // ================= MODALES =================
-    function abrirModalAgregar() {
+    window.abrirModalAgregar = function () {
         document.getElementById("modal-agregar").style.display = "block";
         document.getElementById("modal-overlay").style.display = "block";
         document.body.style.overflow = "hidden";
-    }
+    };
 
-    function cerrarModalAgregar() {
+    window.cerrarModalAgregar = function () {
         document.getElementById("modal-agregar").style.display = "none";
         document.getElementById("modal-overlay").style.display = "none";
         document.body.style.overflow = "";
-    }
+    };
 
-    function abrirModalEditar() {
+    window.abrirModalEditar = function () {
         document.getElementById("modal-editar").style.display = "block";
         document.getElementById("modal-overlay").style.display = "block";
         document.body.style.overflow = "hidden";
-    }
+    };
 
-    function cerrarModalEditar() {
+    window.cerrarModalEditar = function () {
         document.getElementById("modal-editar").style.display = "none";
         document.getElementById("modal-overlay").style.display = "none";
         document.body.style.overflow = "";
-    }
+    };
 
-    function cerrarTodosLosModales() {
-        cerrarModalAgregar();
-        cerrarModalEditar();
-    }
-
-
+    // ================= EVENTOS EDITAR =================
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".editar:not([disabled])").forEach((boton) => {
             boton.addEventListener("click", function (e) {
@@ -154,14 +207,12 @@ if (page1) {
 
                 let userId = boton.dataset.id;
 
-                // Rellenar modal
                 document.getElementById("editar-id").value = userId;
                 document.getElementById("editar-nombre").value = boton.dataset.nombre || "";
                 document.getElementById("editar-email").value = boton.dataset.email || "";
                 document.getElementById("editar-telefono").value = boton.dataset.telefono || "";
                 document.getElementById("editar-rol").value = boton.dataset.rol || "cliente";
 
-                // Pone la URL correcta
                 document.getElementById("form-editar").action = `/usuarios/editar/${userId}/`;
 
                 abrirModalEditar();
@@ -174,28 +225,33 @@ if (page1) {
         const searchInput = document.getElementById(inputId);
         const searchStats = statsId ? document.getElementById(statsId) : null;
         const tbody = document.querySelector(`#${tableId} tbody`);
-        const rows = tbody ? tbody.querySelectorAll('tr[data-search-text]') : document.querySelectorAll(`#${tableId} tr[data-search-text]`);
+        const rows = tbody
+            ? tbody.querySelectorAll("tr[data-search-text]")
+            : document.querySelectorAll(`#${tableId} tr[data-search-text]`);
+
         const totalRows = rows.length;
 
         function actualizarEstadisticas() {
             if (!searchStats) return;
-            const visibles = Array.from(rows).filter(r => r.style.display !== 'none').length;
+
+            const visibles = Array.from(rows).filter(r => r.style.display !== "none").length;
 
             if (searchInput.value.trim() === "") {
-                searchStats.textContent = `Mostrando ${totalRows} ${textoEntidad}${totalRows !== 1 ? 's' : ''}`;
+                searchStats.textContent = `Mostrando ${totalRows} ${textoEntidad}${totalRows !== 1 ? "s" : ""}`;
             } else {
-                searchStats.textContent = `Encontrados ${visibles} de ${totalRows} ${textoEntidad}${totalRows !== 1 ? 's' : ''}`;
+                searchStats.textContent = `Encontrados ${visibles} de ${totalRows} ${textoEntidad}${totalRows !== 1 ? "s" : ""}`;
             }
         }
 
         if (searchInput) {
             actualizarEstadisticas();
+
             searchInput.addEventListener("input", function () {
                 const searchTerm = this.value.toLowerCase().trim();
 
                 rows.forEach(row => {
                     const searchText = row.dataset.searchText || "";
-                    row.style.display = (searchTerm === "" || searchText.includes(searchTerm)) ? "" : "none";
+                    row.style.display = searchText.includes(searchTerm) ? "" : "none";
                 });
 
                 actualizarEstadisticas();
@@ -203,8 +259,6 @@ if (page1) {
         }
     }
 
-    // 🔹 Configurar buscadores
     configurarBuscador("searchInput", "usuariosTable", "searchStatsUsuarios", "usuario");
     configurarBuscador("searchInputCalif", "calificacionesTable", "searchStatsCalif", "calificación");
-
 }

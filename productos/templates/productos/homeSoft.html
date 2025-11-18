@@ -19,7 +19,7 @@
     <header class="container-header">
       <!-- Logo -->
       <div class="container-logo">
-        <img id="img-logo" src="/media/uploads/products/LOGOREAL.png" />
+        <img class="logo" src="{% static 'productos/img/LOGOREAL.png' %}">
       </div>
       <div class="container-nav">
         <nav class="container-menu">
@@ -54,11 +54,11 @@
     </header>
     <section class="container-carousel">
       <div class="carousel">
-        <img src="/media/uploads/products/imgYoga.jpeg" alt="" class="carousel-image active"/>
-        <img src="/media/uploads/products/tienda.png" class="carousel-image"/>
-        <img src="/media/uploads/products/canping.png" class="carousel-image"/>
-        <img src="/media/uploads/products/ingredientes (1).png" class="carousel-image"/>
-        <img src="/media/uploads/products/infografia (1).png" class="carousel-image"/>
+        <img class="logo carousel-image" src="{% static 'productos/img/imgYoga.jpeg' %}">
+        <img class="logo carousel-image" src="{% static 'productos/img/tienda.png' %}">
+        <img class="logo carousel-image" src="{% static 'productos/img/canping.png' %}">
+        <img class="logo carousel-image" src="{% static 'productos/img/ingredientes.png' %}">
+        <img class="logo carousel-image" src="{% static 'productos/img/infografia.png' %}">
       </div>
       <button class="carousel-button prev">⟨</button>
       <button class="carousel-button next">⟩</button>
@@ -134,7 +134,7 @@
       >
         Ver Catálogo
       </a>
-      <img class="img-abajo" src="/media/uploads/products/imgcarrousel.jpeg" />
+      <img class="logo" src="{% static 'productos/img/imgAbajo.jpeg' %}">
     </div>
 
     <div class="container-prodHome">
@@ -199,11 +199,7 @@
 
         <!-- Solo agrega esta sección del logo -->
         <div class="footer-logo">
-          <img
-            class="logo"
-            src="/media/uploads/products/LOGOREAL.png"
-            alt="Logo Los Girasoles"
-          />
+          <img class="logo" src="{% static 'productos/img/LOGOREAL.png' %}">
         </div>
 
         <div class="footer-social">
@@ -282,8 +278,8 @@
 
     {% block scripts %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
-    <script src="{% static '/productos/js/home.js' %}"></script>
-    <script src="{% static '/productos/js/chatbot.js' %}"></script>
+    <script src="{% static 'productos/js/home.js' %}"></script>
+    <script src="{% static 'productos/js/chatbot.js' %}"></script>
     {% endblock %}
 
   </body>

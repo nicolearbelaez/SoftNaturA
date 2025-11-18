@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from productos.models import Producto
+from cloudinary.models import CloudinaryField
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 class UsuarioManager(BaseUserManager):
@@ -111,9 +112,12 @@ class Devolucion(models.Model):
     fecha_solicitud = models.DateTimeField(auto_now_add=True,verbose_name='Fecha de solicitud')
     fecha_respuesta = models.DateTimeField(null=True, blank=True,verbose_name='Fecha de respuesta')
     # Fotos del producto (guardadas como Base64 o URLs)
-    foto1 = models.TextField(blank=True, null=True, verbose_name='Foto 1')
-    foto2 = models.TextField(blank=True, null=True, verbose_name='Foto 2')
-    foto3 = models.TextField(blank=True, null=True, verbose_name='Foto 3')
+    foto1 = CloudinaryField('foto1', blank=True, null=True)
+    foto2 = CloudinaryField('foto2', blank=True, null=True)
+    foto3 = CloudinaryField('foto3', blank=True, null=True)
+    unidad = models.PositiveIntegerField(default=1, verbose_name='Unidad del producto')
+    item = models.ForeignKey(PedidoItem, on_delete=models.CASCADE, related_name='devoluciones', null=True, blank=True)
+    seleccionada = models.BooleanField(default=False, verbose_name='Seleccionada por el usuario')
     
     class Meta:
         verbose_name = 'Devolución'
@@ -127,14 +131,32 @@ class Devolucion(models.Model):
         """Retorna lista de fotos no vacías"""
         fotos = []
         if self.foto1:
-            fotos.append(self.foto1)
+            fotos.append(self.foto1.url)
         if self.foto2:
-            fotos.append(self.foto2)
+            fotos.append(self.foto2.url)
         if self.foto3:
-            fotos.append(self.foto3)
+            fotos.append(self.foto3.url)
         return fotos
 # ====================== FIN MODELO DE DEVOLUCIONES ======================
 
+# ====================== MODELO DE HISTORIAL DEVOLUCIONES ======================
+class HistorialDevolucion(models.Model):
+    devolucion = models.ForeignKey(Devolucion, on_delete=models.CASCADE, related_name='historial')
+    estado = models.CharField(max_length=20, choices=Devolucion.ESTADOS)
+    fecha_cambio = models.DateTimeField(auto_now_add=True)
+    usuario_admin = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    comentario = models.TextField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['-fecha_cambio']
+        verbose_name = 'Historial de Devolución'
+        verbose_name_plural = 'Historial de Devoluciones'
+
+    def __str__(self):
+        return f"Devolución #{self.devolucion.id} - {self.estado} - {self.fecha_cambio}"
+
+
+# ====================== FIN DE HISTORIAL DEVOLUCIONES ======================
 
 # ====================== MODELO DE DIRECCIÓN (NUEVO) ======================
 class Direccion(models.Model):

@@ -108,6 +108,16 @@ if (document.body.dataset.page === "editar-perfil") {
         alert('Perfil actualizado correctamente\n\nNombre: ' + nombre + '\nEmail: ' + email);
       }
     });
-
-
 }
+
+document.querySelectorAll(".dropdown-btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+        this.classList.toggle("active");
+        const container = this.nextElementSibling;
+        if (container.style.display === "flex") {
+            container.style.display = "none";
+        } else {
+            container.style.display = "flex";
+        }
+    });
+});

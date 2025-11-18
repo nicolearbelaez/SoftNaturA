@@ -10,7 +10,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import os
 import google.generativeai as genai
-
+import json
 from .forms import registerProduc, Carrito, ProductoForm, CategoriaForm
 from .models import Producto, Category, Servicio, Calificacion, CarritoItem
 from usuarios.models import Usuario, Pedido, PedidoItem
@@ -443,105 +443,132 @@ def homeSoft(request):
 # ========== IMPORTS PARA VISTA DE DEVOLUCIONES ==========                                                                                                                                     
 @login_required
 def devoluciones(request):
-    """Vista para que el cliente solicite devoluciones"""
-    
-    # ✅ CORREGIDO: Solo pedidos ENTREGADOS de los últimos 30 días
+    """Vista para que el cliente solicite devoluciones por unidad"""
+
     hace_30_dias = timezone.now() - timedelta(days=30)
-    
     pedidos = Pedido.objects.filter(
         usuario=request.user,
-        estado='entregado',  # ✅ SOLO ENTREGADOS
-        fecha_creacion__gte=hace_30_dias  # ✅ ÚLTIMOS 30 DÍAS
+        estado='entregado',
+        fecha_creacion__gte=hace_30_dias
     ).prefetch_related('items__producto').order_by('-fecha_creacion')
-    
-    # Preparar lista de productos devolubles Y pedidos agrupados
+
+    # Devoluciones pendientes
+    devoluciones_existentes = Devolucion.objects.filter(
+        usuario=request.user,
+        estado='Pendiente'
+    ).values_list('producto_id', 'pedido_id', 'unidad')
+    devoluciones_existentes = [(int(p), int(d), int(u)) for p, d, u in devoluciones_existentes]
+
     productos_devolubles = []
     pedidos_agrupados = {}
-    
+
     for pedido in pedidos:
         items = pedido.items.all()
-        
-        # Guardar info del pedido
-        if items.exists() and pedido.id not in pedidos_agrupados:
+        unidades_disponibles = 0
+        for item in items:
+            for unidad_index in range(item.cantidad):
+                unidad_num = unidad_index + 1
+                if (item.producto.id, pedido.id, unidad_num) in devoluciones_existentes:
+                    continue
+                unidades_disponibles += 1
+                productos_devolubles.append({
+                    'pedido_id': pedido.id,
+                    'producto_id': item.producto.id,
+                    'producto_nombre': item.producto.nombProduc,
+                    'unidad': unidad_num,
+                    'precio': float(item.precio_unitario),
+                    'fecha_pedido': pedido.fecha_creacion.strftime('%d/%m/%Y')
+                })
+        if unidades_disponibles > 0:
             pedidos_agrupados[pedido.id] = {
                 'pedido_id': pedido.id,
                 'fecha_pedido': pedido.fecha_creacion.strftime('%d/%m/%Y'),
-                'cantidad_productos': items.count()
+                'cantidad_productos': unidades_disponibles
             }
-        
-        for item in items:
-            productos_devolubles.append({
-                'pedido_id': pedido.id,
-                'producto_id': item.producto.id,
-                'producto_nombre': item.producto.nombProduc,
-                'cantidad': item.cantidad,
-                'precio': float(item.precio_unitario),
-                'fecha_pedido': pedido.fecha_creacion.strftime('%d/%m/%Y')
-            })
-    
-    # Procesar formulario POST
+
+    # ===================== POST =====================
     if request.method == 'POST':
-        producto_id = request.POST.get('producto_id')
-        pedido_id = request.POST.get('pedido_id')
+        pedido_id = int(request.POST.get('pedido_id'))
         motivo = request.POST.get('motivo')
         foto1 = request.FILES.get('foto1')
         foto2 = request.FILES.get('foto2')
         foto3 = request.FILES.get('foto3')
-        
-        if not producto_id or not pedido_id or not motivo:
-            messages.error(request, 'Por favor completa todos los campos obligatorios')
+        producto_id, unidad = map(int, request.POST.get('producto_id').split('-'))
+
+        if not producto_id or not pedido_id or not motivo or not unidad:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({"success": False, "mensaje": "Completa todos los campos"})
+            messages.error(request, "Por favor completa todos los campos obligatorios")
             return redirect('productos:devoluciones')
-        
+
         try:
             producto = Producto.objects.get(id=producto_id)
-            pedido = Pedido.objects.get(id=pedido_id, usuario=request.user, estado='entregado')  # ✅ VERIFICAR ENTREGADO
-            
-            # ✅ NUEVO: Verificar que no exista devolución previa para este producto en este pedido
+            pedido = Pedido.objects.get(id=pedido_id, usuario=request.user, estado='entregado')
+
             devolucion_existente = Devolucion.objects.filter(
                 usuario=request.user,
                 producto=producto,
-                pedido=pedido
+                pedido=pedido,
+                unidad=unidad,
+                estado='Pendiente'
             ).exists()
-            
+
             if devolucion_existente:
-                messages.warning(request, 'Ya existe una solicitud de devolución para este producto.')
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({"success": False, "mensaje": "Ya existe una devolución para esta unidad"})
+                messages.warning(request, "Ya existe una solicitud de devolución para esta unidad.")
                 return redirect('productos:devoluciones')
-            
-            # Crear devolución
-            devolucion = Devolucion.objects.create(
+
+            devolucion = Devolucion(
                 usuario=request.user,
                 producto=producto,
                 pedido=pedido,
                 motivo=motivo,
                 estado='Pendiente',
-                foto1=foto1 if foto1 else None,
-                foto2=foto2 if foto2 else None,
-                foto3=foto3 if foto3 else None
+                unidad=unidad,
+                seleccionada=True
             )
             
-            messages.success(request, f'✅ Solicitud de devolución #{devolucion.id} enviada exitosamente!')
+            if foto1:
+                devolucion.foto1 = foto1
+            if foto2:
+                devolucion.foto2 = foto2
+            if foto3:
+                devolucion.foto3 = foto3
+
+            devolucion.save()
+
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    "success": True,
+                    "producto_id": producto.id,
+                    "pedido_id": pedido.id,
+                    "unidad": unidad,
+                    "mensaje": f"Devolución #{devolucion.id} enviada"
+                })
+
+            messages.success(request, f"✅ Solicitud de devolución #{devolucion.id} enviada exitosamente!")
             return redirect('productos:devoluciones')
-            
+
         except Exception as e:
-            messages.error(request, f'Error al crear la devolución: {str(e)}')
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({"success": False, "mensaje": str(e)})
+            messages.error(request, f"Error al crear la devolución: {str(e)}")
             return redirect('productos:devoluciones')
-    
-    # Convertir a JSON para JavaScript
-    import json
+
     productos_json = json.dumps(productos_devolubles)
-    
-    # Obtener devoluciones del usuario
     mis_devoluciones = Devolucion.objects.filter(
         usuario=request.user
     ).select_related('producto', 'pedido').order_by('-fecha_solicitud')
-    
+
     context = {
         'productos_devolubles': productos_json,
         'pedidos_agrupados': pedidos_agrupados.values(),
         'devoluciones': mis_devoluciones
     }
-    
+
     return render(request, 'productos/devoluciones.html', context)
+
 
 # Configurar la API Key de Gemini
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))

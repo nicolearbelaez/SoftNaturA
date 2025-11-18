@@ -1,0 +1,75 @@
+{% extends 'usuarios/baseU.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'usuarios/css/devoluciones-usuarios.css' %}" />
+{% endblock %}
+
+{% block page_id %}historial-devoluciones{% endblock %}
+
+{% block content %}
+<div class="contenedor-admin-devoluciones">
+    <h2>Historial de Devoluciones</h2>
+
+    {% if devoluciones %}
+    <table class="tabla-historial">
+        <thead>
+            <tr>
+                <th>#ID Devolución</th>
+                <th>Cliente</th>
+                <th>Producto</th>
+                <th>Estado Actual</th>
+                <th>Historial de Cambios</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for devolucion in devoluciones %}
+            <tr>
+                <td>#{{ devolucion.id }}</td>
+                <td>{{ devolucion.usuario.nombre }}</td>
+                <td>{{ devolucion.producto.nombProduc }}</td>
+                <td>{{ devolucion.estado }}</td>
+                <td>
+                    <table class="historial-interno">
+                        <thead>
+                            <tr>
+                                <th>Estado</th>
+                                <th>Fecha</th>
+                                <th>Admin</th>
+                                <th>Comentario</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for h in devolucion.historial.all %}
+                            <tr>
+                                <td>{{ h.estado }}</td>
+                                <td>{{ h.fecha_cambio|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    {% if h.usuario_admin %}
+                                        {{ h.usuario_admin.nombre }}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>{{ h.comentario }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="no-devoluciones">
+        <i class="fa fa-inbox"></i>
+        <p>No hay historial de devoluciones</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Puedes agregar JS si quieres mejorar interacción, como collapse/expand de historial -->
+{% endblock %}

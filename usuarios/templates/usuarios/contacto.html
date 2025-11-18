@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block styles %}
+{{ block.super }}
 <link rel="stylesheet" href="{% static 'usuarios/css/panel-contacto-dashboard.css' %}">
 {% endblock %}
 
@@ -15,9 +16,9 @@
 
 
 <div class="banner-nosotros" style="
-    background: url('/media/uploads/products/contacto.png') no-repeat center
-      center/cover;
-  "></div>
+    background: url('{% static "usuarios/img/contacto.png" %}') no-repeat center center/cover;
+"></div>
+
 
 <div class="contact-container">
   <div class="contact-form">

@@ -34,8 +34,9 @@ function cargarProductos() {
     selectProducto.innerHTML = '<option value="">-- Selecciona el producto --</option>';
     productos.forEach(producto => {
         const option = document.createElement('option');
-        option.value = producto.producto_id;
-        option.textContent = `${producto.producto_nombre} - Cantidad: ${producto.cantidad} - $${producto.precio}`;
+        option.value = `${producto.producto_id}-${producto.unidad}`;
+        option.textContent = `${producto.producto_nombre} - Unidad ${producto.unidad} - $${producto.precio}`;
+        option.dataset.pedidoId = producto.pedido_id;
         selectProducto.appendChild(option);
     });
 
@@ -180,3 +181,54 @@ inputArchivo.addEventListener('change', (e) => {
 
     inputArchivo.value = '';
 });
+
+// ===== ENVÍO DE DEVOLUCIÓN =====
+const formDevolucion = document.getElementById('formDevolucion');
+if (formDevolucion) {
+    formDevolucion.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(formDevolucion);
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch(formDevolucion.action, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken
+            },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Quitar el producto devuelto
+                const selectProducto = document.getElementById('selectProducto');
+                const valueToRemove = `${data.producto_id}-${data.unidad}`;
+                const optionProd = Array.from(selectProducto.options).find(o => o.value === valueToRemove);
+                if (optionProd) optionProd.remove();
+
+                // Quitar el pedido si no quedan productos
+                const pedidoId = data.pedido_id;
+                const restantes = Array.from(selectProducto.options).filter(o => {
+                    return o.value !== "" && parseInt(o.dataset.pedidoId) === pedidoId;
+                });
+                
+                if (restantes.length === 0) {
+                    const selectPedido = document.getElementById('selectPedido');
+                    const optionPedido = Array.from(selectPedido.options).find(o => o.value == pedidoId);
+                    if (optionPedido) optionPedido.remove();
+                    document.getElementById('grupoProducto').style.display = 'none';
+                }
+
+                alert(data.mensaje);
+            } else {
+                alert(data.mensaje);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Ocurrió un error al enviar la devolución');
+        });
+    });
+}

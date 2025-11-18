@@ -1,7 +1,9 @@
 from dotenv import load_dotenv
 import os 
 from pathlib import Path
-
+import cloudinary 
+import cloudinary.uploader
+import cloudinary.api
 
 load_dotenv()
 
@@ -34,6 +36,8 @@ INSTALLED_APPS = [
     'usuarios.apps.UsuariosConfig',
     'productos',
     'pagos',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -44,6 +48,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'middleware.auto_logout.AutoLogoutMiddleware',
 ]
 
 ROOT_URLCONF = 'Config.urls'
@@ -73,9 +78,9 @@ WSGI_APPLICATION = 'Config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'SoftnaturDB',
-        'USER': 'nicoladm',
-        'PASSWORD': 'vale123',
+        'NAME': 'softnaturA',
+        'USER': 'softnatur',
+        'PASSWORD': 'softnatur123',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -124,8 +129,19 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+cloudinary.config( 
+    cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME"), 
+    api_key = os.getenv("CLOUDINARY_API_KEY"), api_secret = os.getenv("CLOUDINARY_API_SECRET"), secure=True
+)
+
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+}
 
 LOGIN_URL = 'usuarios:login'
 
@@ -144,7 +160,7 @@ BOLD_API_KEY = os.getenv("BOLD_API_KEY")
 BOLD_SECRET_KEY = os.getenv("BOLD_SECRET_KEY")
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://princeliest-paleozoulogic-hettie.ngrok-free.dev'
+    'https://kamala-isotheral-charlyn.ngrok-free.dev'
 ]
 
 
