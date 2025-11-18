@@ -791,15 +791,18 @@ def gst_devoluciones(request):
         messages.error(request, 'No tienes permisos para acceder aquí')
         return redirect('usuarios:dashboard')
     
-    # Obtener todas las devoluciones con relaciones optimizadas
-    devoluciones = Devolucion.objects.select_related(
-        'usuario', 'producto', 'pedido'
-    ).all().order_by('-fecha_solicitud')
-    
-    # Filtros opcionales por estado
     estado = request.GET.get('estado')
+    
     if estado:
-        devoluciones = devoluciones.filter(estado=estado)
+        # Si hay filtro, traer las devoluciones de ese estado
+        devoluciones = Devolucion.objects.select_related(
+            'usuario', 'producto', 'pedido'
+        ).filter(estado=estado).order_by('-fecha_solicitud')
+    else:
+        # Por defecto, solo las PENDIENTES
+        devoluciones = Devolucion.objects.select_related(
+            'usuario', 'producto', 'pedido'
+        ).filter(estado='Pendiente').order_by('-fecha_solicitud')
     
     # Preparar datos en JSON para el modal
     devoluciones_data = []
@@ -884,7 +887,7 @@ def aprobar_devolucion(request, devolucion_id):
         return JsonResponse({
             'success': True,
             'id': devolucion_id,
-            'message': f"Devolución #{devolucion_id} aprobada correctamente."
+            'mensaje': f"Devolución #{devolucion_id} aprobada correctamente."
         })
 
     except Devolucion.DoesNotExist:
@@ -913,7 +916,7 @@ def rechazar_devolucion(request, devolucion_id):
         return JsonResponse({
             'success': True,
             'id': devolucion_id,
-            'message': f"Devolución #{devolucion_id} rechazada"
+            'mensaje': f"Devolución #{devolucion_id} rechazada"
         })
 
     except Devolucion.DoesNotExist:

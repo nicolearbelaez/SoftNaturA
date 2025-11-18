@@ -505,6 +505,14 @@ def devoluciones(request):
             producto = Producto.objects.get(id=producto_id)
             pedido = Pedido.objects.get(id=pedido_id, usuario=request.user, estado='entregado')
 
+            pedido_item = pedido.items.filter(producto=producto).first()
+
+            if not pedido_item:
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({"success": False, "mensaje": "No se encontró el producto en el pedido"})
+                messages.error(request, "No se encontró el producto en el pedido")
+                return redirect('productos:devoluciones')
+            
             devolucion_existente = Devolucion.objects.filter(
                 usuario=request.user,
                 producto=producto,
@@ -523,6 +531,7 @@ def devoluciones(request):
                 usuario=request.user,
                 producto=producto,
                 pedido=pedido,
+                item=pedido_item,
                 motivo=motivo,
                 estado='Pendiente',
                 unidad=unidad,

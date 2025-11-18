@@ -142,6 +142,7 @@ if (page) {
             method: "POST",
             headers: {
                 "X-CSRFToken": CSRF_TOKEN,
+                "X-Requested-With": "XMLHttpRequest",
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({ accion: tipo }),
