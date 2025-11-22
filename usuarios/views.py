@@ -136,9 +136,6 @@ def exportar_usuarios_excel(request):
 
     return response
 
-
-
-
 def register_view(request):
     if request.method == "POST":
         form = UsuarioCreationForm(request.POST)
@@ -151,7 +148,6 @@ def register_view(request):
     else:
         form = UsuarioCreationForm()
     return render(request, "usuarios/register.html", {"form": form})
-
 
 def login_view(request):
     mensaje = ""
@@ -214,23 +210,29 @@ def logout_view(request):
 
     return redirect("usuarios:login")
 
-
 @login_required(login_url='usuarios:login')
 def editar_perfil(request):
-    user = request.user  # usuario autenticado
+    user = request.user
 
     if request.method == 'POST':
+        print("🔍 POST recibido")  # Para debug
+        print("📦 Datos:", request.POST)  # Para debug
+        
         form = EditarPerfilForm(request.POST, instance=user)
+        
         if form.is_valid():
             form.save()
+            print("✅ Guardado exitoso")  # Para debug
             messages.success(request, "Perfil actualizado correctamente.")
             return redirect('usuarios:editar_perfil')
         else:
-            messages.error(request, " Hubo errores en el formulario, revisa los campos.")
+            print("❌ Errores:", form.errors)  # Para debug
+            messages.error(request, "Hubo errores en el formulario.")
     else:
         form = EditarPerfilForm(instance=user)
 
     return render(request, 'usuarios/editar_perfil.html', {'form': form})
+
 
 @login_required(login_url='usuarios:login')
 def mis_pedidos(request):
@@ -286,10 +288,8 @@ def informe_calificaciones(request):
 
     if tipo:
         calificaciones = calificaciones.filter(servicio__tipo=tipo)
-
     if desde:
         calificaciones = calificaciones.filter(fecha_creacion__gte=desde)
-
     if hasta:
         calificaciones = calificaciones.filter(fecha_creacion__lte=hasta)
 
@@ -375,7 +375,6 @@ def usuarios_frecuentes_view(request):
         "usuarios_info": usuarios
     })
 
-
 def contacto(request):
     # Buscar el usuario específico por email
     try:
@@ -395,7 +394,6 @@ def contacto(request):
     return render(request, "usuarios/contacto.html", {
         "numero_admin": numero_admin
     })
-
 
 def aprobar_comentario(request, id):
     calificacion = get_object_or_404(Calificacion, id=id)
@@ -449,7 +447,6 @@ def activar_cuenta(request, uidb64, token):
     else:
         return render(request, "usuarios/activacion_invalida.html")
     
-    
 def cambiar_estado_pedido(request, pedido_id):
     try:
         data = json.loads(request.body)
@@ -486,9 +483,7 @@ def editar_usuario(request, pk):
     messages.error(request, "Método no permitido")
     return redirect("usuarios:gstUsuarios")
 
-
 User = get_user_model()
-
 @csrf_exempt
 def enviar_codigo_verificacion(request):
     if request.method == 'POST':
@@ -815,6 +810,7 @@ def gst_devoluciones(request):
             'pedido_id': dev.pedido.id,
             'item_id': dev.item.id if dev.item else None,
             'unidad': dev.unidad,
+            'lote': dev.lote.codigo_lote if dev.lote else None, 
             'fecha': dev.fecha_solicitud.strftime('%d/%m/%Y %H:%M'),
             'motivo': dev.motivo,
             'estado': dev.estado,
@@ -858,9 +854,18 @@ def aprobar_devolucion(request, devolucion_id):
         )
 
         # Reducir stock solo si hay disponible
-        if producto.stock >= 1:
-            producto.stock -= 1
-            producto.save()
+        # === DEVOLVER STOCK AL LOTE ORIGINAL ===
+
+        lote_original = item.lote  # Lote asociado al producto del pedido
+
+        if lote_original:
+            lote_original.cantidad += 1
+            lote_original.save()
+
+        # === RECALCULAR STOCK TOTAL DEL PRODUCTO DESDE LOS LOTES ===
+        producto.stock = sum(l.cantidad for l in producto.lotes.all())
+        producto.save()
+
 
         # Crear un nuevo pedido/reemplazo solo con la unidad específica
         nuevo_pedido = Pedido.objects.create(usuario=devolucion.usuario)
@@ -965,7 +970,6 @@ def guardar_direccion(request):
             messages.error(request, f'Error al guardar la dirección: {str(e)}')
     
     return redirect('pagos:checkout')
-
 
 @login_required(login_url='usuarios:login')
 def editar_direccion(request):

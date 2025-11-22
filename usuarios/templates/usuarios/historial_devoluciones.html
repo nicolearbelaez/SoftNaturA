@@ -18,8 +18,11 @@
                 <th>#ID Devolución</th>
                 <th>Cliente</th>
                 <th>Producto</th>
+                <th>Lote</th>
                 <th>Estado Actual</th>
-                <th>Historial de Cambios</th>
+                <th>Fecha</th>
+                <th>Admin</th>
+                <th>Comentario</th>
             </tr>
         </thead>
         <tbody>
@@ -28,34 +31,27 @@
                 <td>#{{ devolucion.id }}</td>
                 <td>{{ devolucion.usuario.nombre }}</td>
                 <td>{{ devolucion.producto.nombProduc }}</td>
-                <td>{{ devolucion.estado }}</td>
                 <td>
-                    <table class="historial-interno">
-                        <thead>
-                            <tr>
-                                <th>Estado</th>
-                                <th>Fecha</th>
-                                <th>Admin</th>
-                                <th>Comentario</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for h in devolucion.historial.all %}
-                            <tr>
-                                <td>{{ h.estado }}</td>
-                                <td>{{ h.fecha_cambio|date:"d/m/Y H:i" }}</td>
-                                <td>
-                                    {% if h.usuario_admin %}
-                                        {{ h.usuario_admin.nombre }}
-                                    {% else %}
-                                        N/A
-                                    {% endif %}
-                                </td>
-                                <td>{{ h.comentario }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    {% if devolucion.lote %}
+                    {{ devolucion.lote.codigo_lote }}
+                    {% else %}
+                    SIN LOTE
+                    {% endif %}
+                </td>
+
+                <td>{{ devolucion.estado }}</td>
+                {% for h in devolucion.historial.all %}
+                <td>{{ h.fecha_cambio|date:"d/m/Y H:i" }}</td>
+                <td>
+                    {% if h.usuario_admin %}
+                    {{ h.usuario_admin.nombre }}
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </td>
+                <td>{{ h.comentario }}</td>
+                {% endfor %}
+                <td>
                 </td>
             </tr>
             {% endfor %}

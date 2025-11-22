@@ -2,7 +2,6 @@
 {% load humanize %}
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +9,7 @@
     <link rel="stylesheet" href="{% static 'pagos/css/checkout.css' %}" />
     <!-- Script de Bold -->
     <script src="https://checkout.bold.co/library/boldPaymentButton.js"></script>
+    <script src="{% static 'pagos/js/checkout.js' %}" defer></script> 
 </head>
 <body>
     <!-- Header -->
@@ -167,7 +167,7 @@
                 <p class="order-id">Order ID: {{ order_id }}</p>
             </div>
 
-            <!-- Botón de pago -->
+            <!-- Botón de pago eduar hizo cambia aca (data-api-key) yo lo tengo diferente, cambios por si algo-->
             <div class="pago-card">
                 <h2>Método de pago</h2>
                 <form>

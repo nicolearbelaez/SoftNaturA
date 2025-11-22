@@ -1,99 +1,103 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resultado del Pago</title>
     <link rel="stylesheet" href="{% static 'pagos/css/payment.css' %}?v={{ timestamp }}" />
 </head>
+
 <body>
     <div class="container">
         <h1>Resultado del Pago</h1>
-        
-        {% if tx_status == 'approved' %}
-            <div class="approved">
-                <div class="icon approved">✓</div>
-                <h2>¡Pago Exitoso!</h2>
-                <p>Tu orden ha sido procesada correctamente.</p>
-                <div class="order-box">
-                    Orden: <strong>{{ order_id|default:"No disponible" }}</strong>
-                </div>
-                <p>Gracias por tu compra.</p>
 
-                {% if producto_id %}
-                    <div class="rating-form">
-                        <h3>Califica tu compra</h3>
-                        
-                        <form action="{% url 'productos:guardar_calificacion' %}" method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="producto_id" value="{{ producto_id }}">
-                            
-                            <div class="form-group">
-                                <label>Puntuación del Servicio:</label>
-                                <select name="puntuacion_servicio" required>
-                                    <option value="1">⭐</option>
-                                    <option value="2">⭐⭐</option>
-                                    <option value="3" selected>⭐⭐⭐</option>
-                                    <option value="4">⭐⭐⭐⭐</option>
-                                    <option value="5">⭐⭐⭐⭐⭐</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Puntuación de los Productos:</label>
-                                <select name="puntuacion_productos" required>
-                                    <option value="1">⭐</option>
-                                    <option value="2">⭐⭐</option>
-                                    <option value="3" selected>⭐⭐⭐</option>
-                                    <option value="4">⭐⭐⭐⭐</option>
-                                    <option value="5">⭐⭐⭐⭐⭐</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Comentario (opcional):</label>
-                                <textarea name="comentario" placeholder="Comparte tu experiencia..."></textarea>
-                            </div>
-                            
-                            <button type="submit" class="btn">Enviar Calificación</button>
-                        </form>
+        {% if tx_status == 'approved' %}
+        <div class="approved">
+            <div class="icon approved">✓</div>
+            <h2>¡Pago Exitoso!</h2>
+            <p>Tu orden ha sido procesada correctamente.</p>
+            <div class="order-box">
+                Orden: <strong>{{ order_id|default:"No disponible" }}</strong>
+            </div>
+            <p>Gracias por tu compra.</p>
+
+            {% if producto_id %}
+            <div class="rating-form">
+                <h3>Califica tu compra</h3>
+
+                <form action="{% url 'productos:guardar_calificacion' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="producto_id" value="{{ producto_id }}">
+
+                    <div class="form-group">
+                        <label>Puntuación del Servicio:</label>
+                        <select name="puntuacion_servicio" required>
+                            <option value="1">⭐</option>
+                            <option value="2">⭐⭐</option>
+                            <option value="3" selected>⭐⭐⭐</option>
+                            <option value="4">⭐⭐⭐⭐</option>
+                            <option value="5">⭐⭐⭐⭐⭐</option>
+                        </select>
                     </div>
-                {% endif %}
+
+                    <div class="form-group">
+                        <label>Puntuación de los Productos:</label>
+                        <select name="puntuacion_productos" required>
+                            <option value="1">⭐</option>
+                            <option value="2">⭐⭐</option>
+                            <option value="3" selected>⭐⭐⭐</option>
+                            <option value="4">⭐⭐⭐⭐</option>
+                            <option value="5">⭐⭐⭐⭐⭐</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Comentario (opcional):</label>
+                        <textarea name="comentario" placeholder="Comparte tu experiencia..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn">Enviar Calificación</button>
+                </form>
             </div>
-            
+            {% endif %}
+        </div>
+
         {% elif tx_status == 'rejected' %}
-            <div class="rejected">
-                <div class="icon rejected">✕</div>
-                <h2>Pago Rechazado</h2>
-                <p>Tu pago no pudo ser procesado.</p>
-                <div class="order-box">
-                    Orden: <strong>{{ order_id|default:"No disponible" }}</strong>
-                </div>
-                <p>Por favor, intenta nuevamente.</p>
+        <div class="rejected">
+            <div class="icon rejected">✕</div>
+            <h2>Pago Rechazado</h2>
+            <p>Tu pago no pudo ser procesado.</p>
+            <div class="order-box">
+                Orden: <strong>{{ order_id|default:"No disponible" }}</strong>
             </div>
-            
+            <p>Por favor, intenta nuevamente.</p>
+        </div>
+
         {% elif tx_status == 'pending' %}
-            <div class="pending">
-                <div class="icon pending">○</div>
-                <h2>Pago Pendiente</h2>
-                <p>Tu pago está en proceso.</p>
-                <div class="order-box">
-                    Orden: <strong>{{ order_id|default:"No disponible" }}</strong>
-                </div>
-                <p>Te notificaremos cuando se complete.</p>
+        <div class="pending">
+            <div class="icon pending">○</div>
+            <h2>Pago Pendiente</h2>
+            <p>Tu pago está en proceso.</p>
+            <div class="order-box">
+                Orden: <strong>{{ order_id|default:"No disponible" }}</strong>
             </div>
-            
+            <p>Te notificaremos cuando se complete.</p>
+        </div>
+
         {% else %}
-            <div class="icon default">i</div>
-            <h2>Estado del Pago</h2>
-            <div class="status-card">
-                <p><strong>Orden:</strong> {{ order_id|default:"No disponible" }}</p>
-                <p><strong>Estado:</strong> {{ tx_status }}</p>
-            </div>
+        <div class="icon default">i</div>
+        <h2>Estado del Pago</h2>
+        <div class="status-card">
+            <p><strong>Orden:</strong> {{ pedido.bold_order_id|default:"No disponible" }}</p>
+            <p><strong>Estado:</strong> {{ pedido.bold_tx_status|default:"Desconocido" }}</p>
+        </div>
+
         {% endif %}
-        
+
         <a href="{% url 'productos:producto' %}" class="btn btn-link">Volver a la tienda</a>
     </div>
 </body>
+
 </html>

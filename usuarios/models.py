@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-from productos.models import Producto
+from productos.models import Producto, Lote
 from cloudinary.models import CloudinaryField
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
@@ -26,7 +26,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     )
 
     email = models.EmailField(unique=True, max_length=60)
-    nombre = models.CharField(max_length=150, unique=True)
+    nombre = models.CharField(max_length=150)
     phone_number = models.CharField(max_length=20, blank=True)
     rol = models.CharField(max_length=20, choices=ROLES, default='cliente')
 
@@ -65,6 +65,9 @@ class PedidoItem(models.Model):
     producto = models.ForeignKey('productos.Producto', on_delete=models.CASCADE, verbose_name='Producto')
     cantidad = models.PositiveIntegerField(default=1, verbose_name='Cantidad')
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Precio unitario')
+    lote = models.ForeignKey(Lote, null=True, blank=True, on_delete=models.SET_NULL)
+    codigo_lote = models.CharField(max_length=50, null=True, blank=True)
+
 
     class Meta:
         verbose_name = 'Item de Pedido'
@@ -77,9 +80,6 @@ class PedidoItem(models.Model):
         """Calcula el subtotal del ítem"""
         return self.cantidad * self.precio_unitario
 
-
-    
-    
 class Mensaje(models.Model):
     nombre = models.CharField(max_length=150)
     correo = models.EmailField()
@@ -118,6 +118,9 @@ class Devolucion(models.Model):
     unidad = models.PositiveIntegerField(default=1, verbose_name='Unidad del producto')
     item = models.ForeignKey(PedidoItem, on_delete=models.CASCADE, related_name='devoluciones', null=True, blank=True)
     seleccionada = models.BooleanField(default=False, verbose_name='Seleccionada por el usuario')
+    lote = models.ForeignKey(Lote, null=True, blank=True, on_delete=models.SET_NULL)
+
+
     
     class Meta:
         verbose_name = 'Devolución'

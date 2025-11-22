@@ -47,6 +47,7 @@
                     <th>#ID</th>
                     <th>Cliente</th>
                     <th>Producto</th>
+                    <th>Lote</th>
                     <th>Fecha</th>
                     <th>Estado</th>
                     <th>Acciones</th>
@@ -59,6 +60,15 @@
                     <td><strong>#{{ devolucion.id }}</strong></td>
                     <td>{{ devolucion.usuario.nombre }}</td>
                     <td>{{ devolucion.producto.nombProduc }}</td>
+                    <td>
+                        {% if devolucion.lote %}
+                        {{ devolucion.lote.codigo_lote }}
+                        {% else %}
+                        SIN LOTE
+                        {% endif %}
+                    </td>
+
+
                     <td>{{ devolucion.fecha_solicitud|date:"d/m/Y" }}</td>
                     <td>
                         <span class="estado-badge estado-{{ devolucion.estado|lower }}">
@@ -75,12 +85,14 @@
 
                             {% if devolucion.estado == 'Pendiente' %}
                             <!-- 🟢 Botón AJAX de APROBAR -->
-                            <button type="button" class="btn-aprobar" data-action="aprobar" data-id="{{ devolucion.id }}">
+                            <button type="button" class="btn-aprobar" data-action="aprobar"
+                                data-id="{{ devolucion.id }}">
                                 <i class="fa fa-check"></i> Aprobar
                             </button>
 
                             <!-- 🟢 Botón AJAX de RECHAZAR -->
-                            <button type="button" class="btn-rechazar" data-action="rechazar" data-id="{{ devolucion.id }}">
+                            <button type="button" class="btn-rechazar" data-action="rechazar"
+                                data-id="{{ devolucion.id }}">
                                 <i class="fa fa-times"></i> Rechazar
                             </button>
                             {% endif %}

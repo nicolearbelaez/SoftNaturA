@@ -7,11 +7,10 @@ app_name = 'productos'
 
 urlpatterns = [
     path('', views.productos_view, name="producto"),
-    path('gstproduct/', views.registerProducts, name="listProduc"),
+    path('agregar_producto/', views.agregar_producto, name="agregar_producto"),
     path('agregar/<int:producto_id>/', views.agregarAlCarrito, name="agregar"),
     path('restar/<int:producto_id>/', views.restar_producto, name='restar'),
     path('limpiar/', views.limpiar, name="limpiar"),
-    path('agregar/', views.agregar_producto, name='agregar_producto'),
     path('editar/<int:id>/', views.editar_producto, name='editar_producto'),
     path('list_produc/', views.list_product, name='list_product'),
     path('categoria/<int:categoria_id>/', views.productos_por_categoria, name='productos_por_categoria'),
@@ -27,8 +26,8 @@ urlpatterns = [
     path('devoluciones/', views.devoluciones, name='devoluciones'),
     path("producto/<int:pk>/", views.detalle_producto, name="detalle"),
     path("chatbot/ask/", views.chatbot_ajax, name="chatbot_ajax"),
-
-
+    path('agregar_lote/', views.agregar_lote, name='agregar_lote'),
+    path('lote_activo/', views.lote_activo, name='lote_activo'),
 
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

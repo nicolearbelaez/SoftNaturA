@@ -11,12 +11,14 @@ from django.views.decorators.csrf import csrf_exempt
 import os
 import google.generativeai as genai
 import json
-from .forms import registerProduc, Carrito, ProductoForm, CategoriaForm
-from .models import Producto, Category, Servicio, Calificacion, CarritoItem
+from .forms import ProductoForm, CategoriaForm
+from .models import Producto, Category, Servicio, Calificacion, CarritoItem, Lote
 from usuarios.models import Usuario, Pedido, PedidoItem
 from usuarios.decorators import admin_required
 from usuarios.models import Devolucion, Pedido  # Importar de usuarios
 from usuarios.decorators import login_required
+from datetime import date
+
 
 
 # ---------------------- VISTAS DE PRODUCTOS ----------------------
@@ -25,34 +27,40 @@ def productos(request):
     products = Producto.objects.all()
     return render(request, 'productos/producto.html', {'products': products})
 
-
-@admin_required
-def list_produc(request):
-    return render(request, 'productos/list_produc.html')
-
-
-@admin_required
-def registerProducts(request):
-    productos = Producto.objects.all()
-    form = ProductoForm()
-
-    if request.method == 'POST':
-        form = ProductoForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('productos:listProduc')
-
-    return render(request, 'productos/list_produc.html', {
-        'form': form,
-        'productos': productos
-    })
-
-
 @admin_required
 def list_product(request):
-    productos = Producto.objects.all()
-    return render(request, 'productos/list_produc.html', {'productos': productos})
-
+    # Obtener productos con sus lotes (optimizado)
+    productos = Producto.objects.prefetch_related('lotes').all()
+    
+    # Obtener la fecha actual
+    today = timezone.now().date()
+    
+    # Procesar cada producto para agregar datos adicionales
+    for producto in productos:
+        # Lote más próximo a vencer (para mostrar en la tarjeta)
+        lote_proximo = producto.lotes.order_by('fecha_caducidad').first()
+        producto.lote_mas_proximo = lote_proximo
+        
+        # ✅ AÑADIR ESTO: Lote activo (el que se vende primero - con stock y más próximo a vencer)
+        producto.lote_activo = producto.lotes.filter(
+            cantidad__gt=0
+        ).order_by('fecha_caducidad').first()
+        
+        # Total de lotes (para mostrar en template)
+        producto.total_lotes = producto.stock_total
+    
+    # Obtener categorías
+    categorias = Category.objects.all()
+    
+    from .forms import ProductoForm
+    form = ProductoForm()
+    
+    return render(request, 'productos/list_produc.html', {
+        'productos': productos,
+        'categorias': categorias,
+        'today': today,
+        'form': form
+    })
 
 
 def productos_view(request, categoria_id=None):
@@ -118,39 +126,56 @@ def productos_view(request, categoria_id=None):
         'buscar': buscar,
     })
 
-
 # ---------------------- CARRITO ----------------------
-
 def agregarAlCarrito(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
     carrito = request.session.get("carrito", {})
     producto_id_str = str(producto.id)
 
-    # --- SESIÓN ---
+    # Buscar el lote más cercano a vencer
+    lote = Lote.objects.filter(
+        producto=producto,
+        cantidad__gt=0
+    ).order_by('fecha_caducidad').first()
+
+    # 🔍 DEBUG DETALLADO
+    print("=" * 50)
+    print(f"PRODUCTO: {producto.id} - {producto.nombProduc}")
+    print(f"LOTE ENCONTRADO: {lote}")
+    if lote:
+        print(f"  → codigo_lote: {lote.codigo_lote}")
+        print(f"  → cantidad: {lote.cantidad}")
+        print(f"  → producto_id del lote: {lote.producto_id}")
+    else:
+        print("  → ❌ NO SE ENCONTRÓ NINGÚN LOTE")
+        
+        # Ver qué lotes existen para este producto
+        todos_lotes = Lote.objects.filter(producto=producto)
+        print(f"  → Lotes totales para este producto: {todos_lotes.count()}")
+        for l in todos_lotes:
+            print(f"     - {l.codigo_lote}, cantidad: {l.cantidad}")
+    print("=" * 50)
+
+    lote_codigo = lote.codigo_lote if lote else None
+
     if producto_id_str in carrito:
         carrito[producto_id_str]["cantidad"] += 1
+        if not carrito[producto_id_str].get("lote"):
+            carrito[producto_id_str]["lote"] = lote_codigo
     else:
         carrito[producto_id_str] = {
             "cantidad": 1,
             "precio": float(producto.precio),
             "nombProduc": producto.nombProduc,
-            "imgProduc": producto.imgProduc.url
+            "imgProduc": producto.imgProduc.url,
+            "lote": lote_codigo
         }
 
     request.session["carrito"] = carrito
     request.session.modified = True
 
-    # --- BASE DE DATOS (si el usuario está logueado) ---
-    if request.user.is_authenticated:
-        item, creado = CarritoItem.objects.get_or_create(
-            usuario=request.user,
-            producto=producto
-        )
-        if not creado:
-            item.cantidad += 1
-        item.save()
-
     return redirect(f"{reverse('productos:producto')}?carrito=1")
+
 
 
 def eliminar(request, producto_id):
@@ -169,7 +194,6 @@ def eliminar(request, producto_id):
         CarritoItem.objects.filter(usuario=request.user, producto_id=producto_id).delete()
 
     return redirect("productos:producto")
-
 
 def restar_producto(request, producto_id):
     carrito = request.session.get('carrito', {})
@@ -199,7 +223,6 @@ def restar_producto(request, producto_id):
 
     return redirect(f"{reverse('productos:producto')}?carrito=1")
 
-
 def limpiar(request):
     # --- SESIÓN ---
     request.session['carrito'] = {}
@@ -211,9 +234,7 @@ def limpiar(request):
 
     return redirect("productos:producto")
 
-
 # ---------------------- CRUD PRODUCTOS ----------------------
-
 @admin_required
 def agregar_producto(request):
     form = ProductoForm(request.POST or None, request.FILES or None)
@@ -222,13 +243,15 @@ def agregar_producto(request):
     if request.method == 'POST':
         if form.is_valid():
             form.save()
+            messages.success(request, "Producto creado con éxito.")
             return redirect('productos:agregar_producto')
+        else:
+            messages.error(request, "Errores en el formulario. Revisa los campos.")
 
     return render(request, 'productos/list_produc.html', {
         'form': form,
         'productos': productos
     })
-
 
 @admin_required
 def editar_producto(request, id):
@@ -285,7 +308,6 @@ def productos_por_categoria(request, categoria_id):
         'categoria_actual': categoria,
     })
 
-
 # ---------------------- INVENTARIO / EXPORTAR ----------------------
 
 @admin_required
@@ -311,7 +333,6 @@ def exportar_inventario_excel(request):
     wb.save(response)
     return response
 
-
 @admin_required
 def activar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
@@ -319,14 +340,12 @@ def activar_producto(request, id):
     producto.save()
     return redirect('productos:listProduc')
 
-
 @admin_required
 def inactivar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
     producto.estado = False
     producto.save()
     return redirect('productos:listProduc')
-
 
 # ---------------------- CALIFICACIONES ----------------------
 def guardar_calificacion(request):
@@ -363,8 +382,6 @@ def guardar_calificacion(request):
 
     return HttpResponse("❌ Método no permitido", status=405)
 
-
-
 # ---------------------- CARGAR CARRITO USUARIO ----------------------
 
 def cargar_carrito_usuario(request, usuario):
@@ -380,7 +397,6 @@ def cargar_carrito_usuario(request, usuario):
 
     request.session["carrito"] = carrito
     request.session.modified = True
-
 
 # ---------------------- CRUD CATEGORÍAS ----------------------
 
@@ -422,13 +438,11 @@ def listar_categorias(request):
         'form': form
     })
 
-
 @admin_required
 def eliminar_categoria(request, id):
     categoria = get_object_or_404(Category, id=id)
     categoria.delete()
     return redirect('productos:listar_categorias')
-
 
 # ---------------------- HOME ----------------------
 
@@ -444,7 +458,6 @@ def homeSoft(request):
 @login_required
 def devoluciones(request):
     """Vista para que el cliente solicite devoluciones por unidad"""
-
     hace_30_dias = timezone.now() - timedelta(days=30)
     pedidos = Pedido.objects.filter(
         usuario=request.user,
@@ -452,7 +465,7 @@ def devoluciones(request):
         fecha_creacion__gte=hace_30_dias
     ).prefetch_related('items__producto').order_by('-fecha_creacion')
 
-    # Devoluciones pendientes
+    # Devoluciones pendientes (tupla: producto_id, pedido_id, unidad)
     devoluciones_existentes = Devolucion.objects.filter(
         usuario=request.user,
         estado='Pendiente'
@@ -466,19 +479,35 @@ def devoluciones(request):
         items = pedido.items.all()
         unidades_disponibles = 0
         for item in items:
-            for unidad_index in range(item.cantidad):
+            cantidad = getattr(item, 'cantidad', 1) or 1
+            for unidad_index in range(cantidad):
                 unidad_num = unidad_index + 1
-                if (item.producto.id, pedido.id, unidad_num) in devoluciones_existentes:
+                key = (getattr(item.producto, 'id', None), pedido.id, unidad_num)
+                if key in devoluciones_existentes:
                     continue
                 unidades_disponibles += 1
+
+                # Normalizar lote a string para JSON (soporta CharField o FK a Lote)
+                lote_val = getattr(item, 'lote', None)
+                if lote_val is None:
+                    lote_str = ''
+                elif isinstance(lote_val, str):
+                    lote_str = lote_val
+                else:
+                    lote_str = getattr(lote_val, 'codigo_lote', None) or getattr(lote_val, 'codigo', None) or str(lote_val)
+
                 productos_devolubles.append({
                     'pedido_id': pedido.id,
-                    'producto_id': item.producto.id,
-                    'producto_nombre': item.producto.nombProduc,
+                    'producto_id': getattr(item.producto, 'id', None),
+                    'producto_nombre': getattr(item.producto, 'nombProduc', str(item.producto)),
                     'unidad': unidad_num,
-                    'precio': float(item.precio_unitario),
-                    'fecha_pedido': pedido.fecha_creacion.strftime('%d/%m/%Y')
+                    'precio': float(getattr(item, 'precio_unitario', 0) or 0),
+                    'item_id': item.id,
+                    'lote': lote_str,
+                    'codigo_lote': lote_str,
+                    'fecha_pedido': pedido.fecha_creacion.strftime('%d/%m/%Y') if getattr(pedido, 'fecha_creacion', None) else ''
                 })
+
         if unidades_disponibles > 0:
             pedidos_agrupados[pedido.id] = {
                 'pedido_id': pedido.id,
@@ -486,7 +515,7 @@ def devoluciones(request):
                 'cantidad_productos': unidades_disponibles
             }
 
-    # ===================== POST =====================
+    # POST: crear devolución (mantengo tu lógica)
     if request.method == 'POST':
         pedido_id = int(request.POST.get('pedido_id'))
         motivo = request.POST.get('motivo')
@@ -504,7 +533,6 @@ def devoluciones(request):
         try:
             producto = Producto.objects.get(id=producto_id)
             pedido = Pedido.objects.get(id=pedido_id, usuario=request.user, estado='entregado')
-
             pedido_item = pedido.items.filter(producto=producto).first()
 
             if not pedido_item:
@@ -512,7 +540,7 @@ def devoluciones(request):
                     return JsonResponse({"success": False, "mensaje": "No se encontró el producto en el pedido"})
                 messages.error(request, "No se encontró el producto en el pedido")
                 return redirect('productos:devoluciones')
-            
+
             devolucion_existente = Devolucion.objects.filter(
                 usuario=request.user,
                 producto=producto,
@@ -532,12 +560,13 @@ def devoluciones(request):
                 producto=producto,
                 pedido=pedido,
                 item=pedido_item,
+                lote=pedido_item.lote,
                 motivo=motivo,
                 estado='Pendiente',
                 unidad=unidad,
                 seleccionada=True
             )
-            
+
             if foto1:
                 devolucion.foto1 = foto1
             if foto2:
@@ -565,7 +594,8 @@ def devoluciones(request):
             messages.error(request, f"Error al crear la devolución: {str(e)}")
             return redirect('productos:devoluciones')
 
-    productos_json = json.dumps(productos_devolubles)
+    # Serializar JSON con fallback para tipos no serializables
+    productos_json = json.dumps(productos_devolubles, default=str, ensure_ascii=False)
     mis_devoluciones = Devolucion.objects.filter(
         usuario=request.user
     ).select_related('producto', 'pedido').order_by('-fecha_solicitud')
@@ -619,8 +649,39 @@ def chatbot_ajax(request):
 
     return JsonResponse({"error": "Método no permitido"}, status=405)
 
-
-
 def detalle_producto(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     return render(request, "productos/detalle.html", {"producto": producto})
+
+def agregar_lote(request):
+    if request.method == "POST":
+        producto_id = request.POST.get("producto_id")
+        codigo_lote = request.POST.get("codigo_lote")
+        fecha_caducidad = request.POST.get("fecha_caducidad")
+        cantidad = request.POST.get("cantidad")
+
+        producto = get_object_or_404(Producto, pk=producto_id)
+
+        Lote.objects.create(
+            producto=producto,
+            codigo_lote=codigo_lote,
+            fecha_caducidad=fecha_caducidad,
+            cantidad=cantidad
+        )
+
+        return redirect("productos:list_product")  
+
+    return redirect("productos:list_product")
+
+def lote_activo(request, producto_id):
+    product = get_object_or_404(Producto, id=producto_id)
+
+    # Obtener el lote más próximo a vencer (sin vencer)
+    lote_act = product.lotes.filter(
+        fecha_caducidad__gte=timezone.now().date()
+    ).order_by('fecha_caducidad').first()
+
+    return render(request, 'productos/detalle.html', {
+        'product': product,
+        'lote_activo': lote_act,   # <--- nombre correcto para el template
+    })

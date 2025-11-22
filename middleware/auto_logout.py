@@ -21,7 +21,7 @@ class AutoLogoutMiddleware:
         now = timezone.now()
         last_activity = request.session.get("last_activity")
 
-        max_inactive = 60  # 60 segundos
+        max_inactive = 259200  # 60 segundos
 
         if last_activity:
             last_activity = timezone.datetime.fromisoformat(last_activity)

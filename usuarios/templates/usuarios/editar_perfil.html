@@ -6,11 +6,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Editar Perfil</title>
-  <link rel="stylesheet" href="{% static 'usuarios/css/panel-contacto-dashboard.css' %}">
+  <link rel="stylesheet" href="{% static 'usuarios/css/editar_perfil.css' %}">
 
 </head>
-<body data-page="editar-perfil"></body>
+
 <body class="body-editar">
+
   <div class="volver-editar">
     <a href="javascript:history.back()">← Volver</a>
   </div>
@@ -18,27 +19,30 @@
   <div class="card-editar">
     <h1>Mi Perfil</h1>
     <p class="subtitle-editar">Actualiza tu información personal</p>
+    
+
 
     <!-- Mensaje de éxito/error (mostrar según sea necesario) -->
     <!-- <div class="mensaje exito">✓ Perfil actualizado correctamente</div> -->
     <!-- <div class="mensaje error">✗ Hubo un error al actualizar tu perfil</div> -->
 
     <form method="post" id="profileForm">
-      <!-- {% csrf_token %} -->
+      {% csrf_token %}
 
       <div class="form-group-editar">
         <label>Nombre <span class="required-editar">*</span></label>
-        <input type="text" name="first_name" value="" placeholder="Ingresa tu nombre" required>
+        <input type="text" name="nombre" value="{{ user.nombre }}" placeholder="Ingresa tu nombre" required>
       </div>
 
       <div class="form-group-editar">
         <label>Correo Electrónico <span class="required-editar">*</span></label>
-        <input type="email" name="email" value="" placeholder="correo@ejemplo.com" required>
+        <input type="email" name="email" value="{{ user.email }}" placeholder="correo@ejemplo.com" required>
       </div>
 
       <div class="form-group-editar">
         <label>Teléfono</label>
-        <input type="tel" name="phone" value="" placeholder="+57 123 456 7890" pattern="[0-9+\s\-()]*">
+        <input type="tel" name="phone_number" value="{{ user.phone_number }}" placeholder="+57 123 456 7890"
+          pattern="[0-9+\s\-()]*" maxlength="10">
       </div>
 
       <button type="submit" class="btn-guardar-editar">Actualizar Perfil</button>
@@ -47,10 +51,32 @@
         <p><strong>Nota:</strong> Los campos marcados con <span class="required">*</span> son obligatorios.</p>
       </div>
     </form>
-  </div>
-  
-<script src="{% static 'usuarios/js/main.js' %}"></script>
 
+  </div>
+  <!-- ALERTA PERSONALIZADA -->
+<div id="custom-alert" class="alert-overlay" style="display: none;">
+    <div class="alert-box">
+        <h2 id="alert-title">Mensaje</h2>
+        <p id="alert-message">Texto del mensaje.</p>
+
+        <div class="alert-buttons">
+            <button id="btn-cancelar" class="cancel-btn">Cancelar</button>
+            <button id="btn-aceptar" class="ok-btn">Aceptar</button>
+        </div>
+    </div>
+</div>
+
+  
+  <script src="{% static 'usuarios/js/editar_perfil.js' %}"></script>
+  {% if messages %}
+      {% for msg in messages %}
+        <script>
+          document.addEventListener("DOMContentLoaded", function () {
+              mostrarAlerta("Notificación", "{{ msg }}");
+          });
+        </script>
+      {% endfor %}
+    {% endif %}
 </body>
 
 </html>

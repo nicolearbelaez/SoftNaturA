@@ -74,21 +74,27 @@
           </td>
           <td>{{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</td>
           <td>
-            <button class="btn-estado pendiente" onclick="cambiarEstado('{{ pedido.id }}', 'pendiente')"
-              title="Marcar como pendiente">
-              <i class="fa fa-clock"></i>
-            </button>
-            <button class="btn-estado enviado" onclick="cambiarEstado('{{ pedido.id }}', 'enviado')"
-              title="Marcar como enviado">
-              <i class="fa fa-truck"></i>
-            </button>
-            <button class="btn-estado entregado" onclick="cambiarEstado('{{ pedido.id }}', 'entregado')"
-              title="Marcar como entregado">
-              <i class="fa fa-check"></i>
-            </button>
+            <!-- Solo mostrar estos 3 botones SI NO está entregado -->
+            {% if pedido.estado|lower != 'entregado' %}
+              <button class="btn-estado pendiente" onclick="cambiarEstado('{{ pedido.id }}', 'pendiente')"
+                title="Marcar como pendiente">
+                <i class="fa fa-clock"></i>
+              </button>
+              <button class="btn-estado enviado" onclick="cambiarEstado('{{ pedido.id }}', 'enviado')"
+                title="Marcar como enviado">
+                <i class="fa fa-truck"></i>
+              </button>
+              <button class="btn-estado entregado" onclick="cambiarEstado('{{ pedido.id }}', 'entregado')"
+                title="Marcar como entregado">
+                <i class="fa fa-check"></i>
+              </button>
+            {% endif %}
+            
+            <!-- El botón VER siempre se muestra -->
             <button class="btn-estado detalle" onclick="verDetalle('{{ pedido.id }}')" title="Ver detalles">
               <i class="fa fa-eye"></i> Ver
             </button>
+          </td>
           </td>
         </tr>
         {% empty %}

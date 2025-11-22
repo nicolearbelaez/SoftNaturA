@@ -16,11 +16,10 @@ from django.conf import settings
 from usuarios.models import Pedido, PedidoItem
 from django.db import transaction
 from .models import Transaccion
-from productos.models import Producto
+from productos.models import Producto, Lote
 
 
 def checkout(request):
-    """Vista del checkout con botón Bold y cálculo de envío"""
     carrito = request.session.get("carrito", {})
     
     if not carrito:
@@ -45,95 +44,59 @@ def checkout(request):
             'subtotal': precio_producto
         })
 
-    # CARGAR DIRECCIÓN Y CALCULAR ENVÍO
+    # Dirección + envío
     direccion_guardada = None
     costo_envio = 0
-    modo_edicion = False
-    
+
     if request.user.is_authenticated:
         try:
             direccion_guardada = Direccion.objects.get(usuario=request.user, es_principal=True)
-            modo_edicion = request.GET.get('editar', 'false') == 'true'
-            
+
             ciudad = direccion_guardada.ciudad.lower().strip()
-            
-            # Ibagué: $8,000
+
             if 'ibague' in ciudad or 'ibagué' in ciudad:
                 costo_envio = 8000
-            
-            # Tolima Regional: $12,000
-            elif any(c in ciudad for c in ['espinal', 'melgar', 'honda', 'mariquita', 
-                                           'chaparral', 'líbano', 'libano', 'flandes', 
-                                           'guamo', 'saldaña', 'saldana', 'purificacion',
-                                           'purificación', 'cajamarca', 'armero', 'venadillo']):
-                costo_envio = 12000
-            
-            # Otras ciudades: no se hace envío
-            else:
-                costo_envio = 0
+            # Todos los demás municipios del Tolima - $12,000
+            elif any(municipio in ciudad for municipio in [
+                # Zona norte
+                'honda', 'mariquita', 'armero', 'guayabal', 'casabianca', 'palocabildo', 
+                'fresno', 'falan', 'herveo', 'lerida', 'lérida', 'ambalema', 'venadillo',
                 
+                # Zona sur
+                'espinal', 'guamo', 'saldaña', 'saldana', 'purificacion', 'purificación', 
+                'suarez', 'suárez', 'carmen de apicala', 'apicala', 'melgar', 'icononzo', 
+                'cunday', 'villarrica', 'prado', 'dolores', 'alpujarra', 'ataco',
+                
+                # Zona occidente
+                'chaparral', 'rioblanco', 'roncesvalles', 'ortega', 'coyaima', 
+                'natagaima', 'san antonio',
+                
+                # Zona centro
+                'cajamarca', 'rovira', 'valle de san juan', 'san juan', 'coello', 
+                'flandes', 'alvarado', 'piedras', 'anzoategui', 'anzoátegui', 'santa isabel',
+                
+                # Zona oriente  
+                'libano', 'líbano', 'murillo', 'villahermosa', 'planadas', 'san luis'
+            ]):
+                costo_envio = 12000
+
         except Direccion.DoesNotExist:
             pass
 
-    # Calcular IVA y total
+    # Calcular totales
     iva = subtotal * 0.19
     total_sin_envio = subtotal + iva
     total_final = total_sin_envio + costo_envio
 
-    pedido = None
-    order_id = None
+    # Generar order_id SOLO para Bold
+    timestamp = int(time.time())
+    order_id = f"ORD-{timestamp}"
 
-    if request.user.is_authenticated:
-        with transaction.atomic():
-            timestamp = int(time.time())
-            order_id = f"ORD-{timestamp}"
-
-            # Crear el pedido
-            pedido = Pedido.objects.create(
-                usuario=request.user,
-                order_id=order_id,
-                total=total_final,
-                estado="pendiente",
-                pago=True
-            )
-
-            print(f"✅ Pedido creado: #{pedido.id} - Total: ${total_final}")
-
-            # Crear los items del pedido
-            for producto_id, item in carrito.items():
-                try:
-                    producto_obj = Producto.objects.get(id=int(producto_id))
-                    PedidoItem.objects.create(
-                        pedido=pedido,
-                        producto=producto_obj,
-                        cantidad=int(item.get('cantidad', 0)),
-                        precio_unitario=float(item.get('precio', 0))
-                    )
-                    print(f"🧾 Item agregado: {producto_obj.nombProduc} x{item.get('cantidad')}")
-                except Producto.DoesNotExist:
-                    print(f"❌ Producto {producto_id} no encontrado")
-                    continue
-
-            # Crear transacción
-            Transaccion.objects.create(
-                order_id=order_id,
-                usuario=request.user,
-                pedido=pedido,
-                monto=total_final,
-                estado='pendiente'
-            )
-
-    else:
-        timestamp = int(time.time())
-        order_id = f"ORD-{timestamp}"
-
-    # Hash de integridad para Bold
     amount = int(total_final)
     currency = "COP"
     cadena = f"{order_id}{amount}{currency}{settings.BOLD_SECRET_KEY}"
     integrity_hash = hashlib.sha256(cadena.encode()).hexdigest()
 
-    # URL de redirección
     redirection_url = request.build_absolute_uri('/pagos/respuesta/')
 
     context = {
@@ -150,72 +113,130 @@ def checkout(request):
         'redirection_url': redirection_url,
         'bold_api_key': settings.BOLD_API_KEY,
         'direccion_guardada': direccion_guardada,
-        'modo_edicion': modo_edicion,
     }
+    
 
     return render(request, 'pagos/checkout.html', context)
 
-
 def payment_response(request):
-    """Recibe respuesta de Bold y actualiza el pedido"""
     order_id = request.GET.get('bold-order-id')
     tx_status = request.GET.get('bold-tx-status')
-    
+
     if not order_id:
         return redirect('productos:producto')
-    
-    productos_ids = []  # ✅ Lista para guardar los IDs de productos
-    
-    try:
-        transaccion = Transaccion.objects.get(order_id=order_id)
-        
-        if tx_status == 'approved':
-            transaccion.estado = 'approved'
 
-            if transaccion.pedido:
-                pedido = transaccion.pedido
-                pedido.estado = 'pagado'
-                pedido.pago = True
-                pedido.save()
+    carrito = request.session.get("carrito", {})
+    productos_ids = []
 
-                # 🔻 Restar stock de productos comprados
-                for item in PedidoItem.objects.filter(pedido=pedido):
-                    producto = item.producto
-                    productos_ids.append(producto.id)  # ✅ Guardar ID del producto
-                    producto.stock -= item.cantidad
-                    if producto.stock < 0:
-                        producto.stock = 0
-                    producto.save()
-                    print(f"🟢 Stock actualizado: {producto.nombProduc} → {producto.stock}")
+       # 🔍 DEBUG: Ver qué hay en el carrito
+    print("=" * 50)
+    print("CONTENIDO DEL CARRITO:")
+    for producto_id, item in carrito.items():
+        print(f"  Producto ID: {producto_id}")
+        print(f"  Item completo: {item}")
+        print(f"  Lote en carrito: {item.get('lote')}")
+    print("=" * 50)
 
-            # Vaciar carrito
-            request.session['carrito'] = {}
-            request.session.modified = True
+    if tx_status == 'approved':
+        subtotal = sum(float(item['precio']) * int(item['cantidad']) for item in carrito.values())
+        iva = subtotal * 0.19
+        costo_envio = 0
 
-        elif tx_status == 'rejected':
-            transaccion.estado = 'rejected'
-            if transaccion.pedido:
-                transaccion.pedido.pago = False
-                transaccion.pedido.save()
+        try:
+            direccion = Direccion.objects.get(usuario=request.user, es_principal=True)
+            ciudad = direccion.ciudad.lower().strip()
 
-        else:
-            transaccion.estado = 'pending'
-        
-        transaccion.save()
-        
-    except Transaccion.DoesNotExist:
-        print("⚠️ Transacción no encontrada:", order_id)
-    
-    # ✅ Pasar el primer producto para calificar (o todos si prefieres)
+            if 'ibague' in ciudad or 'ibagué' in ciudad:
+                costo_envio = 8000
+            # Todos los demás municipios del Tolima - $12,000
+            elif any(municipio in ciudad for municipio in [
+                # Zona norte
+                'honda', 'mariquita', 'armero', 'guayabal', 'casabianca', 'palocabildo', 
+                'fresno', 'falan', 'herveo', 'lerida', 'lérida', 'ambalema', 'venadillo',
+                
+                # Zona sur
+                'espinal', 'guamo', 'saldaña', 'saldana', 'purificacion', 'purificación', 
+                'suarez', 'suárez', 'carmen de apicala', 'apicala', 'melgar', 'icononzo', 
+                'cunday', 'villarrica', 'prado', 'dolores', 'alpujarra', 'ataco',
+                
+                # Zona occidente
+                'chaparral', 'rioblanco', 'roncesvalles', 'ortega', 'coyaima', 
+                'natagaima', 'san antonio',
+                
+                # Zona centro
+                'cajamarca', 'rovira', 'valle de san juan', 'san juan', 'coello', 
+                'flandes', 'alvarado', 'piedras', 'anzoategui', 'anzoátegui', 'santa isabel',
+                
+                # Zona oriente  
+                'libano', 'líbano', 'murillo', 'villahermosa', 'planadas', 'san luis'
+            ]):
+                costo_envio = 12000
+        except Direccion.DoesNotExist:
+            pass
+
+        total_final = subtotal + iva + costo_envio
+
+        pedido = Pedido.objects.create(
+            usuario=request.user,
+            order_id=order_id,
+            total=total_final,
+            estado='Pendiente',
+            pago=True
+        )
+
+        for producto_id, item in carrito.items():
+            producto = Producto.objects.get(id=int(producto_id))
+            cantidad = int(item['cantidad'])
+            precio_unitario = float(item['precio'])
+
+            lote_codigo = item.get('lote')  # viene como texto "A3360725"
+
+            lote_obj = None
+            if lote_codigo:
+                try:
+                    lote_obj = Lote.objects.get(codigo_lote=lote_codigo, producto=producto)
+                except Lote.DoesNotExist:
+                    lote_obj = None
+
+            # Crear el item usando el OBJETO, no el string
+            PedidoItem.objects.create(
+                pedido=pedido,
+                producto=producto,
+                cantidad=cantidad,
+                precio_unitario=precio_unitario,
+                lote=lote_obj,
+                codigo_lote=lote_obj.codigo_lote if lote_obj else None  # ← aquí va el objeto o None
+            )
+
+            # Si existe el lote, descuenta del lote UNA VEZ
+            if lote_obj:
+                lote_obj.cantidad -= cantidad
+                if lote_obj.cantidad < 0:
+                    lote_obj.cantidad = 0
+                lote_obj.save()
+
+
+
+        Transaccion.objects.create(
+            order_id=order_id,
+            usuario=request.user,
+            pedido=pedido,
+            monto=total_final,
+            estado='approved'
+        )
+
+        request.session['carrito'] = {}
+        request.session.modified = True
+
     context = {
         'order_id': order_id,
         'tx_status': tx_status,
-        'producto_id': productos_ids[0] if productos_ids else None,  # ✅ Primer producto
-        'productos_ids': productos_ids,  # ✅ Todos los productos (opcional)
+        'producto_id': productos_ids[0] if productos_ids else None,
+        'productos_ids': productos_ids,
     }
-    
-    return render(request, 'pagos/payment_response.html', context)
- 
+
+    return render(request, 'pagos/payment_response.html', context) 
+
 
 
 def webhook_bold(request):

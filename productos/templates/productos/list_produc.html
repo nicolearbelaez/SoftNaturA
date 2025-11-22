@@ -1,26 +1,26 @@
 {% extends 'usuarios/baseU.html' %}
 {% load static %}
-{% csrf_token %}
 {% load humanize %}
+
 {% block title %}Lista de Productos{% endblock %}
 
 {% block styles %}
+
 <link rel="stylesheet" href="{% static 'productos/css/list_produc.css' %}" />
 {% endblock %}
 
 {% block content %}
+
 <div class="container">
     <h1 style="text-align: center;">Gestión de Productos</h1>
 
-
-    <!-- Buscador de Productos -->
+    
+    <!-- Buscador y Acciones -->
     <div class="search-container">
         <div class="acciones-superior">
             <button class="btn-agregar" onclick="abrirModal('modalAgregarProducto')">Agregar Producto</button>
             <button class="btn-categorias" onclick="toggleCategorias()">Ver Categorías</button>
-            <a href="{% url 'productos:exportar_excel' %}" class="btn-exportar">
-                Exportar a Excel</a>
-
+            <a href="{% url 'productos:exportar_excel' %}" class="btn-exportar">Exportar a Excel</a>
         </div>
         <input type="text" class="search-input" id="searchInput"
             placeholder="Buscar por nombre, precio, descripción o stock...">
@@ -29,7 +29,7 @@
 
     <!-- Lista de Categorías -->
     <div id="categoryList" class="category-list">
-        <h2>Lista de categorias</h2>
+        <h2>Lista de categorías</h2>
         {% for categoria in categorias %}
         <div class="category-item">
             <span>{{ categoria.nombCategory }}</span>
@@ -47,8 +47,6 @@
         {% empty %}
         <p style="text-align:center;">No hay categorías registradas.</p>
         {% endfor %}
-
-        <!-- Botón agregar categoría -->
         <div style="text-align:center; margin-top: 15px;">
             <button class="btn-agregar-category" onclick="abrirModal('modalAgregarCategoria')">
                 + Agregar Categoría
@@ -63,7 +61,6 @@
             <form method="POST" action="{% url 'productos:agregar_categoria' %}">
                 {% csrf_token %}
                 <input type="text" name="nombCategory" placeholder="Nombre de la Categoría" required>
-
                 <div class="acciones">
                     <button type="submit" class="btn-guardar">Guardar</button>
                     <button type="button" class="btn-cancelar"
@@ -73,49 +70,29 @@
         </div>
     </div>
 
-    <!-- Modal Editar Categoría -->
-    <div id="modalEditar" class="modal">
-        <div class="modal-content">
-            <h2>Editar Categoría</h2>
-            <form method="POST" id="editarForm">
-                {% csrf_token %}
-                <label>Nombre:</label>
-                <input type="text" id="editNombre" name="nombre" required>
-
-                <div class="acciones">
-                    <button type="submit" class="btn-guardar">Guardar</button>
-                    <button type="button" class="btn-cancelar" onclick="cerrarModal('modalEditar')">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- Modal Agregar Producto -->
     <div id="modalAgregarProducto" class="modalProduc" style="display:none;">
         <div class="modal-content-produc">
             <h2>Agregar Producto</h2>
-            <form method="POST" enctype="multipart/form-data" action="{% url 'productos:agregar_producto' %}">
+            <form id="formProducto" method="POST" enctype="multipart/form-data"
+                action="{% url 'productos:agregar_producto' %}">
                 {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="form-errors">{{ form.errors }}</div>
 
-                <label for="nombreProduc">Nombre del producto</label>
+                <label for="id_nombProduc">Nombre del producto</label>
                 {{ form.nombProduc }}
 
-                <label for="descripcion">Descripción</label>
+                <label for="id_descripcion">Descripción</label>
                 {{ form.descripcion }}
 
-                <label for="precio">Precio</label>
-                {{ form.precio|intcomma|default:"0" }}
+                <label for="id_precio">Precio</label>
+                {{ form.precio }}
 
-                <label for="categoriaProduc">Categoría</label>
+                <label for="id_Categoria">Categoría</label>
                 {{ form.Categoria }}
 
-                <label for="stock">Cantidad en stock</label>
-                {{ form.stock }}
-
-                <label for="fecha_caducidad">Fecha de caducidad</label>
-                {{ form.fecha_caducidad }}
-
-                <label for="imgProduc">Imagen</label>
+                <label for="id_imgProduc">Imagen</label>
                 {{ form.imgProduc }}
 
                 <div class="acciones">
@@ -126,14 +103,15 @@
             </form>
         </div>
     </div>
-    <h1 style="text-align: center;">Lista de Productos</h1>
 
+    <!-- Grid de Productos -->
+    <h1 style="text-align: center;">Lista de Productos</h1>
     <div id="productosGrid" class="product-grid">
         {% for product in productos %}
         <div class="product-card"
-            data-search-text="{{ product.nombProduc|lower }} {{ product.precio }} {{ product.descripcion|lower }} {{ product.stock }} {% if product.fecha_caducidad %}{{ product.fecha_caducidad }}{% endif %} {% if product.esta_vencido %}vencido{% else %}vigente{% endif %} {% if product.stock == 0 %}agotado{% endif %}">
+            data-search-text="{{ product.nombProduc|lower }} {{ product.precio }} {{ product.descripcion|lower }} {{ product.stock_total }}">
 
-            <!-- Header con imagen y estado -->
+            <!-- Header -->
             <div class="card-header">
                 {% if product.imgProduc %}
                 <img src="{{ product.imgProduc.url }}" alt="{{ product.nombProduc }}">
@@ -143,11 +121,15 @@
 
                 {% if product.esta_vencido %}
                 <span class="estado" style="background:#e74c3c;">Vencido</span>
-                {% elif product.stock == 0 %}
-                <span class="estado" style="background:#f39c12;">Agotado</span>
-                {% else %}
-                <span class="estado">En Stock</span>
-                {% endif %}
+                {% elif product.stock_total == 0 %}
+                <span class="estado" style="background:#f39c12;">Sin stock</span>
+                {% elif product.stock_total <= 5 %} <span class="estado" style="background:#d35400;">Pocas
+                    unidades</span>
+                    {% else %}
+                    <span class="estado">En stock</span>
+                    {% endif %}
+
+                    <p style="font-weight:bold; margin-top:5px;">Stock total: {{ product.stock_total }} unidades</p>
             </div>
 
             <!-- Body -->
@@ -155,14 +137,46 @@
                 <h3>{{ product.nombProduc }}</h3>
                 <p>{{ product.descripcion }}</p>
 
-                {% if product.fecha_caducidad %}
-                <p class="fecha">Vigente hasta {{ product.fecha_caducidad }}</p>
+                <!-- FECHA DE CADUCIDAD (LOTE MÁS PRÓXIMO) -->
+                {% if product.vencimiento_cercano %}
+                <p><strong>Vence:</strong> {{ product.vencimiento_cercano|date:"j \\d\\e F \\d\\e Y" }}</p>
                 {% else %}
-                <p class="fecha">Sin fecha</p>
+                <p>Sin fecha</p>
                 {% endif %}
 
-                <p class="precio">${{ product.precio|intcomma|default:"0" }}</p>
-                <p class="stock">{{ product.stock }} unid.</p>
+                <!-- LISTA DE LOTES -->
+                {% if product.lotes.all %}
+                {% for lote in product.lotes.all %}
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px; flex-wrap: wrap;">
+                    <strong>Lote:</strong>
+                    {% if product.lote_activo and lote.id == product.lote_activo.id %}
+                    <span style="color: #27ae60; font-weight: bold;">
+                        {{ lote.codigo_lote }}
+                    </span>
+                    {% if lote.cantidad < 5 %} <span
+                        style="background-color: #e74c3c; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">
+                        {{ lote.cantidad }} unid.
+                        </span>
+                        {% else %}
+                        <span
+                            style="background-color: #27ae60; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">
+                            {{ lote.cantidad }} unid.
+                        </span>
+                        {% endif %}
+                        <span style="font-size: 11px; color: #27ae60; font-weight: bold;">● Vendiendo</span>
+                        {% else %}
+                        <span>{{ lote.codigo_lote }}</span>
+                        <span
+                            style="background-color: #95a5a6; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px;">
+                            {{ lote.cantidad }} unid.
+                        </span>
+                        {% endif %}
+                </div>
+                {% endfor %}
+                {% else %}
+                <p>No hay lotes registrados.</p>
+                {% endif %}
+
             </div>
 
             <!-- Acciones -->
@@ -170,6 +184,11 @@
                 <a href="{% url 'productos:editar_producto' product.id %}" class="btn-edit">
                     <i class="fa fa-edit"></i> Editar
                 </a>
+
+                <button class="btn-lote" onclick="abrirModalLote('{{ product.id }}')">
+                    <i class="fa fa-plus-circle"></i> Lote
+                </button>
+
                 {% if product.estado %}
                 <a href="{% url 'productos:inactivar_producto' product.id %}" class="btn-more">
                     <i class="fa fa-user-slash"></i> Inactivar
@@ -185,11 +204,43 @@
         <p style="text-align:center;">No hay productos registrados.</p>
         {% endfor %}
     </div>
+    
+
 </div>
 
+<!-- Modal Agregar Lote -->
+
+<div id="modalAgregarLote" class="modalProduc" style="display:none;">
+    <div class="modal-content-produc">
+        <h2>Agregar Lote</h2>
+        <form id="formLote" method="POST" action="{% url 'productos:agregar_lote' %}">
+            {% csrf_token %}
+            <input type="hidden" name="producto_id" id="productoIdLote">
+
+            ```
+            <label>Código de lote</label>
+            <input type="text" name="codigo_lote" required>
+
+            <label>Fecha de caducidad</label>
+            <input type="date" name="fecha_caducidad" required>
+
+            <label>Cantidad</label>
+            <input type="number" name="cantidad" min="1" required>
+
+            <div class="acciones">
+                <button type="submit" class="btn-guardar-produc">Guardar</button>
+                <button type="button" class="btn-cancelar-produc"
+                    onclick="cerrarModal('modalAgregarLote')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+    ```
+
+</div>
 {% endblock %}
 
-
 {% block scripts %}
+
 <script src="{% static 'productos/js/list_produc.js' %}"></script>
+
 {% endblock %}

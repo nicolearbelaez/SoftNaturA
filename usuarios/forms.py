@@ -37,9 +37,23 @@ class EditarPerfilForm(forms.ModelForm):
         model = Usuario
         fields = ['nombre', 'email', 'phone_number']
         widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'nombre': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ingresa tu nombre'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'correo@ejemplo.com'
+            }),
+            'phone_number': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '+57 123 456 7890'
+            }),
+        }
+        labels = {
+            'nombre': 'Nombre',
+            'email': 'Correo Electrónico',
+            'phone_number': 'Teléfono'
         }
 
 class MensajeForm(forms.ModelForm):

@@ -93,31 +93,3 @@ if (document.body.dataset.page === "register") {
   }
 
 }
-
-
-if (document.body.dataset.page === "editar-perfil") {
-    // Simulación de manejo del formulario (en producción esto lo manejaría Django)
-    document.getElementById('profileForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-
-      const formData = new FormData(this);
-      const nombre = formData.get('first_name');
-      const email = formData.get('email');
-
-      if (nombre && email) {
-        alert('Perfil actualizado correctamente\n\nNombre: ' + nombre + '\nEmail: ' + email);
-      }
-    });
-}
-
-document.querySelectorAll(".dropdown-btn").forEach(btn => {
-    btn.addEventListener("click", function() {
-        this.classList.toggle("active");
-        const container = this.nextElementSibling;
-        if (container.style.display === "flex") {
-            container.style.display = "none";
-        } else {
-            container.style.display = "flex";
-        }
-    });
-});

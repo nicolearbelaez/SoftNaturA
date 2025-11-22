@@ -74,6 +74,7 @@ if (page) {
                 <h4><i class="fa fa-box"></i> Información del Producto</h4>
                 <div class="detalle-info">
                     <p><strong>Producto:</strong> ${d.producto_nombre}</p>
+                    <p><strong>Lote:</strong> ${d.lote}</p>
                     <p><strong>Pedido:</strong> #${d.pedido_id}</p>
                     <p><strong>Fecha de solicitud:</strong> ${d.fecha}</p>
                 </div>

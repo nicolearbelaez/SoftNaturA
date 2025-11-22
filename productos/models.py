@@ -12,23 +12,67 @@ class Category(models.Model):
     class Meta:
         verbose_name_plural = 'Categoria'
 
+from django.db import models
+from datetime import date, timedelta
+from cloudinary.models import CloudinaryField
+
+
 class Producto(models.Model):
     nombProduc = models.CharField(max_length=130)
     descripcion = models.CharField(max_length=300)
-    Categoria = models.ForeignKey(Category, on_delete=models.CASCADE, default=1)
+    Categoria = models.ForeignKey('Category', on_delete=models.CASCADE, default=1)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     imgProduc = CloudinaryField('image')
-    stock = models.IntegerField(default=0)  # ✅ Nuevo campo
     estado = models.BooleanField(default=True)  # True = Activo, False = Inactivo
-    fecha_caducidad = models.DateField(null=True, blank=True)  # ⬅️ Campo de fecha de vencimiento
-    vendidos= models.IntegerField(default=0)
+    vendidos = models.IntegerField(default=0)
 
-    def esta_vencido(self):
-        if self.fecha_caducidad:
-            return date.today() > self.fecha_caducidad
-        return False
     def __str__(self):
         return self.nombProduc
+
+    # --------------------------
+    #   CÁLCULO DE STOCK REAL
+    # --------------------------
+    @property
+    def stock_total(self):
+        """Suma todas las cantidades de los lotes disponibles."""
+        return sum(lote.cantidad for lote in self.lotes.all())
+
+    # --------------------------
+    #   LOTE MÁS PRÓXIMO A VENCER
+    # --------------------------
+    @property
+    def vencimiento_cercano(self):
+        lote = self.lotes.order_by("fecha_caducidad").first()
+        return lote.fecha_caducidad if lote else None
+
+    # --------------------------
+    #   ESTADO: VENCIDO
+    # --------------------------
+    @property
+    def esta_vencido(self):
+        fecha = self.vencimiento_cercano
+        return fecha and date.today() > fecha
+
+    # --------------------------
+    #   ESTADO: POR VENCER (10 días)
+    # --------------------------
+    @property
+    def esta_por_vencerse(self):
+        fecha = self.vencimiento_cercano
+        if fecha:
+            hoy = date.today()
+            return hoy >= fecha - timedelta(days=10) and hoy < fecha
+        return False
+
+    
+class Lote(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="lotes")
+    codigo_lote = models.CharField(max_length=50)
+    fecha_caducidad = models.DateField()
+    cantidad = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.producto.nombProduc} - {self.codigo_lote}"
 
 
 class Servicio(models.Model):

@@ -78,9 +78,9 @@ WSGI_APPLICATION = 'Config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'softnaturA',
-        'USER': 'softnatur',
-        'PASSWORD': 'softnatur123',
+        'NAME': 'SoftnaturDB',
+        'USER': 'nicoladm',
+        'PASSWORD': 'vale123',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -160,7 +160,7 @@ BOLD_API_KEY = os.getenv("BOLD_API_KEY")
 BOLD_SECRET_KEY = os.getenv("BOLD_SECRET_KEY")
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://kamala-isotheral-charlyn.ngrok-free.dev'
+    'https://princeliest-paleozoulogic-hettie.ngrok-free.dev'
 ]
 
 
